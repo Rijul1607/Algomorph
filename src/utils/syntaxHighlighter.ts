@@ -3,8 +3,17 @@ import { ParsedCode } from './codeParser';
 
 // Simple syntax highlighter for demonstration
 export const highlightCode = (code: string, language: string): ParsedCode => {
-  const keywords = ['import', 'export', 'default', 'const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'class', 'extends', 'interface', 'type', 'from'];
-  const operators = ['=>', '=', '+', '-', '*', '/', '>', '<', '>=', '<=', '===', '!==', '&&', '||', '!', '{', '}', '(', ')', '[', ']', ';', ':', '.', ','];
+  // JavaScript & TypeScript keywords
+  const jsKeywords = ['import', 'export', 'default', 'const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'class', 'extends', 'interface', 'type', 'from', 'async', 'await', 'try', 'catch', 'finally', 'switch', 'case', 'break', 'continue', 'this', 'super', 'new', 'typeof', 'instanceof'];
+  
+  // Python keywords
+  const pyKeywords = ['def', 'class', 'import', 'from', 'return', 'if', 'elif', 'else', 'for', 'while', 'in', 'is', 'not', 'and', 'or', 'try', 'except', 'finally', 'with', 'as', 'lambda', 'None', 'True', 'False', 'pass', 'break', 'continue', 'global', 'nonlocal', 'assert', 'del', 'yield'];
+  
+  // Common operators
+  const operators = ['=>', '=', '+', '-', '*', '/', '>', '<', '>=', '<=', '===', '!==', '==', '!=', '&&', '||', '!', '{', '}', '(', ')', '[', ']', ';', ':', '.', ','];
+  
+  // Choose keywords based on language
+  const keywords = language === 'py' ? pyKeywords : jsKeywords;
 
   // Split the code into lines to preserve indentation
   const lines = code.split('\n');
@@ -18,7 +27,7 @@ export const highlightCode = (code: string, language: string): ParsedCode => {
     
     while (j < line.length) {
       // Check for comments
-      if (line.substr(j, 2) === '//') {
+      if (line.substr(j, 2) === '//' || (language === 'py' && line[j] === '#')) {
         tokens.push({ type: 'comment', content: line.substr(j) });
         break; // Comment takes the rest of the line
       }
@@ -70,7 +79,11 @@ export const highlightCode = (code: string, language: string): ParsedCode => {
       if (isMatched) continue;
       
       // Check for function declarations or calls
-      const functionMatch = /^([a-zA-Z_$][\w$]*)\s*\(/.exec(line.substr(j));
+      let functionRegex = language === 'py' ? 
+        /^([a-zA-Z_]\w*)\s*\(/ :    // Python
+        /^([a-zA-Z_$][\w$]*)\s*\(/; // JavaScript
+        
+      const functionMatch = functionRegex.exec(line.substr(j));
       if (functionMatch) {
         tokens.push({ type: 'function', content: functionMatch[1] });
         j += functionMatch[1].length;
@@ -90,7 +103,11 @@ export const highlightCode = (code: string, language: string): ParsedCode => {
       if (isMatched) continue;
       
       // Check for variables/identifiers
-      const identifierMatch = /^[a-zA-Z_$][\w$]*/.exec(line.substr(j));
+      const identifierRegex = language === 'py' ? 
+        /^[a-zA-Z_]\w*/ :    // Python
+        /^[a-zA-Z_$][\w$]*/; // JavaScript
+        
+      const identifierMatch = identifierRegex.exec(line.substr(j));
       if (identifierMatch) {
         tokens.push({ type: 'variable', content: identifierMatch[0] });
         j += identifierMatch[0].length;

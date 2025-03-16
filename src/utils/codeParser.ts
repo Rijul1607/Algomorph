@@ -130,6 +130,78 @@ export const calculateTotal = (items: Array<{ price: number }>): number => {
         ]
       },
       {
+        id: 'examples',
+        name: 'examples',
+        type: 'folder',
+        children: [
+          {
+            id: 'js-sample',
+            name: 'async-example.js',
+            type: 'file',
+            language: 'js',
+            code: `// Example of async JavaScript code
+async function fetchData() {
+  try {
+    const response = await fetch('https://api.example.com/data');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return null;
+  }
+}
+
+async function processData() {
+  const data = await fetchData();
+  if (data) {
+    console.log('Data processed successfully');
+    return data.map(item => item.value * 2);
+  }
+  return [];
+}
+
+// Call the async function
+processData().then(result => console.log(result));`
+          },
+          {
+            id: 'py-sample',
+            name: 'function-example.py',
+            type: 'file',
+            language: 'py',
+            code: `# Example Python function with loops and conditions
+
+def process_data(items):
+    """
+    Process a list of items with various operations
+    """
+    results = []
+    
+    for i, item in enumerate(items):
+        if item > 10:
+            # Process large items
+            results.append(item * 2)
+        elif item > 5:
+            # Process medium items
+            results.append(item + 5)
+        else:
+            # Process small items
+            results.append(item)
+            
+    return results
+
+# Test data
+test_data = [3, 7, 12, 5, 15]
+processed = process_data(test_data)
+print(f"Processed data: {processed}")
+
+# Calculate total
+total = sum(processed)
+print(f"Total: {total}")
+`
+          }
+        ]
+      },
+      {
         id: 'package',
         name: 'package.json',
         type: 'file',

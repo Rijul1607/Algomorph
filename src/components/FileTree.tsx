@@ -17,6 +17,7 @@ const FileTreeNode: React.FC<{
   onSelectFile: (file: FileTreeItem) => void;
   selectedFileId: string | null;
 }> = ({ item, depth, onSelectFile, selectedFileId }) => {
+  // Auto-expand folders by default for better UX
   const [expanded, setExpanded] = useState(true);
   const isFolder = item.type === 'folder';
   const isSelected = selectedFileId === item.id;
@@ -52,6 +53,7 @@ const FileTreeNode: React.FC<{
                 <div 
                   className="absolute -right-1 -bottom-1 rounded-full w-2 h-2" 
                   style={{ backgroundColor: languageToColor(fileExtension) }}
+                  title={getLanguageDisplayName(fileExtension)}
                 />
               )}
             </div>
@@ -92,5 +94,19 @@ const FileTree: React.FC<FileTreeProps> = ({ items, onSelectFile, selectedFileId
     </div>
   );
 };
+
+function getLanguageDisplayName(ext: string): string {
+  const languages: Record<string, string> = {
+    'js': 'JavaScript',
+    'jsx': 'React',
+    'tsx': 'TypeScript React',
+    'ts': 'TypeScript',
+    'py': 'Python',
+    'html': 'HTML',
+    'css': 'CSS'
+  };
+  
+  return languages[ext] || ext.toUpperCase();
+}
 
 export default FileTree;

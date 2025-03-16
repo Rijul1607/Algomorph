@@ -5,12 +5,20 @@ import { CodeBlock } from '@/utils/codeParser';
 import { Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CodeEditorProps {
   code: CodeBlock;
+  onLanguageChange?: (language: string) => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ code }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ code, onLanguageChange }) => {
   const { tokens } = highlightCode(code.code, code.language);
   
   const handleCopyClick = () => {
@@ -29,12 +37,30 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code }) => {
           </div>
           <span className="text-sm text-muted-foreground font-medium">{code.filename}</span>
         </div>
-        <button 
-          className="p-1.5 rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          onClick={handleCopyClick}
-        >
-          <Copy className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <Select 
+            defaultValue={code.language} 
+            onValueChange={onLanguageChange}
+          >
+            <SelectTrigger className="w-[120px] h-8">
+              <SelectValue placeholder="Language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="js">JavaScript</SelectItem>
+              <SelectItem value="py">Python</SelectItem>
+              <SelectItem value="tsx">TypeScript</SelectItem>
+              <SelectItem value="jsx">React</SelectItem>
+              <SelectItem value="html">HTML</SelectItem>
+              <SelectItem value="css">CSS</SelectItem>
+            </SelectContent>
+          </Select>
+          <button 
+            className="p-1.5 rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            onClick={handleCopyClick}
+          >
+            <Copy className="h-4 w-4" />
+          </button>
+        </div>
       </div>
       
       <div className="overflow-auto p-4 max-h-[600px] font-mono text-sm leading-relaxed">
