@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { FileTreeItem, languageToColor } from '@/utils/syntaxHighlighter';
+import { FileTreeItem } from '@/utils/codeParser';
+import { languageToColor } from '@/utils/syntaxHighlighter';
 
 interface FileTreeProps {
   items: FileTreeItem[];

@@ -7,7 +7,7 @@ import SearchBar from './SearchBar';
 import { Sidebar, SidebarContent, SidebarHeader } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Code, Diagram, Play, Settings } from 'lucide-react';
+import { Code, FileText, Play, Settings } from 'lucide-react';
 
 interface CodeVisualizerProps {
   initialCode?: CodeBlock;
@@ -28,7 +28,7 @@ const CodeVisualizer: React.FC<CodeVisualizerProps> = ({ initialCode }) => {
   
   return (
     <div className="flex h-[calc(100vh-4rem)] relative overflow-hidden">
-      <Sidebar defaultCollapsed={false}>
+      <Sidebar>
         <SidebarHeader className="border-b p-4">
           <SearchBar fileTree={sampleFileTree} onSelectFile={handleSelectFile} />
         </SidebarHeader>
@@ -50,7 +50,7 @@ const CodeVisualizer: React.FC<CodeVisualizerProps> = ({ initialCode }) => {
                 <span>Code</span>
               </TabsTrigger>
               <TabsTrigger value="visual" className="gap-2">
-                <Diagram className="h-4 w-4" />
+                <FileText className="h-4 w-4" />
                 <span>Visualize</span>
               </TabsTrigger>
               <TabsTrigger value="run" className="gap-2">
@@ -86,7 +86,7 @@ const CodeVisualizer: React.FC<CodeVisualizerProps> = ({ initialCode }) => {
             <div className="flex items-center justify-center h-full">
               <div className="text-center space-y-4 max-w-md">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                  <Diagram className="h-8 w-8 text-primary animate-pulse-subtle" />
+                  <FileText className="h-8 w-8 text-primary animate-pulse-subtle" />
                 </div>
                 <h2 className="text-2xl font-medium">Code Visualization</h2>
                 <p className="text-muted-foreground">
