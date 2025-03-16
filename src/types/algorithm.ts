@@ -4,7 +4,8 @@ export type AlgorithmType =
   | 'searching' 
   | 'graph' 
   | 'tree' 
-  | 'dynamic-programming';
+  | 'dynamic-programming'
+  | 'custom';
 
 export type AlgorithmStep = {
   id: string;
