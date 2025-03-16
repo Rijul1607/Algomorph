@@ -1,13 +1,38 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState, useEffect } from 'react';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import CodeVisualizer from '@/components/CodeVisualizer';
+import Header from '@/components/Header';
+import { sampleCode } from '@/utils/codeParser';
 
 const Index = () => {
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  // Initialize theme based on system preference
+  useEffect(() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setIsDarkMode(isDark);
+    document.documentElement.classList.toggle('dark', isDark);
+  }, []);
+
+  // Toggle theme
+  const toggleTheme = () => {
+    setIsDarkMode(prev => {
+      const newMode = !prev;
+      document.documentElement.classList.toggle('dark', newMode);
+      return newMode;
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <SidebarProvider>
+      <div className="min-h-screen flex flex-col w-full">
+        <Header toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+        <main className="flex-1 overflow-hidden">
+          <CodeVisualizer initialCode={sampleCode} />
+        </main>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
