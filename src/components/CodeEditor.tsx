@@ -16,14 +16,21 @@ import {
 interface CodeEditorProps {
   code: CodeBlock;
   onLanguageChange?: (language: string) => void;
+  onChange?: (newCode: string) => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ code, onLanguageChange }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ code, onLanguageChange, onChange }) => {
   const { tokens } = highlightCode(code.code, code.language);
   
   const handleCopyClick = () => {
     navigator.clipboard.writeText(code.code);
     toast.success('Code copied to clipboard');
+  };
+
+  const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (onChange) {
+      onChange(e.target.value);
+    }
   };
   
   return (
@@ -64,29 +71,38 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onLanguageChange }) => {
         </div>
       </div>
       
-      <div className="overflow-auto p-4 max-h-[600px] font-mono text-sm leading-relaxed">
-        <pre className="whitespace-pre">
-          {tokens.map((token, index) => (
-            <span 
-              key={index} 
-              className={cn(
-                token.type === 'keyword' && 'text-code-keyword',
-                token.type === 'string' && 'text-code-string',
-                token.type === 'function' && 'text-code-function',
-                token.type === 'comment' && 'text-code-comment italic',
-                token.type === 'variable' && 'text-code-variable',
-                token.type === 'number' && 'text-code-number',
-                token.type === 'operator' && 'text-code-operator',
-                token.type === 'tag' && 'text-code-tag'
-              )}
-            >
-              {token.content}
-            </span>
-          ))}
-        </pre>
-      </div>
+      {onChange ? (
+        <textarea
+          value={code.code}
+          onChange={handleCodeChange}
+          className="w-full font-mono text-sm p-4 bg-transparent border-0 focus:ring-0 outline-none resize-none h-[400px]"
+        />
+      ) : (
+        <div className="overflow-auto p-4 max-h-[600px] font-mono text-sm leading-relaxed">
+          <pre className="whitespace-pre">
+            {tokens.map((token, index) => (
+              <span 
+                key={index} 
+                className={cn(
+                  token.type === 'keyword' && 'text-code-keyword',
+                  token.type === 'string' && 'text-code-string',
+                  token.type === 'function' && 'text-code-function',
+                  token.type === 'comment' && 'text-code-comment italic',
+                  token.type === 'variable' && 'text-code-variable',
+                  token.type === 'number' && 'text-code-number',
+                  token.type === 'operator' && 'text-code-operator',
+                  token.type === 'tag' && 'text-code-tag'
+                )}
+              >
+                {token.content}
+              </span>
+            ))}
+          </pre>
+        </div>
+      )}
     </div>
   );
 };
 
 export default CodeEditor;
+
