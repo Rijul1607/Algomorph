@@ -102,6 +102,9 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
           <li>Add comments to explain your algorithm</li>
           <li>Make sure your code is syntactically correct</li>
           <li>Keep the algorithm simple for better visualization results</li>
+          <li>For tree algorithms, use 'node', 'left', and 'right' in your code</li>
+          <li>For sorting, use 'sort' or 'swap' keywords</li>
+          <li>For searching, use 'search' or 'find' keywords</li>
         </ul>
       </div>
     </div>

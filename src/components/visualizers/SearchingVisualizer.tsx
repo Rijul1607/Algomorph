@@ -8,12 +8,13 @@ interface SearchingVisualizerProps {
     current?: number,
     left?: number,
     right?: number,
-    found?: boolean
+    found?: boolean,
+    checked?: number[]
   };
 }
 
 const SearchingVisualizer: React.FC<SearchingVisualizerProps> = ({ data }) => {
-  const { array, target, current, left, right, found } = data;
+  const { array, target, current, left, right, found, checked } = data;
   
   return (
     <div className="w-full h-full flex flex-col justify-center items-center gap-6 p-4">
@@ -27,6 +28,7 @@ const SearchingVisualizer: React.FC<SearchingVisualizerProps> = ({ data }) => {
           const isCurrent = index === current;
           const isInRange = left !== undefined && right !== undefined && index >= left && index <= right;
           const isFound = isCurrent && found;
+          const isChecked = checked ? checked.includes(index) : false;
           
           return (
             <div 
@@ -38,7 +40,9 @@ const SearchingVisualizer: React.FC<SearchingVisualizerProps> = ({ data }) => {
                     ? 'bg-warning/20 border-warning'
                     : isInRange
                       ? 'bg-primary/10 border-primary'
-                      : 'bg-muted border-border'
+                      : isChecked
+                        ? 'bg-muted/50 border-muted-foreground'
+                        : 'bg-muted border-border'
               } rounded-md transition-colors`}
             >
               {value}
