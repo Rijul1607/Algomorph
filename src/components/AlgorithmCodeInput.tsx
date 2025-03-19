@@ -29,6 +29,8 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       setCode(`# Write your algorithm here\ndef my_algorithm(input):\n  # Your code\n  return result`);
     } else if (value === 'js' && code.includes('def')) {
       setCode(`// Write your algorithm here\nfunction myAlgorithm(input) {\n  // Your code\n  return result;\n}`);
+    } else if (value === 'cpp' && (code.includes('function') || code.includes('def'))) {
+      setCode(`// Write your algorithm here\n#include <iostream>\n#include <vector>\n\nint myAlgorithm(std::vector<int> input) {\n  // Your code\n  return result;\n}`);
     }
   };
 
@@ -54,7 +56,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
 
   const codeBlock: CodeBlock = {
     language,
-    filename: language === 'js' ? 'algorithm.js' : 'algorithm.py',
+    filename: language === 'js' ? 'algorithm.js' : language === 'py' ? 'algorithm.py' : 'algorithm.cpp',
     code
   };
 
@@ -78,6 +80,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
             <SelectContent>
               <SelectItem value="js">JavaScript</SelectItem>
               <SelectItem value="py">Python</SelectItem>
+              <SelectItem value="cpp">C++</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={handleSubmit} disabled={loading}>
@@ -89,6 +92,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       <CodeEditor 
         code={codeBlock} 
         onLanguageChange={handleLanguageChange}
+        onChange={(newCode) => setCode(newCode)}
       />
       
       <div className="text-sm text-muted-foreground">

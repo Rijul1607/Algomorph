@@ -1,5 +1,4 @@
-
-import { Algorithm } from '@/types/algorithm';
+import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 
 // Bubble Sort
 const bubbleSort: Algorithm = {
@@ -34,7 +33,7 @@ const bubbleSort: Algorithm = {
   </ul>`,
   generateSteps: (input: number[]) => {
     const arr = [...input];
-    const steps = [];
+    const steps: AlgorithmStep[] = [];
     const n = arr.length;
     
     steps.push({
@@ -110,7 +109,7 @@ const bubbleSort: Algorithm = {
   defaultInput: [64, 34, 25, 12, 22, 11, 90]
 };
 
-// Binary Search
+// Binary Search (Enhanced)
 const binarySearch: Algorithm = {
   id: 'binary-search',
   name: 'Binary Search',
@@ -118,7 +117,8 @@ const binarySearch: Algorithm = {
   description: 'An efficient algorithm for finding an item from a sorted list of items. It works by repeatedly dividing the search interval in half.',
   timeComplexity: 'O(log n)',
   spaceComplexity: 'O(1)',
-  code: `function binarySearch(arr, target) {
+  code: `// JavaScript Implementation
+function binarySearch(arr, target) {
   let left = 0;
   let right = arr.length - 1;
   
@@ -142,7 +142,59 @@ const binarySearch: Algorithm = {
   
   // Target not found
   return -1;
-}`,
+}
+
+/* C++ Implementation
+#include <vector>
+
+int binarySearch(std::vector<int> arr, int target) {
+  int left = 0;
+  int right = arr.size() - 1;
+  
+  while (left <= right) {
+    int mid = left + (right - left) / 2;
+    
+    // Check if target is present at mid
+    if (arr[mid] == target) {
+      return mid;
+    }
+    
+    // If target is greater, ignore left half
+    if (arr[mid] < target) {
+      left = mid + 1;
+    } 
+    // If target is smaller, ignore right half
+    else {
+      right = mid - 1;
+    }
+  }
+  
+  // Target not found
+  return -1;
+}
+*/
+
+# Python Implementation
+def binary_search(arr, target):
+    left = 0
+    right = len(arr) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        
+        # Check if target is present at mid
+        if arr[mid] == target:
+            return mid
+        
+        # If target is greater, ignore left half
+        if arr[mid] < target:
+            left = mid + 1
+        # If target is smaller, ignore right half
+        else:
+            right = mid - 1
+    
+    # Target not found
+    return -1`,
   explanation: `<p>Binary search is an efficient algorithm for finding an item from a sorted list. It works by repeatedly dividing the search interval in half.</p>
   <p>Binary search compares the target value to the middle element of the array. If they are not equal, the half in which the target cannot lie is eliminated and the search continues on the remaining half, again taking the middle element to compare to the target value, and repeating until the target value is found. If the search ends with the remaining half being empty, the target is not in the array.</p>
   <p>Key characteristics:</p>
@@ -150,10 +202,20 @@ const binarySearch: Algorithm = {
     <li>Much faster than linear search for large datasets</li>
     <li>Requires the data to be sorted first</li>
     <li>Divide and conquer approach</li>
-  </ul>`,
+    <li>Time complexity of O(log n) makes it very efficient for large arrays</li>
+  </ul>
+  <p>Step-by-step algorithm:</p>
+  <ol>
+    <li>Set the left bound to the first element and right bound to the last element</li>
+    <li>Find the middle element of the current interval</li>
+    <li>If the target equals the middle element, return the middle index</li>
+    <li>If the target is less than the middle element, search the left half by setting right to middle-1</li>
+    <li>If the target is greater than the middle element, search the right half by setting left to middle+1</li>
+    <li>Repeat steps 2-5 until the element is found or the interval is empty (left > right)</li>
+  </ol>`,
   generateSteps: (input: { array: number[], target: number }) => {
     const { array, target } = input;
-    const steps = [];
+    const steps: AlgorithmStep[] = [];
     let left = 0;
     let right = array.length - 1;
     
@@ -426,7 +488,7 @@ function partition(arr, low, high) {
   defaultInput: [38, 27, 43, 3, 9, 82, 10]
 };
 
-// Linear Search
+// Linear Search (Enhanced)
 const linearSearch: Algorithm = {
   id: 'linear-search',
   name: 'Linear Search',
@@ -434,16 +496,41 @@ const linearSearch: Algorithm = {
   description: 'A simple search algorithm that checks each element in the list sequentially until the target element is found or the list ends.',
   timeComplexity: 'O(n)',
   spaceComplexity: 'O(1)',
-  code: `function linearSearch(arr, target) {
+  code: `// JavaScript Implementation
+function linearSearch(arr, target) {
   for (let i = 0; i < arr.length; i++) {
     // Check if current element is target
     if (arr[i] === target) {
-      return i;
+      return i; // Return the index where target is found
     }
   }
   // Target not found
   return -1;
-}`,
+}
+
+/* C++ Implementation
+#include <vector>
+
+int linearSearch(std::vector<int> arr, int target) {
+  for (int i = 0; i < arr.size(); i++) {
+    // Check if current element is target
+    if (arr[i] == target) {
+      return i; // Return the index where target is found
+    }
+  }
+  // Target not found
+  return -1;
+}
+*/
+
+# Python Implementation
+def linear_search(arr, target):
+    for i in range(len(arr)):
+        # Check if current element is target
+        if arr[i] == target:
+            return i  # Return the index where target is found
+    # Target not found
+    return -1`,
   explanation: `<p>Linear search is the simplest search algorithm. It works by checking each element of the list one by one, sequentially, until a match is found or the whole list has been searched.</p>
   <p>While linear search is not efficient for large lists compared to other algorithms like binary search, it has the advantage of working on unsorted lists and being very simple to implement.</p>
   <p>Key characteristics:</p>
@@ -452,15 +539,24 @@ const linearSearch: Algorithm = {
     <li>Works on unsorted data</li>
     <li>Inefficient for large datasets</li>
     <li>O(n) time complexity in the worst case</li>
-  </ul>`,
+  </ul>
+  <p>Step-by-step algorithm:</p>
+  <ol>
+    <li>Start from the first element of the array</li>
+    <li>Compare the current element with the target value</li>
+    <li>If the current element matches the target, return the current position</li>
+    <li>If the current element doesn't match, move to the next element</li>
+    <li>Repeat steps 2-4 until the element is found or the end of the array is reached</li>
+    <li>If the end of the array is reached without finding the target, return -1 to indicate the target is not in the array</li>
+  </ol>`,
   generateSteps: (input: { array: number[], target: number }) => {
     const { array, target } = input;
-    const steps = [];
+    const steps: AlgorithmStep[] = [];
     
     steps.push({
       id: 'init',
       description: `Start linear search for target ${target} in the array`,
-      highlightedLines: [1],
+      highlightedLines: [1, 2],
       visualState: { ...input }
     });
     
@@ -486,7 +582,7 @@ const linearSearch: Algorithm = {
         id: `not-match-${i}`,
         description: `Element ${array[i]} doesn't match target ${target}, continue searching`,
         highlightedLines: [2],
-        visualState: { ...input, current: i }
+        visualState: { ...input, current: i, checked: [...Array(i+1).keys()] }
       });
     }
     
@@ -494,7 +590,7 @@ const linearSearch: Algorithm = {
       id: 'not-found',
       description: `Target ${target} not found in the array after checking all elements`,
       highlightedLines: [8],
-      visualState: { ...input, found: false }
+      visualState: { ...input, found: false, checked: [...Array(array.length).keys()] }
     });
     
     return steps;
@@ -505,9 +601,205 @@ const linearSearch: Algorithm = {
   }
 };
 
+// Selection Sort (New algorithm)
+const selectionSort: Algorithm = {
+  id: 'selection-sort',
+  name: 'Selection Sort',
+  type: 'sorting',
+  description: 'A simple and efficient sorting algorithm that works by repeatedly selecting the smallest (or largest) element from the unsorted portion and putting it at the beginning.',
+  timeComplexity: 'O(n²)',
+  spaceComplexity: 'O(1)',
+  code: `// JavaScript Implementation
+function selectionSort(arr) {
+  const n = arr.length;
+  
+  for (let i = 0; i < n - 1; i++) {
+    // Find the minimum element in the unsorted array
+    let minIndex = i;
+    
+    for (let j = i + 1; j < n; j++) {
+      if (arr[j] < arr[minIndex]) {
+        minIndex = j;
+      }
+    }
+    
+    // Swap the found minimum element with the element at index i
+    if (minIndex !== i) {
+      [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+    }
+  }
+  
+  return arr;
+}
+
+/* C++ Implementation
+#include <vector>
+
+std::vector<int> selectionSort(std::vector<int> arr) {
+  int n = arr.size();
+  
+  for (int i = 0; i < n - 1; i++) {
+    // Find the minimum element in the unsorted array
+    int minIndex = i;
+    
+    for (int j = i + 1; j < n; j++) {
+      if (arr[j] < arr[minIndex]) {
+        minIndex = j;
+      }
+    }
+    
+    // Swap the found minimum element with the element at index i
+    if (minIndex != i) {
+      std::swap(arr[i], arr[minIndex]);
+    }
+  }
+  
+  return arr;
+}
+*/
+
+# Python Implementation
+def selection_sort(arr):
+    n = len(arr)
+    
+    for i in range(n - 1):
+        # Find the minimum element in the unsorted array
+        min_index = i
+        
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        
+        # Swap the found minimum element with the element at index i
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    
+    return arr`,
+  explanation: `<p>Selection sort is a simple and efficient sorting algorithm that works by repeatedly selecting the smallest (or largest) element from the unsorted portion of the list and moving it to the sorted portion of the list.</p>
+  <p>Key characteristics:</p>
+  <ul>
+    <li>Simple to implement</li>
+    <li>Performs well on small lists</li>
+    <li>Inefficient on large lists</li>
+    <li>In-place algorithm with O(1) extra space</li>
+    <li>Not stable (might change the relative order of equal elements)</li>
+  </ul>
+  <p>Step-by-step algorithm:</p>
+  <ol>
+    <li>Set the first position as the minimum</li>
+    <li>Search the minimum element in the rest of the array</li>
+    <li>Swap the minimum element with the element at the first position</li>
+    <li>Increment the position and repeat steps 2-3 until the array is sorted</li>
+  </ol>`,
+  generateSteps: (input: number[]) => {
+    const arr = [...input];
+    const steps: AlgorithmStep[] = [];
+    const n = arr.length;
+    
+    steps.push({
+      id: 'init',
+      description: 'Start with the unsorted array',
+      highlightedLines: [1],
+      visualState: [...arr]
+    });
+    
+    for (let i = 0; i < n - 1; i++) {
+      let minIndex = i;
+      
+      steps.push({
+        id: `outer-loop-${i}`,
+        description: `Starting pass ${i+1}: find minimum element in the unsorted portion`,
+        highlightedLines: [4, 6],
+        visualState: { 
+          array: [...arr], 
+          current: i,
+          sorted: [...Array(i).keys()]
+        }
+      });
+      
+      for (let j = i + 1; j < n; j++) {
+        steps.push({
+          id: `compare-${i}-${j}`,
+          description: `Compare current minimum (${arr[minIndex]}) with element at index ${j} (${arr[j]})`,
+          highlightedLines: [8, 9],
+          visualState: { 
+            array: [...arr], 
+            comparing: [minIndex, j],
+            sorted: [...Array(i).keys()]
+          }
+        });
+        
+        if (arr[j] < arr[minIndex]) {
+          steps.push({
+            id: `new-min-${i}-${j}`,
+            description: `Found new minimum: ${arr[j]} at index ${j}`,
+            highlightedLines: [9, 10],
+            visualState: { 
+              array: [...arr], 
+              minFound: j,
+              sorted: [...Array(i).keys()]
+            }
+          });
+          
+          minIndex = j;
+        }
+      }
+      
+      if (minIndex !== i) {
+        steps.push({
+          id: `swap-${i}-${minIndex}`,
+          description: `Swap minimum element (${arr[minIndex]}) with first unsorted element (${arr[i]})`,
+          highlightedLines: [15],
+          visualState: { 
+            array: [...arr], 
+            swapping: [i, minIndex],
+            sorted: [...Array(i).keys()]
+          }
+        });
+        
+        [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+        
+        steps.push({
+          id: `after-swap-${i}`,
+          description: `After swap: Element ${arr[i]} is now in its correct position`,
+          highlightedLines: [15],
+          visualState: { 
+            array: [...arr], 
+            sorted: [...Array(i+1).keys()]
+          }
+        });
+      } else {
+        steps.push({
+          id: `already-sorted-${i}`,
+          description: `Element ${arr[i]} is already in its correct position`,
+          highlightedLines: [14],
+          visualState: { 
+            array: [...arr], 
+            sorted: [...Array(i+1).keys()]
+          }
+        });
+      }
+    }
+    
+    steps.push({
+      id: 'complete',
+      description: 'Sorting complete. The array is now sorted in ascending order.',
+      highlightedLines: [20],
+      visualState: { 
+        array: [...arr], 
+        sorted: Array.from({ length: n }, (_, i) => i)
+      }
+    });
+    
+    return steps;
+  },
+  defaultInput: [29, 15, 56, 8, 32, 44, 61, 19, 72]
+};
+
 export const algorithmData: Algorithm[] = [
   bubbleSort,
   quickSort,
+  selectionSort,
   linearSearch,
   binarySearch
 ];
