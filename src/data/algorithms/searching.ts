@@ -106,7 +106,10 @@ def binary_search(arr, target):
     <li>Repeat steps 2-5 until the element is found or the interval is empty (left > right)</li>
   </ol>`,
   generateSteps: (input: { array: number[], target: number }) => {
-    const { array, target } = input;
+    // Ensure input is properly defined with default values if necessary
+    const array = input?.array || [10, 20, 30, 40, 50, 60, 70, 80, 90];
+    const target = input?.target !== undefined ? input.target : 60;
+    
     const steps: AlgorithmStep[] = [];
     let left = 0;
     let right = array.length - 1;
@@ -115,7 +118,7 @@ def binary_search(arr, target):
       id: 'init',
       description: `Start binary search for target ${target} in the sorted array`,
       highlightedLines: [1, 2, 3],
-      visualState: { ...input, left, right }
+      visualState: { array, target, left, right }
     });
     
     while (left <= right) {
@@ -125,14 +128,14 @@ def binary_search(arr, target):
         id: `calculate-mid-${mid}`,
         description: `Calculate midpoint: (${left} + ${right}) / 2 = ${mid}`,
         highlightedLines: [6],
-        visualState: { ...input, left, right, current: mid }
+        visualState: { array, target, left, right, current: mid }
       });
       
       steps.push({
         id: `compare-mid-${mid}`,
         description: `Compare midpoint value (${array[mid]}) with target (${target})`,
         highlightedLines: [9],
-        visualState: { ...input, left, right, current: mid }
+        visualState: { array, target, left, right, current: mid }
       });
       
       if (array[mid] === target) {
@@ -140,7 +143,7 @@ def binary_search(arr, target):
           id: `found-${mid}`,
           description: `Target ${target} found at index ${mid}!`,
           highlightedLines: [10],
-          visualState: { ...input, left, right, current: mid, found: true }
+          visualState: { array, target, left, right, current: mid, found: true }
         });
         return steps;
       }
@@ -150,28 +153,28 @@ def binary_search(arr, target):
           id: `go-right-${mid}`,
           description: `${array[mid]} < ${target}, so target must be in the right half`,
           highlightedLines: [14, 15],
-          visualState: { ...input, left, right, current: mid }
+          visualState: { array, target, left, right, current: mid }
         });
         left = mid + 1;
         steps.push({
           id: `update-left-${left}`,
           description: `Update left boundary to ${left}`,
           highlightedLines: [15],
-          visualState: { ...input, left, right }
+          visualState: { array, target, left, right }
         });
       } else {
         steps.push({
           id: `go-left-${mid}`,
           description: `${array[mid]} > ${target}, so target must be in the left half`,
           highlightedLines: [18, 19],
-          visualState: { ...input, left, right, current: mid }
+          visualState: { array, target, left, right, current: mid }
         });
         right = mid - 1;
         steps.push({
           id: `update-right-${right}`,
           description: `Update right boundary to ${right}`,
           highlightedLines: [19],
-          visualState: { ...input, left, right }
+          visualState: { array, target, left, right }
         });
       }
     }
@@ -180,7 +183,7 @@ def binary_search(arr, target):
       id: 'not-found',
       description: `Target ${target} not found in the array`,
       highlightedLines: [24],
-      visualState: { ...input, left, right, found: false }
+      visualState: { array, target, left, right, found: false }
     });
     
     return steps;
@@ -253,14 +256,17 @@ def linear_search(arr, target):
     <li>If the end of the array is reached without finding the target, return -1 to indicate the target is not in the array</li>
   </ol>`,
   generateSteps: (input: { array: number[], target: number }) => {
-    const { array, target } = input;
+    // Ensure input is properly defined with default values if necessary
+    const array = input?.array || [24, 45, 65, 12, 78, 32, 98, 14, 54];
+    const target = input?.target !== undefined ? input.target : 78;
+    
     const steps: AlgorithmStep[] = [];
     
     steps.push({
       id: 'init',
       description: `Start linear search for target ${target} in the array`,
       highlightedLines: [1, 2],
-      visualState: { ...input }
+      visualState: { array, target }
     });
     
     for (let i = 0; i < array.length; i++) {
@@ -268,7 +274,7 @@ def linear_search(arr, target):
         id: `check-${i}`,
         description: `Check if element at index ${i} (${array[i]}) equals target ${target}`,
         highlightedLines: [3, 4],
-        visualState: { ...input, current: i }
+        visualState: { array, target, current: i }
       });
       
       if (array[i] === target) {
@@ -276,7 +282,7 @@ def linear_search(arr, target):
           id: `found-${i}`,
           description: `Target ${target} found at index ${i}!`,
           highlightedLines: [4, 5],
-          visualState: { ...input, current: i, found: true }
+          visualState: { array, target, current: i, found: true }
         });
         return steps;
       }
@@ -285,7 +291,7 @@ def linear_search(arr, target):
         id: `not-match-${i}`,
         description: `Element ${array[i]} doesn't match target ${target}, continue searching`,
         highlightedLines: [2],
-        visualState: { ...input, current: i, checked: [...Array(i+1).keys()] }
+        visualState: { array, target, current: i, checked: [...Array(i+1).keys()] }
       });
     }
     
@@ -293,7 +299,7 @@ def linear_search(arr, target):
       id: 'not-found',
       description: `Target ${target} not found in the array after checking all elements`,
       highlightedLines: [8],
-      visualState: { ...input, found: false, checked: [...Array(array.length).keys()] }
+      visualState: { array, target, found: false, checked: [...Array(array.length).keys()] }
     });
     
     return steps;
