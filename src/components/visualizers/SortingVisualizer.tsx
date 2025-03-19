@@ -17,6 +17,15 @@ const SortingVisualizer: React.FC<SortingVisualizerProps> = ({ data }) => {
   const swapping = Array.isArray(data) ? undefined : data.swapping;
   const sorted = Array.isArray(data) ? [] : data.sorted || [];
   
+  // Early return with a message if array is undefined or empty
+  if (!array || array.length === 0) {
+    return (
+      <div className="w-full h-full flex justify-center items-center p-4">
+        <div className="text-muted-foreground">No data available for visualization</div>
+      </div>
+    );
+  }
+  
   const maxValue = Math.max(...array);
   
   return (
@@ -41,10 +50,10 @@ const SortingVisualizer: React.FC<SortingVisualizerProps> = ({ data }) => {
                     : isSorted 
                       ? 'bg-success' 
                       : 'bg-primary'
-              } transition-height duration-300`}
+              } transition-all duration-300 rounded-t-sm`}
               style={{ height: `${height}%` }}
             />
-            <div className="text-xs mt-1">{value}</div>
+            <div className="text-xs mt-1 font-mono">{value}</div>
           </div>
         );
       })}

@@ -3,136 +3,147 @@ import React from 'react';
 
 interface TreeNode {
   value: number;
-  left?: TreeNode | null;
-  right?: TreeNode | null;
+  left?: TreeNode;
+  right?: TreeNode;
 }
 
 interface TreeVisualizerProps {
   data: {
-    tree: number[];
+    tree: number[] | TreeNode;
     current?: number;
     visited?: number[];
-    searching?: number;
+    comparing?: number[];
     found?: boolean;
+    searching?: number;
     complete?: boolean;
   };
 }
 
 const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
-  const { tree, current, visited = [], searching, found, complete } = data;
+  const { tree, current, visited = [], comparing = [], searching, found, complete } = data;
   
-  // Helper function to determine node position
-  const getNodePosition = (index: number, totalNodes: number, level: number) => {
-    const maxNodesInLevel = Math.pow(2, level);
-    const levelStartIndex = Math.pow(2, level) - 1;
-    const positionInLevel = index - levelStartIndex;
-    const width = 100;
-    
-    return {
-      left: `${(positionInLevel + 0.5) * (width / maxNodesInLevel)}%`,
-      top: `${level * 80}px`
-    };
-  };
+  // Early return with a message if tree is undefined or empty
+  if (!tree || (Array.isArray(tree) && tree.length === 0)) {
+    return (
+      <div className="w-full h-full flex justify-center items-center p-4">
+        <div className="text-muted-foreground">No data available for visualization</div>
+      </div>
+    );
+  }
   
-  // Determine tree level for a node
-  const getNodeLevel = (index: number) => {
-    return Math.floor(Math.log2(index + 1));
-  };
-  
-  // Check if node has parent (not root)
-  const hasParent = (index: number) => index > 0;
-  
-  // Get parent index
-  const getParentIndex = (index: number) => Math.floor((index - 1) / 2);
-  
-  // Render edges between nodes
-  const renderEdges = () => {
-    return tree.map((_, index) => {
-      if (!hasParent(index)) return null;
-      
-      const parentIndex = getParentIndex(index);
-      const nodeLevel = getNodeLevel(index);
-      const parentLevel = getNodeLevel(parentIndex);
-      
-      const nodePos = getNodePosition(index, tree.length, nodeLevel);
-      const parentPos = getNodePosition(parentIndex, tree.length, parentLevel);
-      
-      const isHighlighted = 
-        (visited.includes(index) && visited.includes(parentIndex)) || 
-        (current === index || current === parentIndex);
-      
-      return (
-        <line
-          key={`edge-${index}`}
-          x1={nodePos.left.replace('%', '')}
-          y1={parseInt(nodePos.top)}
-          x2={parentPos.left.replace('%', '')}
-          y2={parseInt(parentPos.top) + 30}
-          stroke={isHighlighted ? "var(--primary)" : "var(--border)"}
-          strokeWidth={isHighlighted ? 2 : 1}
-        />
-      );
-    });
-  };
+  // For simplicity, we represent a tree as an array in level order traversal
+  // Array representation: [root, left1, right1, left1-left, left1-right, right1-left, ...]
+  const treeArray = Array.isArray(tree) ? tree : convertTreeToArray(tree as TreeNode);
   
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center p-4 relative">
+    <div className="w-full h-full flex flex-col justify-center items-center p-4 overflow-auto">
       {searching !== undefined && (
-        <div className="text-center mb-6">
+        <div className="mb-4 text-center">
           <span className="font-medium">Searching for: </span>
           <span className="font-mono bg-primary/20 px-2 py-1 rounded">{searching}</span>
         </div>
       )}
       
-      <div className="w-full h-[300px] relative">
-        <svg width="100%" height="100%" viewBox="0 0 100 300" preserveAspectRatio="xMidYMid meet">
-          {renderEdges()}
-        </svg>
-        
-        {tree.map((value, index) => {
-          const nodeLevel = getNodeLevel(index);
-          const position = getNodePosition(index, tree.length, nodeLevel);
-          
-          const isVisited = visited.includes(index);
-          const isCurrent = index === current;
-          const isFound = isCurrent && found;
-          
-          return (
-            <div
-              key={index}
-              className={`absolute w-10 h-10 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border ${
-                isFound
-                  ? 'bg-success/20 border-success animate-pulse'
-                  : isCurrent
-                    ? 'bg-warning/20 border-warning'
-                    : isVisited
-                      ? 'bg-primary/10 border-primary'
-                      : 'bg-card border-border'
-              } transition-colors`}
-              style={{
-                left: position.left,
-                top: position.top
-              }}
-            >
-              {value}
-            </div>
-          );
-        })}
+      <div className="flex flex-col items-center gap-8 w-full max-w-3xl">
+        {/* Render levels of the tree */}
+        {getTreeLevels(treeArray).map((level, levelIndex) => (
+          <div key={levelIndex} className="flex justify-center w-full">
+            {level.map((nodeIndex) => {
+              if (nodeIndex >= treeArray.length || treeArray[nodeIndex] === null || treeArray[nodeIndex] === undefined) {
+                // Empty placeholder for balanced tree visualization
+                return <div key={`empty-${nodeIndex}`} className="w-10 h-10 mx-2 opacity-0"></div>;
+              }
+              
+              const value = treeArray[nodeIndex];
+              const isCurrent = nodeIndex === current;
+              const isVisited = visited.includes(nodeIndex);
+              const isComparing = comparing.includes(nodeIndex);
+              const isFound = isCurrent && found;
+              
+              return (
+                <div
+                  key={nodeIndex}
+                  className={`w-12 h-12 mx-2 flex items-center justify-center rounded-full border-2 ${
+                    isFound
+                      ? 'bg-success/20 border-success animate-pulse'
+                      : isCurrent
+                        ? 'bg-warning/20 border-warning'
+                        : isVisited
+                          ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-400 dark:border-blue-600'
+                          : isComparing
+                            ? 'bg-purple-100 dark:bg-purple-900/30 border-purple-400 dark:border-purple-600'
+                            : 'bg-muted border-border'
+                  } transition-colors`}
+                >
+                  {value}
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
       
-      {complete && (
-        <div className="text-center mt-4 text-primary font-medium">
-          Traversal complete!
+      {found !== undefined && (
+        <div className={`mt-6 text-center font-medium ${found ? 'text-success' : 'text-destructive'}`}>
+          {found ? 'Target found!' : 'Target not found'}
         </div>
       )}
       
-      {found !== undefined && (
-        <div className={`text-center mt-4 font-medium ${found ? 'text-success' : 'text-destructive'}`}>
-          {found ? 'Value found!' : 'Value not found'}
+      {complete && (
+        <div className="mt-6 text-center font-medium text-success">
+          Traversal complete!
         </div>
       )}
     </div>
   );
 };
+
+// Convert a tree node to array representation (level order traversal)
+function convertTreeToArray(root: TreeNode): number[] {
+  if (!root) return [];
+  
+  const result: (number | null)[] = [];
+  const queue: (TreeNode | null)[] = [root];
+  
+  while (queue.length > 0) {
+    const node = queue.shift();
+    
+    if (node) {
+      result.push(node.value);
+      queue.push(node.left || null);
+      queue.push(node.right || null);
+    } else {
+      result.push(null);
+    }
+  }
+  
+  // Remove trailing nulls
+  while (result.length > 0 && result[result.length - 1] === null) {
+    result.pop();
+  }
+  
+  return result.filter((val): val is number => val !== null);
+}
+
+// Group tree nodes by levels for rendering
+function getTreeLevels(tree: number[]): number[][] {
+  const levels: number[][] = [];
+  let levelSize = 1;
+  let index = 0;
+  
+  while (index < tree.length) {
+    const level: number[] = [];
+    
+    for (let i = 0; i < levelSize && index < tree.length; i++) {
+      level.push(index);
+      index++;
+    }
+    
+    levels.push(level);
+    levelSize *= 2; // Each level has potentially twice as many nodes
+  }
+  
+  return levels;
+}
 
 export default TreeVisualizer;

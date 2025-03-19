@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 import { Play, Pause, SkipBack, SkipForward, RefreshCw } from 'lucide-react';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import SortingVisualizer from './visualizers/SortingVisualizer';
 import SearchingVisualizer from './visualizers/SearchingVisualizer';
+import TreeVisualizer from './visualizers/TreeVisualizer';
 
 interface AlgorithmVisualizerProps {
   algorithm: Algorithm;
@@ -97,6 +97,14 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
       const array = Array.from({ length: 10 }, () => Math.floor(Math.random() * 100)).sort((a, b) => a - b);
       const target = array[Math.floor(Math.random() * array.length)];
       setInput({ array, target });
+    } else if (algorithm.type === 'tree') {
+      // For tree algorithms, we keep the default tree structure
+      // but can randomize search values for BST search
+      if (algorithm.id === 'binary-search-tree') {
+        const values = [8, 10, 12, 15, 17, 20, 25];
+        const randomTarget = values[Math.floor(Math.random() * values.length)];
+        setInput({ ...input, value: randomTarget });
+      }
     }
   };
   
@@ -108,6 +116,8 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
         return <SortingVisualizer data={currentStep?.visualState || input} />;
       case 'searching':
         return <SearchingVisualizer data={currentStep?.visualState || input} />;
+      case 'tree':
+        return <TreeVisualizer data={currentStep?.visualState || input} />;
       default:
         return <div className="text-center py-10">Visualization not available for this algorithm type</div>;
     }
