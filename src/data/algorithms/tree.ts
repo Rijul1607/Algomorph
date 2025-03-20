@@ -135,7 +135,7 @@ class BinarySearchTree {
         current = tree.nodes[current.left];
         steps.push({
           id: `go-left-${current ? current.value : 'null'}`,
-          description: `Go left since ${value} < ${current.value}`,
+          description: `Go left since ${value} < ${current ? current.value : 'null'}`,
           highlightedLines: [34],
           visualState: {
             tree: tree.nodes,
@@ -148,7 +148,7 @@ class BinarySearchTree {
         current = tree.nodes[current.right];
         steps.push({
           id: `go-right-${current ? current.value : 'null'}`,
-          description: `Go right since ${value} > ${current.value}`,
+          description: `Go right since ${value} > ${current ? current.value : 'null'}`,
           highlightedLines: [36],
           visualState: {
             tree: tree.nodes,
@@ -822,7 +822,7 @@ function postOrderTraversalIterative(root) {
             currentNode: node.value,
             visited: [],
             stack1: stack1,
-            stack2: stack2.map(node => tree.nodes[node] ? tree.nodes[node].value : null)
+            stack2: stack2.map(idx => tree.nodes[idx] ? tree.nodes[idx].value : null)
           }
         });
 
@@ -838,7 +838,7 @@ function postOrderTraversalIterative(root) {
               currentNode: node.value,
               visited: [],
               stack1: stack1,
-              stack2: stack2.map(node => tree.nodes[node] ? tree.nodes[node].value : null)
+              stack2: stack2.map(idx => tree.nodes[idx] ? tree.nodes[idx].value : null)
             }
           });
         }
@@ -855,7 +855,7 @@ function postOrderTraversalIterative(root) {
               currentNode: node.value,
               visited: [],
               stack1: stack1,
-              stack2: stack2.map(node => tree.nodes[node] ? tree.nodes[node].value : null)
+              stack2: stack2.map(idx => tree.nodes[idx] ? tree.nodes[idx].value : null)
             }
           });
         }
@@ -877,7 +877,7 @@ function postOrderTraversalIterative(root) {
             currentNode: node.value,
             visited: visitedSoFar,
             stack1: stack1,
-            stack2: stack2.map(node => tree.nodes[node] ? tree.nodes[node].value : null)
+            stack2: stack2.map(idx => tree.nodes[idx] ? tree.nodes[idx].value : null)
           }
         });
       }
