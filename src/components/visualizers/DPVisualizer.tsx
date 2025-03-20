@@ -194,8 +194,9 @@ const FibonacciVisualizer: React.FC<{ data: any }> = ({ data }) => {
 // Knapsack Visualization
 const KnapsackVisualizer: React.FC<{ data: any }> = ({ data }) => {
   const { 
-    values, weights, capacity, dp, currentItem, currentWeight,
-    maxValue, includedItems, backtrackItem, tooHeavy,
+    values = [], weights = [], capacity = 0, dp = [],
+    currentItem, currentWeight, maxValue,
+    includedItems = [], backtrackItem, tooHeavy,
     includeValue, excludeValue, complete 
   } = data;
   
@@ -236,7 +237,7 @@ const KnapsackVisualizer: React.FC<{ data: any }> = ({ data }) => {
       </div>
       
       {/* DP Table visualization (simplified) */}
-      {dp && (
+      {dp && dp.length > 0 && (
         <div className="w-full max-w-3xl overflow-x-auto">
           <h3 className="font-medium mb-3">DP Table:</h3>
           <div className="flex">
