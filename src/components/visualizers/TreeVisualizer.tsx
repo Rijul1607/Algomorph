@@ -16,11 +16,20 @@ interface TreeVisualizerProps {
     found?: boolean;
     searching?: number;
     complete?: boolean;
+    traversalType?: string;
+    queue?: number[];
+    stack?: number[];
+    stack1?: number[];
+    stack2?: number[];
+    recursionStack?: number[];
   };
 }
 
 const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
-  const { tree, current, visited = [], comparing = [], searching, found, complete } = data;
+  const { 
+    tree, current, visited = [], comparing = [], searching, found, complete,
+    traversalType, queue = [], stack = [], stack1 = [], stack2 = [], recursionStack = []
+  } = data;
   
   // Early return with a message if tree is undefined or empty
   if (!tree || (Array.isArray(tree) && tree.length === 0)) {
@@ -37,6 +46,13 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
   
   return (
     <div className="w-full h-full flex flex-col justify-center items-center p-4 overflow-auto">
+      {traversalType && (
+        <div className="mb-4 text-center">
+          <span className="font-medium">Traversal type: </span>
+          <span className="font-mono bg-primary/20 px-2 py-1 rounded capitalize">{traversalType}</span>
+        </div>
+      )}
+      
       {searching !== undefined && (
         <div className="mb-4 text-center">
           <span className="font-medium">Searching for: </span>
@@ -58,6 +74,9 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
               const isCurrent = nodeIndex === current;
               const isVisited = visited.includes(nodeIndex);
               const isComparing = comparing.includes(nodeIndex);
+              const isInQueue = queue.includes(nodeIndex);
+              const isInStack = stack.includes(nodeIndex) || stack1.includes(nodeIndex) || stack2.includes(nodeIndex);
+              const isInRecursionStack = recursionStack.includes(nodeIndex);
               const isFound = isCurrent && found;
               
               return (
@@ -72,7 +91,13 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
                           ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-400 dark:border-blue-600'
                           : isComparing
                             ? 'bg-purple-100 dark:bg-purple-900/30 border-purple-400 dark:border-purple-600'
-                            : 'bg-muted border-border'
+                            : isInQueue
+                              ? 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-400 dark:border-yellow-600'
+                              : isInStack
+                                ? 'bg-pink-100 dark:bg-pink-900/30 border-pink-400 dark:border-pink-600'
+                                : isInRecursionStack
+                                  ? 'bg-indigo-100 dark:bg-indigo-900/30 border-indigo-400 dark:border-indigo-600'
+                                  : 'bg-muted border-border'
                   } transition-colors`}
                 >
                   {value}
@@ -82,6 +107,74 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
           </div>
         ))}
       </div>
+      
+      {(queue.length > 0 || stack.length > 0 || stack1.length > 0 || stack2.length > 0) && (
+        <div className="mt-6 flex flex-col items-center gap-2">
+          {queue.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Queue:</span>
+              <div className="flex">
+                {queue.map((idx, i) => (
+                  <div 
+                    key={`queue-${i}`}
+                    className="w-8 h-8 flex items-center justify-center rounded-md border border-yellow-400 bg-yellow-100 dark:bg-yellow-900/30 mx-1"
+                  >
+                    {treeArray[idx]}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {stack.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Stack:</span>
+              <div className="flex">
+                {stack.map((idx, i) => (
+                  <div 
+                    key={`stack-${i}`}
+                    className="w-8 h-8 flex items-center justify-center rounded-md border border-pink-400 bg-pink-100 dark:bg-pink-900/30 mx-1"
+                  >
+                    {treeArray[idx]}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {stack1.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Stack 1:</span>
+              <div className="flex">
+                {stack1.map((idx, i) => (
+                  <div 
+                    key={`stack1-${i}`}
+                    className="w-8 h-8 flex items-center justify-center rounded-md border border-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 mx-1"
+                  >
+                    {treeArray[idx]}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {stack2.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Stack 2:</span>
+              <div className="flex">
+                {stack2.map((idx, i) => (
+                  <div 
+                    key={`stack2-${i}`}
+                    className="w-8 h-8 flex items-center justify-center rounded-md border border-cyan-400 bg-cyan-100 dark:bg-cyan-900/30 mx-1"
+                  >
+                    {treeArray[idx]}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       
       {found !== undefined && (
         <div className={`mt-6 text-center font-medium ${found ? 'text-success' : 'text-destructive'}`}>

@@ -6,6 +6,7 @@ import { Slider } from '@/components/ui/slider';
 import SortingVisualizer from './visualizers/SortingVisualizer';
 import SearchingVisualizer from './visualizers/SearchingVisualizer';
 import TreeVisualizer from './visualizers/TreeVisualizer';
+import DPVisualizer from './visualizers/DPVisualizer';
 
 interface AlgorithmVisualizerProps {
   algorithm: Algorithm;
@@ -98,12 +99,30 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
       const target = array[Math.floor(Math.random() * array.length)];
       setInput({ array, target });
     } else if (algorithm.type === 'tree') {
-      // For tree algorithms, we keep the default tree structure
-      // but can randomize search values for BST search
+      // For tree algorithms, we have different options
       if (algorithm.id === 'binary-search-tree') {
         const values = [8, 10, 12, 15, 17, 20, 25];
         const randomTarget = values[Math.floor(Math.random() * values.length)];
         setInput({ ...input, value: randomTarget });
+      } else if (algorithm.id === 'binary-tree-traversal') {
+        const traversalTypes = ['inorder', 'preorder', 'postorder', 'levelorder'];
+        const randomType = traversalTypes[Math.floor(Math.random() * traversalTypes.length)];
+        setInput({ traversalType: randomType });
+      } else if (algorithm.id === 'level-order-traversal') {
+        setInput({ withLevels: Math.random() > 0.5 });
+      } else if (algorithm.id === 'pre-order-traversal' || algorithm.id === 'post-order-traversal') {
+        setInput({ iterative: Math.random() > 0.5 });
+      }
+    } else if (algorithm.type === 'dynamic-programming') {
+      if (algorithm.id === 'fibonacci-dp') {
+        const n = Math.floor(Math.random() * 15) + 5; // Random n between 5 and 20
+        setInput({ n, optimized: Math.random() > 0.5 });
+      } else if (algorithm.id === 'knapsack-problem') {
+        // Keep the default values for knapsack
+        setInput({ ...algorithm.defaultInput });
+      } else if (algorithm.id === 'longest-common-subsequence') {
+        // Keep the default values for LCS
+        setInput({ ...algorithm.defaultInput });
       }
     }
   };
@@ -115,9 +134,11 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
       case 'sorting':
         return <SortingVisualizer data={currentStep?.visualState || input} />;
       case 'searching':
-        return <SearchingVisualizer data={currentStep?.visualState || input} />;
+        return <SearchingVisualizer data={currentStep?.visualState || { array: input.array || [], target: input.target || 0 }} />;
       case 'tree':
-        return <TreeVisualizer data={currentStep?.visualState || input} />;
+        return <TreeVisualizer data={currentStep?.visualState || { tree: input.tree || [] }} />;
+      case 'dynamic-programming':
+        return <DPVisualizer data={currentStep?.visualState || input} />;
       default:
         return <div className="text-center py-10">Visualization not available for this algorithm type</div>;
     }
