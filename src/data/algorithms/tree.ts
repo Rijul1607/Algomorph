@@ -1,3 +1,4 @@
+
 // Fix several type errors related to arrays in this file
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 
@@ -468,7 +469,7 @@ function levelOrderTraversal(root) {
       });
 
       for (let i = 0; i < levelSize; i++) {
-        const node = queue.shift();
+        const node = queue.shift()!;
 
         steps.push({
           id: `visit-${node.value}`,
@@ -622,7 +623,7 @@ function preOrderTraversalIterative(root) {
       });
 
       while (stack.length > 0) {
-        const node = stack.pop();
+        const node = stack.pop()!;
 
         steps.push({
           id: `visit-${node.value}`,
@@ -771,7 +772,7 @@ function postOrderTraversalIterative(root) {
     });
 
     if (iterative) {
-      let stack1: number[] = [0]; // Initialize as empty array with root
+      let stack1: number[] = []; // Initialize as empty array
       let stack2: number[] = []; // Initialize as empty array
 
       if (tree.root) {
@@ -972,3 +973,89 @@ function inOrderTraversalIterative(root) {
         visualState: {
           tree: tree.nodes,
           iterative,
+          currentNode: current ? current.value : null,
+          visited: [],
+          stack: stack.map(node => node.value)
+        }
+      });
+
+      while (current || stack.length > 0) {
+        while (current) {
+          stack.push(current);
+          steps.push({
+            id: `push-${current.value}`,
+            description: `Push ${current.value} onto the stack and move left`,
+            visualState: {
+              tree: tree.nodes,
+              iterative,
+              currentNode: current.value,
+              visited: [...visitedSoFar],
+              stack: stack.map(node => node.value)
+            }
+          });
+          current = tree.nodes[current.left];
+        }
+
+        current = stack.pop();
+        if (!current) break;
+        
+        visitedSoFar.push(current.value);
+        steps.push({
+          id: `visit-${current.value}`,
+          description: `Visit node ${current.value}`,
+          visualState: {
+            tree: tree.nodes,
+            iterative,
+            currentNode: current.value,
+            visited: [...visitedSoFar],
+            stack: stack.map(node => node.value)
+          }
+        });
+
+        current = tree.nodes[current.right];
+        if (current) {
+          steps.push({
+            id: `move-right-${current.value}`,
+            description: `Move to right child ${current.value}`,
+            visualState: {
+              tree: tree.nodes,
+              iterative,
+              currentNode: current.value,
+              visited: [...visitedSoFar],
+              stack: stack.map(node => node.value)
+            }
+          });
+        }
+      }
+    } else {
+      const visitedSoFar: number[] = []; // Initialize as empty array instead of number
+
+      const traverse = (node: NodeVisualization | null) => {
+        if (!node) return;
+
+        traverse(tree.nodes[node.left]);
+
+        steps.push({
+          id: `visit-${node.value}`,
+          description: `Visit node ${node.value}`,
+          visualState: {
+            tree: tree.nodes,
+            iterative,
+            currentNode: node.value,
+            visited: [...visitedSoFar, node.value],
+            stack: []
+          }
+        });
+
+        visitedSoFar.push(node.value);
+
+        traverse(tree.nodes[node.right]);
+      };
+
+      traverse(tree.root);
+    }
+
+    return steps;
+  },
+  defaultInput: { iterative: false }
+};
