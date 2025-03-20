@@ -336,6 +336,7 @@ function postorderTraversal(node) {
         steps.push({
           id: `visit-${node.value}`,
           description: `Visit node ${node.value} (Preorder)`,
+          highlightedLines: [17, 18],
           visualState: {
             tree: tree.nodes,
             traversalType,
@@ -350,6 +351,7 @@ function postorderTraversal(node) {
         steps.push({
           id: `visit-${node.value}`,
           description: `Visit node ${node.value} (Inorder)`,
+          highlightedLines: [10, 11],
           visualState: {
             tree: tree.nodes,
             traversalType,
@@ -364,6 +366,7 @@ function postorderTraversal(node) {
         steps.push({
           id: `visit-${node.value}`,
           description: `Visit node ${node.value} (Postorder)`,
+          highlightedLines: [24, 25],
           visualState: {
             tree: tree.nodes,
             traversalType,
@@ -441,6 +444,7 @@ function levelOrderTraversal(root) {
     steps.push({
       id: 'start',
       description: 'Add root to the queue',
+      highlightedLines: [5, 6],
       visualState: {
         tree: tree.nodes,
         withLevels,
@@ -458,6 +462,7 @@ function levelOrderTraversal(root) {
       steps.push({
         id: `level-start-${level}`,
         description: `Start processing level ${level}`,
+        highlightedLines: [7, 8],
         visualState: {
           tree: tree.nodes,
           withLevels,
@@ -474,6 +479,7 @@ function levelOrderTraversal(root) {
         steps.push({
           id: `visit-${node.value}`,
           description: `Visit node ${node.value}`,
+          highlightedLines: [9],
           visualState: {
             tree: tree.nodes,
             withLevels,
@@ -492,6 +498,7 @@ function levelOrderTraversal(root) {
           steps.push({
             id: `enqueue-left-${tree.nodes[node.left].value}`,
             description: `Enqueue left child ${tree.nodes[node.left].value}`,
+            highlightedLines: [10, 11],
             visualState: {
               tree: tree.nodes,
               withLevels,
@@ -508,6 +515,7 @@ function levelOrderTraversal(root) {
           steps.push({
             id: `enqueue-right-${tree.nodes[node.right].value}`,
             description: `Enqueue right child ${tree.nodes[node.right].value}`,
+            highlightedLines: [10, 11],
             visualState: {
               tree: tree.nodes,
               withLevels,
@@ -525,6 +533,7 @@ function levelOrderTraversal(root) {
       steps.push({
         id: `level-end-${level}`,
         description: `End processing level ${level - 1}`,
+        highlightedLines: [12, 13],
         visualState: {
           tree: tree.nodes,
           withLevels,
@@ -613,6 +622,7 @@ function preOrderTraversalIterative(root) {
       steps.push({
         id: 'start',
         description: 'Add root to the stack',
+        highlightedLines: [14, 15],
         visualState: {
           tree: tree.nodes,
           iterative,
@@ -628,6 +638,7 @@ function preOrderTraversalIterative(root) {
         steps.push({
           id: `visit-${node.value}`,
           description: `Visit node ${node.value}`,
+          highlightedLines: [17, 18],
           visualState: {
             tree: tree.nodes,
             iterative,
@@ -644,6 +655,7 @@ function preOrderTraversalIterative(root) {
           steps.push({
             id: `push-right-${tree.nodes[node.right].value}`,
             description: `Push right child ${tree.nodes[node.right].value} onto the stack`,
+            highlightedLines: [20],
             visualState: {
               tree: tree.nodes,
               iterative,
@@ -659,6 +671,7 @@ function preOrderTraversalIterative(root) {
           steps.push({
             id: `push-left-${tree.nodes[node.left].value}`,
             description: `Push left child ${tree.nodes[node.left].value} onto the stack`,
+            highlightedLines: [21],
             visualState: {
               tree: tree.nodes,
               iterative,
@@ -678,6 +691,7 @@ function preOrderTraversalIterative(root) {
         steps.push({
           id: `visit-${node.value}`,
           description: `Visit node ${node.value}`,
+          highlightedLines: [3, 4],
           visualState: {
             tree: tree.nodes,
             iterative,
@@ -782,6 +796,7 @@ function postOrderTraversalIterative(root) {
       steps.push({
         id: 'start',
         description: 'Add root to the stack1',
+        highlightedLines: [14, 15],
         visualState: {
           tree: tree.nodes,
           iterative,
@@ -800,6 +815,7 @@ function postOrderTraversalIterative(root) {
         steps.push({
           id: `visit-${node.value}`,
           description: `Visit node ${node.value} and push to stack2`,
+          highlightedLines: [16, 17],
           visualState: {
             tree: tree.nodes,
             iterative,
@@ -815,6 +831,7 @@ function postOrderTraversalIterative(root) {
           steps.push({
             id: `push-left-${tree.nodes[node.left].value}`,
             description: `Push left child ${tree.nodes[node.left].value} onto the stack1`,
+            highlightedLines: [19],
             visualState: {
               tree: tree.nodes,
               iterative,
@@ -831,6 +848,7 @@ function postOrderTraversalIterative(root) {
           steps.push({
             id: `push-right-${tree.nodes[node.right].value}`,
             description: `Push right child ${tree.nodes[node.right].value} onto the stack1`,
+            highlightedLines: [20],
             visualState: {
               tree: tree.nodes,
               iterative,
@@ -852,6 +870,7 @@ function postOrderTraversalIterative(root) {
         steps.push({
           id: `visit2-${node.value}`,
           description: `Visit node ${node.value} from stack2`,
+          highlightedLines: [23, 24],
           visualState: {
             tree: tree.nodes,
             iterative,
@@ -874,6 +893,7 @@ function postOrderTraversalIterative(root) {
         steps.push({
           id: `visit-${node.value}`,
           description: `Visit node ${node.value}`,
+          highlightedLines: [3, 4, 5],
           visualState: {
             tree: tree.nodes,
             iterative,
@@ -970,6 +990,7 @@ function inOrderTraversalIterative(root) {
       steps.push({
         id: 'start',
         description: 'Initialize stack and current node',
+        highlightedLines: [13, 14, 15],
         visualState: {
           tree: tree.nodes,
           iterative,
@@ -985,6 +1006,7 @@ function inOrderTraversalIterative(root) {
           steps.push({
             id: `push-${current.value}`,
             description: `Push ${current.value} onto the stack and move left`,
+            highlightedLines: [17, 18],
             visualState: {
               tree: tree.nodes,
               iterative,
@@ -1003,6 +1025,7 @@ function inOrderTraversalIterative(root) {
         steps.push({
           id: `visit-${current.value}`,
           description: `Visit node ${current.value}`,
+          highlightedLines: [21, 22],
           visualState: {
             tree: tree.nodes,
             iterative,
@@ -1017,6 +1040,7 @@ function inOrderTraversalIterative(root) {
           steps.push({
             id: `move-right-${current.value}`,
             description: `Move to right child ${current.value}`,
+            highlightedLines: [23],
             visualState: {
               tree: tree.nodes,
               iterative,
@@ -1038,6 +1062,7 @@ function inOrderTraversalIterative(root) {
         steps.push({
           id: `visit-${node.value}`,
           description: `Visit node ${node.value}`,
+          highlightedLines: [3, 4, 5],
           visualState: {
             tree: tree.nodes,
             iterative,

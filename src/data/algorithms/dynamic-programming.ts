@@ -74,7 +74,7 @@ function fibonacciOptimized(n) {
       steps.push({
         id: 'base-case',
         description: `Base case: n = ${n}, return ${n}`,
-        highlightedLines: optimized ? 19 : 3,
+        highlightedLines: optimized ? [19] : [3],
         visualState: { 
           n,
           optimized,
@@ -165,7 +165,7 @@ function fibonacciOptimized(n) {
           visualState: { 
             n,
             optimized,
-            dp: [...dp.slice(0, 2)],
+            dp: dp.slice(0, 2),
             currentStep: 0
           }
         });
@@ -180,7 +180,7 @@ function fibonacciOptimized(n) {
             visualState: { 
               n,
               optimized,
-              dp: [...dp.slice(0, i+1)],
+              dp: dp.slice(0, i+1),
               currentStep: i,
               currentCalc: [i-2, i-1]
             }
