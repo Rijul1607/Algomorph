@@ -1,3 +1,4 @@
+
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 
 // Fibonacci Sequence with Dynamic Programming
@@ -61,7 +62,7 @@ function fibonacciOptimized(n) {
       visualState: { 
         n,
         optimized,
-        dp: optimized ? null : [0, 1],
+        dp: optimized ? [] : [0, 1], // Fix: Changed null to empty array
         prev: optimized ? 0 : null,
         curr: optimized ? 1 : null,
         result: null,
@@ -77,7 +78,7 @@ function fibonacciOptimized(n) {
         visualState: { 
           n,
           optimized,
-          dp: optimized ? null : [0, 1],
+          dp: optimized ? [] : [0, 1], // Fix: Changed null to empty array
           prev: optimized ? 0 : null,
           curr: optimized ? 1 : null,
           result: n,

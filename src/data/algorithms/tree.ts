@@ -613,7 +613,7 @@ function levelOrderTraversalWithLevels(root) {
       [3, 4, 5, 6] // Level 2: children of 5 and 15
     ];
     
-    let visitedSoFar = [];
+    let visitedSoFar: number[] = []; // Fix: Initialize as empty array
     let currentLevel = 0;
     
     for (const level of levels) {
@@ -757,7 +757,7 @@ function preOrderTraversalIterative(root) {
       // Iterative pre-order: using a stack
       const visitOrder = [0, 1, 3, 4, 2, 5, 6]; // Node indices in visit order
       let stackState = [0]; // Start with root
-      let visitedSoFar = [];
+      let visitedSoFar: number[] = []; // Fix: Initialize as empty array
       
       for (const nodeIdx of visitOrder) {
         steps.push({
@@ -928,8 +928,8 @@ function postOrderTraversalIterative(root) {
     
     if (iterative) {
       // Step 1: Fill stack2 by processing nodes in pre-order but pushing to stack2
-      let stack1 = [0]; // Start with root index
-      let stack2 = [];
+      let stack1: number[] = [0]; // Start with root index
+      let stack2: number[] = [];
       
       steps.push({
         id: 'stack-init',
@@ -945,7 +945,7 @@ function postOrderTraversalIterative(root) {
       });
       
       while (stack1.length > 0) {
-        const nodeIdx = stack1.pop();
+        const nodeIdx = stack1.pop()!;
         stack2.push(nodeIdx);
         
         steps.push({
@@ -988,7 +988,7 @@ function postOrderTraversalIterative(root) {
       }
       
       // Step 2: Pop from stack2 to get post-order traversal
-      let visitedSoFar = [];
+      let visitedSoFar: number[] = [];
       
       steps.push({
         id: 'stack2-process',
@@ -1003,7 +1003,7 @@ function postOrderTraversalIterative(root) {
       });
       
       while (stack2.length > 0) {
-        const nodeIdx = stack2.pop();
+        const nodeIdx = stack2.pop()!;
         visitedSoFar.push(nodeIdx);
         
         steps.push({
