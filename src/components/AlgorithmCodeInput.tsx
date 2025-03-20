@@ -104,7 +104,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
               Include detailed descriptions and visualState objects that can be used to render the algorithm step by step.
               ONLY RETURN VALID JSON with no additional text or explanations. I need to parse your response directly.`
             }]
-          }),
+          }],
           generationConfig: {
             temperature: 0.2,
             topP: 0.8,
