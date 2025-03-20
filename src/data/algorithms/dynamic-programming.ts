@@ -62,7 +62,7 @@ function fibonacciOptimized(n) {
       visualState: { 
         n,
         optimized,
-        dp: optimized ? [] : [0, 1], // Fix: Changed null to empty array
+        dp: optimized ? [] : [0, 1],
         prev: optimized ? 0 : null,
         curr: optimized ? 1 : null,
         result: null,
@@ -78,7 +78,7 @@ function fibonacciOptimized(n) {
         visualState: { 
           n,
           optimized,
-          dp: optimized ? [] : [0, 1], // Fix: Changed null to empty array
+          dp: optimized ? [] : [0, 1],
           prev: optimized ? 0 : null,
           curr: optimized ? 1 : null,
           result: n,
@@ -284,7 +284,7 @@ function knapsack(values, weights, capacity) {
         capacity,
         currentItem: null,
         currentWeight: null,
-        dp: null
+        dp: []
       }
     });
     
@@ -518,7 +518,7 @@ function longestCommonSubsequence(text1, text2) {
       visualState: { 
         text1,
         text2,
-        dp: null
+        dp: []
       }
     });
     

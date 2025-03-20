@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -105,6 +106,63 @@ const TableCaption = React.forwardRef<
 ))
 TableCaption.displayName = "TableCaption"
 
+// Add new DP table specific components
+const DPTable = React.forwardRef<
+  HTMLTableElement,
+  React.HTMLAttributes<HTMLTableElement>
+>(({ className, ...props }, ref) => (
+  <div className="relative w-full overflow-x-auto">
+    <table
+      ref={ref}
+      className={cn("w-full text-sm border-collapse", className)}
+      {...props}
+    />
+  </div>
+))
+DPTable.displayName = "DPTable"
+
+const DPTableCell = React.forwardRef<
+  HTMLTableCellElement,
+  React.TdHTMLAttributes<HTMLTableCellElement> & {
+    active?: boolean;
+    highlight?: boolean;
+    success?: boolean;
+    error?: boolean;
+  }
+>(({ className, active, highlight, success, error, ...props }, ref) => (
+  <td
+    ref={ref}
+    className={cn(
+      "p-2 text-center border min-w-[2.5rem] h-10",
+      active && "bg-warning/20 border-warning",
+      highlight && "ring-2 ring-purple-400",
+      success && "bg-success/20 border-success",
+      error && "bg-destructive/20 border-destructive",
+      className
+    )}
+    {...props}
+  />
+))
+DPTableCell.displayName = "DPTableCell"
+
+const DPTableHeaderCell = React.forwardRef<
+  HTMLTableCellElement,
+  React.ThHTMLAttributes<HTMLTableCellElement> & {
+    active?: boolean;
+  }
+>(({ className, active, ...props }, ref) => (
+  <th
+    ref={ref}
+    className={cn(
+      "p-2 text-center border font-medium min-w-[2.5rem] h-10",
+      active && "bg-warning/20",
+      className
+    )}
+    {...props}
+  />
+))
+DPTableHeaderCell.displayName = "DPTableHeaderCell"
+
 export {
   Table,
   TableHeader,
@@ -114,4 +172,7 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  DPTable,
+  DPTableCell,
+  DPTableHeaderCell
 }
