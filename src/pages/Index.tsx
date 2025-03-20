@@ -6,7 +6,6 @@ import AlgorithmSelector from '@/components/AlgorithmSelector';
 import AlgorithmCodeInput from '@/components/AlgorithmCodeInput';
 import { Algorithm } from '@/types/algorithm';
 import { algorithmData } from '@/data/algorithms';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>(algorithmData[0]);
@@ -51,7 +50,6 @@ const Index = () => {
                 <option value={4}>4x</option>
               </select>
             </div>
-            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -64,8 +62,8 @@ const Index = () => {
           </TabsList>
           
           <TabsContent value="built-in" className="space-y-6">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="w-full md:w-1/4 border rounded-lg p-4 bg-card">
+            <div className="flex gap-6">
+              <div className="w-1/4 border rounded-lg p-4 bg-card">
                 <h2 className="text-lg font-medium mb-4">Algorithms</h2>
                 <AlgorithmSelector 
                   algorithms={algorithmData} 
@@ -74,7 +72,7 @@ const Index = () => {
                 />
               </div>
               
-              <div className="w-full md:w-3/4 border rounded-lg p-4 bg-card">
+              <div className="w-3/4 border rounded-lg p-4 bg-card">
                 <Tabs defaultValue="visualization">
                   <TabsList className="mb-4">
                     <TabsTrigger value="visualization">Visualization</TabsTrigger>
@@ -96,7 +94,7 @@ const Index = () => {
                   </TabsContent>
                   
                   <TabsContent value="explanation">
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <div className="prose prose-sm max-w-none">
                       <h3 className="text-xl font-medium mb-2">{selectedAlgorithm.name}</h3>
                       <p className="mb-4">{selectedAlgorithm.description}</p>
                       

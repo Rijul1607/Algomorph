@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { DPTable, DPTableCell, DPTableHeaderCell } from "@/components/ui/table";
 
 interface DPVisualizerProps {
   data: {
@@ -73,8 +72,8 @@ const DPVisualizer: React.FC<DPVisualizerProps> = ({ data }) => {
 // Fibonacci Visualization
 const FibonacciVisualizer: React.FC<{ data: any }> = ({ data }) => {
   const { 
-    n, dp = [], prev, curr, next, result, currentStep = 0,
-    currentCalc = [], optimized, complete 
+    n, dp, prev, curr, next, result, currentStep,
+    currentCalc, optimized, complete 
   } = data;
   
   return (
@@ -213,7 +212,7 @@ const KnapsackVisualizer: React.FC<{ data: any }> = ({ data }) => {
       {/* Items display */}
       <div className="bg-muted/30 p-4 rounded-md mb-6 w-full max-w-3xl">
         <h3 className="font-medium mb-3">Items:</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
           {values.map((value, idx) => (
             <div 
               key={idx}
@@ -228,7 +227,7 @@ const KnapsackVisualizer: React.FC<{ data: any }> = ({ data }) => {
               }`}
             >
               <div className="text-xs font-medium mb-1">Item {idx + 1}</div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between">
                 <span>Value: <strong>{value}</strong></span>
                 <span>Weight: <strong>{weights[idx]}</strong></span>
               </div>
@@ -237,52 +236,69 @@ const KnapsackVisualizer: React.FC<{ data: any }> = ({ data }) => {
         </div>
       </div>
       
-      {/* DP Table visualization (improved with our new components) */}
+      {/* DP Table visualization (simplified) */}
       {dp && dp.length > 0 && (
-        <div className="w-full max-w-3xl overflow-x-auto mb-6">
+        <div className="w-full max-w-3xl overflow-x-auto">
           <h3 className="font-medium mb-3">DP Table:</h3>
-          <DPTable className="border">
-            <thead>
-              <tr>
-                <DPTableHeaderCell>i \ w</DPTableHeaderCell>
-                {Array.from({ length: Math.min(capacity + 1, 12) }).map((_, w) => (
-                  <DPTableHeaderCell key={w} active={currentWeight === w}>
-                    {w}
-                  </DPTableHeaderCell>
-                ))}
-                {capacity > 11 && <DPTableHeaderCell>...</DPTableHeaderCell>}
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: Math.min(dp.length, 6) }).map((_, i) => (
-                <tr key={i}>
-                  <DPTableHeaderCell active={currentItem === i - 1}>
-                    {i}
-                  </DPTableHeaderCell>
-                  {Array.from({ length: Math.min(capacity + 1, 12) }).map((_, w) => (
-                    <DPTableCell 
-                      key={w}
-                      active={currentItem === i - 1 && currentWeight === w}
-                      error={currentItem === i - 1 && currentWeight === w && tooHeavy}
-                      success={i === dp.length - 1 && w === capacity}
-                    >
-                      {dp[i] && dp[i][w] !== undefined ? dp[i][w] : '-'}
-                    </DPTableCell>
-                  ))}
-                  {capacity > 11 && <DPTableCell>...</DPTableCell>}
-                </tr>
+          <div className="flex">
+            <div className="w-12 text-center font-medium border-r border-b p-2">
+              i \ w
+            </div>
+            {Array.from({ length: Math.min(capacity + 1, 10) }).map((_, w) => (
+              <div 
+                key={w}
+                className={`min-w-12 text-center font-medium border-r border-b p-2 ${
+                  currentWeight === w ? 'bg-warning/20' : ''
+                }`}
+              >
+                {w}
+              </div>
+            ))}
+            {capacity > 9 && (
+              <div className="min-w-12 text-center font-medium border-r border-b p-2">...</div>
+            )}
+          </div>
+          
+          {Array.from({ length: Math.min(dp.length, 5) }).map((_, i) => (
+            <div key={i} className="flex">
+              <div className={`w-12 text-center font-medium border-r border-b p-2 ${
+                currentItem === i - 1 ? 'bg-warning/20' : ''
+              }`}>
+                {i}
+              </div>
+              {Array.from({ length: Math.min(capacity + 1, 10) }).map((_, w) => (
+                <div 
+                  key={w}
+                  className={`min-w-12 text-center border-r border-b p-2 ${
+                    currentItem === i - 1 && currentWeight === w
+                      ? tooHeavy
+                        ? 'bg-destructive/20'
+                        : 'bg-warning/20'
+                      : ''
+                  } ${
+                    i === dp.length - 1 && w === capacity ? 'bg-success/20 font-bold' : ''
+                  }`}
+                >
+                  {dp[i] && dp[i][w] !== undefined ? dp[i][w] : '-'}
+                </div>
               ))}
-              {dp.length > 6 && (
-                <tr>
-                  <DPTableHeaderCell>...</DPTableHeaderCell>
-                  {Array.from({ length: Math.min(capacity + 1, 12) }).map((_, w) => (
-                    <DPTableCell key={w}>...</DPTableCell>
-                  ))}
-                  {capacity > 11 && <DPTableCell>...</DPTableCell>}
-                </tr>
+              {capacity > 9 && (
+                <div className="min-w-12 text-center border-r border-b p-2">...</div>
               )}
-            </tbody>
-          </DPTable>
+            </div>
+          ))}
+          
+          {dp.length > 5 && (
+            <div className="flex">
+              <div className="w-12 text-center font-medium border-r border-b p-2">...</div>
+              {Array.from({ length: Math.min(capacity + 1, 10) }).map((_, w) => (
+                <div key={w} className="min-w-12 text-center border-r border-b p-2">...</div>
+              ))}
+              {capacity > 9 && (
+                <div className="min-w-12 text-center border-r border-b p-2">...</div>
+              )}
+            </div>
+          )}
         </div>
       )}
       
@@ -348,7 +364,7 @@ const KnapsackVisualizer: React.FC<{ data: any }> = ({ data }) => {
 // Longest Common Subsequence Visualization
 const LCSVisualizer: React.FC<{ data: any }> = ({ data }) => {
   const { 
-    text1 = "", text2 = "", dp = [], charIndex1, charIndex2, match,
+    text1, text2, dp, charIndex1, charIndex2, match,
     lcsLength, lcs, backtrackI, backtrackJ, moveDirection, complete 
   } = data;
   
@@ -403,65 +419,92 @@ const LCSVisualizer: React.FC<{ data: any }> = ({ data }) => {
         </div>
       </div>
       
-      {/* DP Table visualization (improved) */}
-      {dp && dp.length > 0 && (
+      {/* DP Table visualization (simplified) */}
+      {dp && (
         <div className="w-full max-w-3xl overflow-x-auto mb-6">
           <h3 className="font-medium mb-3">DP Table:</h3>
-          <DPTable>
-            <thead>
-              <tr>
-                <DPTableHeaderCell>i \ j</DPTableHeaderCell>
-                <DPTableHeaderCell>-</DPTableHeaderCell>
-                {text2.slice(0, 8).split('').map((char, j) => (
-                  <DPTableHeaderCell 
-                    key={j}
-                    active={charIndex2 === j}
-                  >
-                    {char}
-                  </DPTableHeaderCell>
-                ))}
-                {text2.length > 8 && <DPTableHeaderCell>...</DPTableHeaderCell>}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <DPTableHeaderCell>-</DPTableHeaderCell>
-                {Array.from({ length: Math.min(text2.length + 1, 9) }).map((_, j) => (
-                  <DPTableCell key={j}>
-                    {dp[0] && j < dp[0].length ? dp[0][j] : '0'}
-                  </DPTableCell>
-                ))}
-                {text2.length > 8 && <DPTableCell>...</DPTableCell>}
-              </tr>
-              
-              {text1.slice(0, 6).split('').map((char, i) => (
-                <tr key={i}>
-                  <DPTableHeaderCell active={charIndex1 === i}>{char}</DPTableHeaderCell>
-                  {Array.from({ length: Math.min(text2.length + 1, 9) }).map((_, j) => (
-                    <DPTableCell 
-                      key={j}
-                      active={charIndex1 === i && charIndex2 === j - 1}
-                      success={charIndex1 === i && charIndex2 === j - 1 && match}
-                      highlight={backtrackI === i + 1 && backtrackJ === j}
-                    >
-                      {dp[i + 1] && j < dp[i + 1].length ? dp[i + 1][j] : '-'}
-                    </DPTableCell>
-                  ))}
-                  {text2.length > 8 && <DPTableCell>...</DPTableCell>}
-                </tr>
+          <div className="flex">
+            <div className="w-12 text-center font-medium border-r border-b p-2">
+              i \ j
+            </div>
+            <div className="min-w-12 text-center font-medium border-r border-b p-2">
+              -
+            </div>
+            {text2.slice(0, 7).split('').map((char, j) => (
+              <div 
+                key={j}
+                className={`min-w-12 text-center font-medium border-r border-b p-2 ${
+                  charIndex2 === j ? 'bg-warning/20' : ''
+                }`}
+              >
+                {char}
+              </div>
+            ))}
+            {text2.length > 7 && (
+              <div className="min-w-12 text-center font-medium border-r border-b p-2">...</div>
+            )}
+          </div>
+          
+          <div className="flex">
+            <div className="w-12 text-center font-medium border-r border-b p-2">-</div>
+            {Array.from({ length: Math.min(text2.length + 1, 8) }).map((_, j) => (
+              <div key={j} className="min-w-12 text-center border-r border-b p-2">
+                {dp[0] && dp[0][j] !== undefined ? dp[0][j] : '0'}
+              </div>
+            ))}
+            {text2.length > 7 && (
+              <div className="min-w-12 text-center border-r border-b p-2">...</div>
+            )}
+          </div>
+          
+          {text1.slice(0, 5).split('').map((char, i) => (
+            <div key={i} className="flex">
+              <div className={`w-12 text-center font-medium border-r border-b p-2 ${
+                charIndex1 === i ? 'bg-warning/20' : ''
+              }`}>
+                {char}
+              </div>
+              {Array.from({ length: Math.min(text2.length + 1, 8) }).map((_, j) => (
+                <div 
+                  key={j}
+                  className={`min-w-12 text-center border-r border-b p-2 ${
+                    charIndex1 === i && charIndex2 === j - 1
+                      ? match
+                        ? 'bg-success/20'
+                        : 'bg-warning/20'
+                      : ''
+                  } ${
+                    backtrackI === i + 1 && backtrackJ === j
+                      ? moveDirection === 'up'
+                        ? 'bg-blue-100 dark:bg-blue-900/30'
+                        : moveDirection === 'left'
+                          ? 'bg-purple-100 dark:bg-purple-900/30'
+                          : match
+                            ? 'bg-success/20'
+                            : ''
+                      : ''
+                  }`}
+                >
+                  {dp[i + 1] && dp[i + 1][j] !== undefined ? dp[i + 1][j] : '-'}
+                </div>
               ))}
-              
-              {text1.length > 6 && (
-                <tr>
-                  <DPTableHeaderCell>...</DPTableHeaderCell>
-                  {Array.from({ length: Math.min(text2.length + 1, 9) }).map((_, j) => (
-                    <DPTableCell key={j}>...</DPTableCell>
-                  ))}
-                  {text2.length > 8 && <DPTableCell>...</DPTableCell>}
-                </tr>
+              {text2.length > 7 && (
+                <div className="min-w-12 text-center border-r border-b p-2">...</div>
               )}
-            </tbody>
-          </DPTable>
+            </div>
+          ))}
+          
+          {text1.length > 5 && (
+            <div className="flex">
+              <div className="w-12 text-center font-medium border-r border-b p-2">...</div>
+              {Array.from({ length: Math.min(text2.length + 1, 8) }).map((_, j) => (
+                <div key={j} className="min-w-12 text-center border-r border-b p-2">...</div>
+              ))}
+              {text2.length > 7 && (
+                <div className="min-w-12 text-center border-r border-b p-2">...</div>
+              )}
+            </div>
+          )}
         </div>
       )}
       

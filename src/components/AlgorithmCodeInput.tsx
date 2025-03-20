@@ -14,8 +14,7 @@ import {
 import { simulateCustomCodeExecution } from '@/utils/codeSimulator';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { Loader2, Sparkles, AlertTriangle } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Loader2, Sparkles } from 'lucide-react';
 
 interface AlgorithmCodeInputProps {
   onCodeSubmit: (code: string, language: string, steps: any[]) => void;
@@ -28,7 +27,6 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
   const [geminiKey, setGeminiKey] = useState('');
   const [isUsingGemini, setIsUsingGemini] = useState(false);
   const [description, setDescription] = useState('');
-  const [geminiError, setGeminiError] = useState<string | null>(null);
 
   const handleLanguageChange = (value: string) => {
     setLanguage(value);
@@ -48,8 +46,6 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
     }
     
     setLoading(true);
-    setGeminiError(null);
-    
     try {
       if (isUsingGemini && geminiKey) {
         // Use Gemini AI to generate steps
@@ -71,8 +67,6 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
   const handleGeminiVisualization = async () => {
     try {
       // Call Gemini API
-      setGeminiError(null);
-      
       const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
         method: 'POST',
         headers: {
@@ -102,29 +96,23 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
               ]
               
               Include detailed descriptions and visualState objects that can be used to render the algorithm step by step.
-              ONLY RETURN VALID JSON with no additional text or explanations. I need to parse your response directly.`
+              ONLY RETURN VALID JSON with no additional text.`
             }]
           }],
           generationConfig: {
             temperature: 0.2,
             topP: 0.8,
             topK: 40,
-            maxOutputTokens: 8192
+            maxOutputTokens: 8192,
           }
         })
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Gemini API Error: ${response.status} - ${errorData?.error?.message || 'Unknown error'}`);
+        throw new Error(`Gemini API Error: ${response.status}`);
       }
 
       const data = await response.json();
-      
-      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts) {
-        throw new Error('Unexpected response format from Gemini API');
-      }
-      
       const responseText = data.candidates[0].content.parts[0].text;
       
       // Extract JSON from response (Gemini might wrap it in markdown code blocks)
@@ -135,45 +123,20 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
         jsonStr = responseText.split('```')[1].split('```')[0].trim();
       }
 
-      // Try to be very lenient in parsing JSON by cleanup
-      jsonStr = jsonStr.trim();
-      // Remove any leading/trailing comments or text before [ and after ]
-      const startIndex = jsonStr.indexOf('[');
-      const endIndex = jsonStr.lastIndexOf(']');
-      if (startIndex !== -1 && endIndex !== -1) {
-        jsonStr = jsonStr.substring(startIndex, endIndex + 1);
-      }
-
       let steps;
       try {
         steps = JSON.parse(jsonStr);
-        
-        // Validate the steps format
-        if (!Array.isArray(steps)) {
-          throw new Error('Result is not an array');
-        }
-        
-        // Basic validation of step structure
-        steps.forEach((step, i) => {
-          if (!step.id || !step.description || !step.visualState) {
-            throw new Error(`Step ${i} is missing required fields (id, description, or visualState)`);
-          }
-        });
-        
       } catch (e) {
-        console.error("Failed to parse JSON from Gemini:", e);
-        console.error("Response text:", responseText);
-        console.error("Extracted JSON string:", jsonStr);
-        setGeminiError("Failed to parse Gemini's response as JSON. Try simplifying your code or using non-Gemini mode.");
+        console.error("Failed to parse JSON from Gemini:", jsonStr);
+        toast.error("Failed to parse Gemini's response as JSON");
         throw e;
       }
 
       // Submit the steps
       onCodeSubmit(code, language, steps);
       toast.success('Visualization generated with Gemini AI');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Gemini API Error:', error);
-      setGeminiError(error.message || 'Error with Gemini AI visualization');
       toast.error('Error with Gemini AI visualization. Please check your API key and try again.');
       throw error;
     }
@@ -271,16 +234,6 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
                 rows={3}
               />
             </div>
-            
-            {geminiError && (
-              <Alert variant="destructive" className="mt-2">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Gemini API Error</AlertTitle>
-                <AlertDescription>
-                  {geminiError}
-                </AlertDescription>
-              </Alert>
-            )}
           </div>
         )}
       </div>
