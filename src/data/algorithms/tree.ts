@@ -1,4 +1,3 @@
-
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 
 // Binary Tree Traversal
@@ -6,217 +5,166 @@ export const binaryTreeTraversal: Algorithm = {
   id: 'binary-tree-traversal',
   name: 'Binary Tree Traversal',
   type: 'tree',
-  description: 'Algorithms for traversing or searching tree data structures. The traversal methods are in-order, pre-order, and post-order.',
+  description: 'Visualize different binary tree traversal algorithms: In-order, Pre-order, and Post-order.',
   timeComplexity: 'O(n)',
-  spaceComplexity: 'O(h) where h is the height of the tree',
+  spaceComplexity: 'O(n)',
   code: `// JavaScript Implementation
-class TreeNode {
-  constructor(value) {
+class Node {
+  constructor(value, left = null, right = null) {
     this.value = value;
-    this.left = null;
-    this.right = null;
+    this.left = left;
+    this.right = right;
   }
 }
 
 // In-order traversal: Left -> Root -> Right
-function inOrderTraversal(root) {
-  const result = [];
-  
-  function traverse(node) {
-    if (node !== null) {
-      // Traverse left subtree
-      traverse(node.left);
-      // Visit root
-      result.push(node.value);
-      // Traverse right subtree
-      traverse(node.right);
-    }
+function inOrderTraversal(node, result = []) {
+  if (node) {
+    inOrderTraversal(node.left, result);
+    result.push(node.value);
+    inOrderTraversal(node.right, result);
   }
-  
-  traverse(root);
   return result;
 }
 
 // Pre-order traversal: Root -> Left -> Right
-function preOrderTraversal(root) {
-  const result = [];
-  
-  function traverse(node) {
-    if (node !== null) {
-      // Visit root
-      result.push(node.value);
-      // Traverse left subtree
-      traverse(node.left);
-      // Traverse right subtree
-      traverse(node.right);
-    }
+function preOrderTraversal(node, result = []) {
+  if (node) {
+    result.push(node.value);
+    preOrderTraversal(node.left, result);
+    preOrderTraversal(node.right, result);
   }
-  
-  traverse(root);
   return result;
 }
 
 // Post-order traversal: Left -> Right -> Root
-function postOrderTraversal(root) {
-  const result = [];
-  
-  function traverse(node) {
-    if (node !== null) {
-      // Traverse left subtree
-      traverse(node.left);
-      // Traverse right subtree
-      traverse(node.right);
-      // Visit root
-      result.push(node.value);
-    }
+function postOrderTraversal(node, result = []) {
+  if (node) {
+    postOrderTraversal(node.left, result);
+    postOrderTraversal(node.right, result);
+    result.push(node.value);
   }
-  
-  traverse(root);
   return result;
 }
 
-// Level order traversal (Breadth-First)
-function levelOrderTraversal(root) {
-  if (!root) return [];
-  
-  const result = [];
-  const queue = [root];
-  
-  while (queue.length > 0) {
-    const node = queue.shift();
-    result.push(node.value);
-    
-    if (node.left) queue.push(node.left);
-    if (node.right) queue.push(node.right);
-  }
-  
-  return result;
-}`,
-  explanation: `<p>Binary tree traversal is the process of visiting each node in a tree data structure exactly once. There are several common ways to traverse a binary tree:</p>
-  <ol>
-    <li><strong>In-order traversal:</strong> First visit the left subtree, then the root, and finally the right subtree (Left → Root → Right).</li>
-    <li><strong>Pre-order traversal:</strong> First visit the root, then the left subtree, and finally the right subtree (Root → Left → Right).</li>
-    <li><strong>Post-order traversal:</strong> First visit the left subtree, then the right subtree, and finally the root (Left → Right → Root).</li>
-    <li><strong>Level-order traversal:</strong> Visit nodes level by level from top to bottom and left to right (also called Breadth-First traversal).</li>
-  </ol>
-  <p>Applications of tree traversal:</p>
+// Example usage:
+const root = new Node(1, new Node(2, new Node(4), new Node(5)), new Node(3, new Node(6), new Node(7)));
+console.log("In-order:", inOrderTraversal(root));
+console.log("Pre-order:", preOrderTraversal(root));
+console.log("Post-order:", postOrderTraversal(root));`,
+  explanation: `<p>Binary tree traversal involves visiting each node in the tree in a specific order. There are three common types of traversals:</p>
   <ul>
-    <li>In-order traversal of a binary search tree gives nodes in ascending order</li>
-    <li>Pre-order traversal can be used to create a copy of the tree</li>
-    <li>Post-order traversal can be used to delete the tree</li>
-    <li>Level-order traversal is useful for breadth-first searches in trees</li>
-  </ul>`,
-  generateSteps: (input: { traversalType: string }) => {
+    <li><strong>In-order:</strong> Traverse the left subtree, visit the root, then traverse the right subtree.</li>
+    <li><strong>Pre-order:</strong> Visit the root, traverse the left subtree, then traverse the right subtree.</li>
+    <li><strong>Post-order:</strong> Traverse the left subtree, traverse the right subtree, then visit the root.</li>
+  </ul>
+  <p>Each traversal type results in a different order of visiting the nodes, which can be useful for different applications.</p>`,
+  generateSteps: (input: { traversalType: 'inOrder' | 'preOrder' | 'postOrder' }) => {
+    const { traversalType = 'inOrder' } = input;
     const steps: AlgorithmStep[] = [];
-    const { traversalType = 'inorder' } = input;
-    
-    // Create a sample binary tree for visualization
-    const treeArray = [10, 5, 15, 3, 7, 12, 18];
-    
+
+    // Define the tree structure
+    const tree = {
+      root: {
+        id: '1',
+        value: 1,
+        left: {
+          id: '2',
+          value: 2,
+          left: { id: '4', value: 4, left: null, right: null },
+          right: { id: '5', value: 5, left: null, right: null }
+        },
+        right: {
+          id: '3',
+          value: 3,
+          left: { id: '6', value: 6, left: null, right: null },
+          right: { id: '7', value: 7, left: null, right: null }
+        }
+      }
+    };
+
+    const traversalOrder: number[] = [];
+
+    // Recursive traversal function
+    const traverse = (node: any, type: string) => {
+      if (!node) return;
+
+      if (type === 'preOrder') {
+        traversalOrder.push(node.value);
+        steps.push({
+          id: `preOrder-${node.id}`,
+          description: `Pre-order: Visit node ${node.value}`,
+          highlightedLines: [18],
+          visualState: {
+            tree,
+            currentNode: node.id,
+            traversalOrder: [...traversalOrder],
+            traversalType
+          }
+        });
+        traverse(node.left, type);
+        traverse(node.right, type);
+      } else if (type === 'inOrder') {
+        traverse(node.left, type);
+        traversalOrder.push(node.value);
+        steps.push({
+          id: `inOrder-${node.id}`,
+          description: `In-order: Visit node ${node.value}`,
+          highlightedLines: [11],
+          visualState: {
+            tree,
+            currentNode: node.id,
+            traversalOrder: [...traversalOrder],
+            traversalType
+          }
+        });
+        traverse(node.right, type);
+      } else if (type === 'postOrder') {
+        traverse(node.left, type);
+        traverse(node.right, type);
+        traversalOrder.push(node.value);
+        steps.push({
+          id: `postOrder-${node.id}`,
+          description: `Post-order: Visit node ${node.value}`,
+          highlightedLines: [25],
+          visualState: {
+            tree,
+            currentNode: node.id,
+            traversalOrder: [...traversalOrder],
+            traversalType
+          }
+        });
+      }
+    };
+
     steps.push({
       id: 'init',
-      description: `Starting ${traversalType} tree traversal`,
-      highlightedLines: [1, 2],
-      visualState: { 
-        tree: treeArray,
-        current: null,
-        visited: [],
+      description: `Initialize ${traversalType} traversal`,
+      highlightedLines: [],
+      visualState: {
+        tree,
+        traversalOrder: [],
         traversalType
       }
     });
-    
-    if (traversalType === 'inorder') {
-      // In-order: Left -> Root -> Right
-      const visitOrder = [3, 5, 7, 10, 12, 15, 18];
-      const nodeIndices = [3, 1, 4, 0, 5, 2, 6];
-      
-      for (let i = 0; i < visitOrder.length; i++) {
-        steps.push({
-          id: `inorder-${i}`,
-          description: `In-order: Visit node (${visitOrder[i]})`,
-          highlightedLines: [i < visitOrder.length/2 ? 21 : 25],
-          visualState: { 
-            tree: treeArray,
-            current: nodeIndices[i],
-            visited: nodeIndices.slice(0, i),
-            traversalType
-          }
-        });
-      }
-    } else if (traversalType === 'preorder') {
-      // Pre-order: Root -> Left -> Right
-      const visitOrder = [10, 5, 3, 7, 15, 12, 18];
-      const nodeIndices = [0, 1, 3, 4, 2, 5, 6];
-      
-      for (let i = 0; i < visitOrder.length; i++) {
-        steps.push({
-          id: `preorder-${i}`,
-          description: `Pre-order: Visit node (${visitOrder[i]})`,
-          highlightedLines: [i === 0 ? 36 : (i < 4 ? 38 : 40)],
-          visualState: { 
-            tree: treeArray,
-            current: nodeIndices[i],
-            visited: nodeIndices.slice(0, i),
-            traversalType
-          }
-        });
-      }
-    } else if (traversalType === 'postorder') {
-      // Post-order: Left -> Right -> Root
-      const visitOrder = [3, 7, 5, 12, 18, 15, 10];
-      const nodeIndices = [3, 4, 1, 5, 6, 2, 0];
-      
-      for (let i = 0; i < visitOrder.length; i++) {
-        steps.push({
-          id: `postorder-${i}`,
-          description: `Post-order: Visit node (${visitOrder[i]})`,
-          highlightedLines: [i < 3 ? 55 : (i < 6 ? 57 : 59)],
-          visualState: { 
-            tree: treeArray,
-            current: nodeIndices[i],
-            visited: nodeIndices.slice(0, i),
-            traversalType
-          }
-        });
-      }
-    } else if (traversalType === 'levelorder') {
-      // Level-order: BFS
-      const visitOrder = [10, 5, 15, 3, 7, 12, 18];
-      const nodeIndices = [0, 1, 2, 3, 4, 5, 6];
-      
-      for (let i = 0; i < visitOrder.length; i++) {
-        steps.push({
-          id: `levelorder-${i}`,
-          description: `Level-order: Visit node (${visitOrder[i]})`,
-          highlightedLines: [75],
-          visualState: { 
-            tree: treeArray,
-            current: nodeIndices[i],
-            visited: nodeIndices.slice(0, i),
-            traversalType,
-            queue: nodeIndices.slice(i + 1, Math.min(i + 3, nodeIndices.length))
-          }
-        });
-      }
-    }
-    
+
+    traverse(tree.root, traversalType);
+
     steps.push({
       id: 'complete',
-      description: `${traversalType} traversal complete`,
-      highlightedLines: [traversalType === 'inorder' ? 29 : (traversalType === 'preorder' ? 44 : (traversalType === 'postorder' ? 63 : 82))],
-      visualState: { 
-        tree: treeArray,
-        visited: traversalType === 'inorder' ? [3, 1, 4, 0, 5, 2, 6] :
-                traversalType === 'preorder' ? [0, 1, 3, 4, 2, 5, 6] :
-                traversalType === 'postorder' ? [3, 4, 1, 5, 6, 2, 0] : [0, 1, 2, 3, 4, 5, 6],
-        complete: true,
-        traversalType
+      description: `Traversal complete: ${traversalOrder.join(', ')}`,
+      highlightedLines: [],
+      visualState: {
+        tree,
+        traversalOrder,
+        traversalType,
+        complete: true
       }
     });
-    
+
     return steps;
   },
-  defaultInput: { traversalType: 'inorder' }
+  defaultInput: { traversalType: 'inOrder' }
 };
 
 // Binary Search Tree
@@ -224,13 +172,13 @@ export const binarySearchTree: Algorithm = {
   id: 'binary-search-tree',
   name: 'Binary Search Tree',
   type: 'tree',
-  description: 'A binary search tree is a data structure that quickly allows us to maintain a sorted list of numbers.',
-  timeComplexity: 'Average: O(log n), Worst: O(n)',
+  description: 'Visualize the creation and search operations in a Binary Search Tree (BST).',
+  timeComplexity: 'O(log n) average, O(n) worst-case',
   spaceComplexity: 'O(n)',
   code: `// JavaScript Implementation
 class Node {
-  constructor(data) {
-    this.data = data;
+  constructor(value) {
+    this.value = value;
     this.left = null;
     this.right = null;
   }
@@ -240,816 +188,873 @@ class BinarySearchTree {
   constructor() {
     this.root = null;
   }
-  
-  // Insert a node
-  insert(data) {
-    const newNode = new Node(data);
-    
-    if (this.root === null) {
+
+  insert(value) {
+    const newNode = new Node(value);
+    if (!this.root) {
       this.root = newNode;
-      return;
+      return this;
     }
-    
-    // Helper function to recursively insert
-    const insertNode = (node, newNode) => {
-      // If the data is less than the node's data,
-      // move to the left side
-      if (newNode.data < node.data) {
-        // If there is no left, insert it
-        if (node.left === null) {
-          node.left = newNode;
-        } else {
-          // Otherwise, continue down the left
-          insertNode(node.left, newNode);
+    let current = this.root;
+    while (true) {
+      if (value === current.value) return undefined;
+      if (value < current.value) {
+        if (current.left === null) {
+          current.left = newNode;
+          return this;
         }
+        current = current.left;
       } else {
-        // If there is no right, insert it
-        if (node.right === null) {
-          node.right = newNode;
+        if (current.right === null) {
+          current.right = newNode;
+          return this;
+        }
+        current = current.right;
+      }
+    }
+  }
+
+  search(value) {
+    if (!this.root) return false;
+    let current = this.root;
+    let found = false;
+    while (current && !found) {
+      if (value < current.value) {
+        current = current.left;
+      } else if (value > current.value) {
+        current = current.right;
+      } else {
+        found = true;
+      }
+    }
+    if (!found) return false;
+    return current;
+  }
+}
+
+// Example usage:
+const bst = new BinarySearchTree();
+bst.insert(10);
+bst.insert(5);
+bst.insert(13);
+bst.insert(11);
+bst.insert(2);
+bst.insert(16);
+bst.insert(7);
+console.log(bst.search(13));
+console.log(bst.search(100));`,
+  explanation: `<p>A Binary Search Tree (BST) is a tree data structure where each node has at most two children, which are referred to as the left child and the right child. In a BST, for each node:</p>
+  <ul>
+    <li>All nodes in the left subtree have values less than the node's value.</li>
+    <li>All nodes in the right subtree have values greater than the node's value.</li>
+  </ul>
+  <p>This property allows for efficient searching, insertion, and deletion operations.</p>`,
+  generateSteps: (input: { operation: 'insert' | 'search', value: number, initialTree?: number[] }) => {
+    const { operation = 'insert', value = 5, initialTree = [10, 5, 13, 11, 2, 16, 7] } = input;
+    const steps: AlgorithmStep[] = [];
+
+    // Define the tree structure
+    const tree = { root: null };
+    const nodes: { [key: string]: any } = {};
+    let nodeIdCounter = 1;
+
+    // Function to create a new node
+    const createNode = (value: number) => {
+      const id = String(nodeIdCounter++);
+      const newNode = { id, value, left: null, right: null };
+      nodes[id] = newNode;
+      return newNode;
+    };
+
+    // Function to insert a node into the BST
+    const insertNode = (root: any, value: number) => {
+      const newNode = createNode(value);
+      if (!root) {
+        return newNode;
+      }
+
+      let current = root;
+      while (true) {
+        if (value === current.value) return root;
+
+        if (value < current.value) {
+          if (current.left === null) {
+            current.left = newNode;
+            return root;
+          }
+          current = current.left;
         } else {
-          // Otherwise, continue down the right
-          insertNode(node.right, newNode);
+          if (current.right === null) {
+            current.right = newNode;
+            return root;
+          }
+          current = current.right;
         }
       }
     };
-    
-    insertNode(this.root, newNode);
-  }
-  
-  // Search for a node
-  search(data) {
-    // Helper function to find node
-    const findNode = (node, data) => {
-      // If trees are empty
-      if (node === null) {
-        return null;
-      }
-      
-      // If data is less than node's data
-      if (data < node.data) {
-        return findNode(node.left, data);
-      }
-      
-      // If data is greater than node's data
-      if (data > node.data) {
-        return findNode(node.right, data);
-      }
-      
-      // If data is equal to the node data
-      return node;
-    };
-    
-    return findNode(this.root, data);
-  }
-}`,
-  explanation: `<p>A binary search tree (BST) is a data structure that quickly allows us to maintain a sorted list of numbers. It is called a binary search tree because:</p>
-  <ul>
-    <li>Each node has at most two children (binary)</li>
-    <li>It can be used for efficient searching (search)</li>
-    <li>It is a tree data structure</li>
-  </ul>
-  <p>The properties that separate a binary search tree from a regular binary tree are:</p>
-  <ul>
-    <li>All nodes of left subtree are less than the root node</li>
-    <li>All nodes of right subtree are greater than the root node</li>
-    <li>Both subtrees of each node are also BSTs (i.e., they have the above two properties)</li>
-  </ul>
-  <p>Operations supported by a BST:</p>
-  <ul>
-    <li>Search: O(log n) average, O(n) worst case</li>
-    <li>Insert: O(log n) average, O(n) worst case</li>
-    <li>Delete: O(log n) average, O(n) worst case</li>
-  </ul>
-  <p>The worst case occurs when the tree is skewed (e.g., when data is inserted in sorted order).</p>`,
-  generateSteps: (input: { value: number }) => {
-    const { value = 17 } = input;
-    const steps: AlgorithmStep[] = [];
-    
-    // Create a sample BST
-    const tree = [15, 10, 20, 8, 12, 17, 25];
-    
+
+    // Build initial tree
+    initialTree.forEach(val => {
+      tree.root = insertNode(tree.root, val);
+    });
+
     steps.push({
       id: 'init',
-      description: 'Starting with a binary search tree',
-      highlightedLines: [1, 2],
-      visualState: { 
+      description: `Initialize BST with initial values: ${initialTree.join(', ')}`,
+      highlightedLines: [],
+      visualState: {
         tree,
-        searching: value
+        nodes,
+        operation,
+        value
       }
     });
-    
-    steps.push({
-      id: 'root-check',
-      description: `Checking root node (${tree[0]}) against search value ${value}`,
-      highlightedLines: [55, 56],
-      visualState: { 
-        tree,
-        current: 0,
-        searching: value
-      }
-    });
-    
-    if (value < tree[0]) {
+
+    if (operation === 'insert') {
+      // Insertion steps
+      const newNode = createNode(value);
       steps.push({
-        id: 'go-left',
-        description: `${value} < ${tree[0]}, so search in left subtree`,
-        highlightedLines: [62, 63],
-        visualState: { 
+        id: 'create-node',
+        description: `Create new node with value ${value}`,
+        highlightedLines: [],
+        visualState: {
           tree,
-          current: 1,
-          searching: value
+          nodes,
+          operation,
+          value,
+          newNodeId: newNode.id
         }
       });
-      
-      if (value < tree[1]) {
+
+      if (!tree.root) {
+        tree.root = newNode;
         steps.push({
-          id: 'go-left-again',
-          description: `${value} < ${tree[1]}, so search in left-left subtree`,
-          highlightedLines: [62, 63],
-          visualState: { 
+          id: 'insert-root',
+          description: `Insert ${value} as the root node`,
+          highlightedLines: [],
+          visualState: {
             tree,
-            current: 3,
-            searching: value
+            nodes,
+            operation,
+            value,
+            newNodeId: newNode.id,
+            insertedNodeId: newNode.id
           }
         });
-        
-        if (value === tree[3]) {
-          steps.push({
-            id: 'found',
-            description: `Found ${value} at node!`,
-            highlightedLines: [73],
-            visualState: { 
-              tree,
-              current: 3,
-              found: true
-            }
-          });
-        } else {
-          steps.push({
-            id: 'not-found',
-            description: `${value} not found in the tree`,
-            highlightedLines: [57],
-            visualState: { 
-              tree,
-              current: 3,
-              found: false
-            }
-          });
-        }
       } else {
-        steps.push({
-          id: 'go-right-subtree',
-          description: `${value} > ${tree[1]}, so search in left-right subtree`,
-          highlightedLines: [67, 68],
-          visualState: { 
-            tree,
-            current: 4,
-            searching: value
+        let current = tree.root;
+        let parent = null;
+        let direction = '';
+
+        while (true) {
+          steps.push({
+            id: `compare-${current.id}`,
+            description: `Compare ${value} with current node ${current.value}`,
+            highlightedLines: [],
+            visualState: {
+              tree,
+              nodes,
+              operation,
+              value,
+              newNodeId: newNode.id,
+              currentNodeId: current.id
+            }
+          });
+
+          if (value === current.value) {
+            steps.push({
+              id: `duplicate-${current.id}`,
+              description: `${value} is a duplicate, insertion stopped`,
+              highlightedLines: [],
+              visualState: {
+                tree,
+                nodes,
+                operation,
+                value,
+                newNodeId: newNode.id,
+                currentNodeId: current.id,
+                duplicate: true
+              }
+            });
+            break;
           }
-        });
-        
-        if (value === tree[4]) {
-          steps.push({
-            id: 'found',
-            description: `Found ${value} at node!`,
-            highlightedLines: [73],
-            visualState: { 
-              tree,
-              current: 4,
-              found: true
+
+          parent = current;
+          if (value < current.value) {
+            direction = 'left';
+            if (!current.left) {
+              current.left = newNode;
+              steps.push({
+                id: `insert-left-${current.id}`,
+                description: `Insert ${value} as left child of ${current.value}`,
+                highlightedLines: [],
+                visualState: {
+                  tree,
+                  nodes,
+                  operation,
+                  value,
+                  newNodeId: newNode.id,
+                  currentNodeId: current.id,
+                  insertedNodeId: newNode.id
+                }
+              });
+              break;
             }
-          });
-        } else {
-          steps.push({
-            id: 'not-found',
-            description: `${value} not found in the tree`,
-            highlightedLines: [57],
-            visualState: { 
-              tree,
-              current: 4,
-              found: false
+            current = current.left;
+          } else {
+            direction = 'right';
+            if (!current.right) {
+              current.right = newNode;
+              steps.push({
+                id: `insert-right-${current.id}`,
+                description: `Insert ${value} as right child of ${current.value}`,
+                highlightedLines: [],
+                visualState: {
+                  tree,
+                  nodes,
+                  operation,
+                  value,
+                  newNodeId: newNode.id,
+                  currentNodeId: current.id,
+                  insertedNodeId: newNode.id
+                }
+              });
+              break;
             }
-          });
+            current = current.right;
+          }
         }
       }
-    } else {
-      steps.push({
-        id: 'go-right',
-        description: `${value} > ${tree[0]}, so search in right subtree`,
-        highlightedLines: [67, 68],
-        visualState: { 
-          tree,
-          current: 2,
-          searching: value
-        }
-      });
-      
-      if (value < tree[2]) {
+    } else if (operation === 'search') {
+      // Search steps
+      if (!tree.root) {
         steps.push({
-          id: 'go-left-subtree',
-          description: `${value} < ${tree[2]}, so search in right-left subtree`,
-          highlightedLines: [62, 63],
-          visualState: { 
+          id: 'search-empty',
+          description: `Tree is empty, ${value} not found`,
+          highlightedLines: [],
+          visualState: {
             tree,
-            current: 5,
-            searching: value
+            nodes,
+            operation,
+            value,
+            notFound: true
           }
         });
-        
-        if (value === tree[5]) {
-          steps.push({
-            id: 'found',
-            description: `Found ${value} at node!`,
-            highlightedLines: [73],
-            visualState: { 
-              tree,
-              current: 5,
-              found: true
-            }
-          });
-        } else {
-          steps.push({
-            id: 'not-found',
-            description: `${value} not found in the tree`,
-            highlightedLines: [57],
-            visualState: { 
-              tree,
-              current: 5,
-              found: false
-            }
-          });
-        }
       } else {
-        steps.push({
-          id: 'go-right-again',
-          description: `${value} > ${tree[2]}, so search in right-right subtree`,
-          highlightedLines: [67, 68],
-          visualState: { 
-            tree,
-            current: 6,
-            searching: value
-          }
-        });
-        
-        if (value === tree[6]) {
+        let current = tree.root;
+        let found = false;
+
+        while (current && !found) {
           steps.push({
-            id: 'found',
-            description: `Found ${value} at node!`,
-            highlightedLines: [73],
-            visualState: { 
+            id: `search-compare-${current.id}`,
+            description: `Compare ${value} with current node ${current.value}`,
+            highlightedLines: [],
+            visualState: {
               tree,
-              current: 6,
-              found: true
+              nodes,
+              operation,
+              value,
+              currentNodeId: current.id
             }
           });
-        } else {
+
+          if (value < current.value) {
+            current = current.left;
+          } else if (value > current.value) {
+            current = current.right;
+          } else {
+            found = true;
+            steps.push({
+              id: `search-found-${current.id}`,
+              description: `${value} found in the tree`,
+              highlightedLines: [],
+              visualState: {
+                tree,
+                nodes,
+                operation,
+                value,
+                currentNodeId: current.id,
+                found: true
+              }
+            });
+            break;
+          }
+        }
+
+        if (!found) {
           steps.push({
-            id: 'not-found',
+            id: 'search-not-found',
             description: `${value} not found in the tree`,
-            highlightedLines: [57],
-            visualState: { 
+            highlightedLines: [],
+            visualState: {
               tree,
-              current: 6,
-              found: false
+              nodes,
+              operation,
+              value,
+              notFound: true
             }
           });
         }
       }
     }
-    
+
+    steps.push({
+      id: 'complete',
+      description: `${operation === 'insert' ? 'Insertion' : 'Search'} complete`,
+      highlightedLines: [],
+      visualState: {
+        tree,
+        nodes,
+        operation,
+        value,
+        complete: true
+      }
+    });
+
     return steps;
   },
-  defaultInput: { value: 17 }
+  defaultInput: { operation: 'insert', value: 8, initialTree: [10, 5, 13, 11, 2, 16, 7] }
 };
 
-// Level Order Traversal (BFS)
+// Level Order Traversal
 export const levelOrderTraversal: Algorithm = {
   id: 'level-order-traversal',
   name: 'Level Order Traversal',
   type: 'tree',
-  description: 'Level Order Traversal (also known as Breadth-First Search) visits all nodes at the current depth before moving to nodes at the next depth level.',
+  description: 'Visualize level order traversal (breadth-first) of a binary tree.',
   timeComplexity: 'O(n)',
-  spaceComplexity: 'O(w) where w is the maximum width of the tree',
+  spaceComplexity: 'O(n)',
   code: `// JavaScript Implementation
+class Node {
+  constructor(value) {
+    this.value = value;
+    this.left = null;
+    this.right = null;
+  }
+}
+
 function levelOrderTraversal(root) {
   if (!root) return [];
-  
+
   const result = [];
   const queue = [root];
-  
+
   while (queue.length > 0) {
     const node = queue.shift();
     result.push(node.value);
-    
-    if (node.left) queue.push(node.left);
-    if (node.right) queue.push(node.right);
+
+    if (node.left) {
+      queue.push(node.left);
+    }
+    if (node.right) {
+      queue.push(node.right);
+    }
   }
-  
+
   return result;
 }
 
-// Level order traversal with levels
-function levelOrderTraversalWithLevels(root) {
-  if (!root) return [];
-  
-  const result = [];
-  const queue = [root];
-  
-  while (queue.length > 0) {
-    const levelSize = queue.length;
-    const currentLevel = [];
-    
-    for (let i = 0; i < levelSize; i++) {
+// Example usage:
+const root = new Node(1);
+root.left = new Node(2);
+root.right = new Node(3);
+root.left.left = new Node(4);
+root.left.right = new Node(5);
+console.log(levelOrderTraversal(root));`,
+  explanation: `<p>Level order traversal visits all nodes of a tree level by level, starting from the root and moving from left to right.</p>
+  <p>This traversal method is also known as breadth-first traversal.</p>`,
+  generateSteps: (input: {}) => {
+    const steps: AlgorithmStep[] = [];
+
+    // Define the tree structure
+    const tree = {
+      root: {
+        id: '1',
+        value: 1,
+        left: {
+          id: '2',
+          value: 2,
+          left: { id: '4', value: 4, left: null, right: null },
+          right: { id: '5', value: 5, left: null, right: null }
+        },
+        right: {
+          id: '3',
+          value: 3,
+          left: null,
+          right: null
+        }
+      }
+    };
+
+    const traversalOrder: number[] = [];
+    const queue: any[] = [];
+
+    steps.push({
+      id: 'init',
+      description: 'Initialize level order traversal',
+      highlightedLines: [],
+      visualState: {
+        tree,
+        queue: [],
+        traversalOrder: []
+      }
+    });
+
+    if (!tree.root) {
+      steps.push({
+        id: 'empty-tree',
+        description: 'Tree is empty, traversal complete',
+        highlightedLines: [],
+        visualState: {
+          tree,
+          queue: [],
+          traversalOrder: [],
+          complete: true
+        }
+      });
+      return steps;
+    }
+
+    queue.push(tree.root);
+
+    steps.push({
+      id: 'add-root',
+      description: 'Add root node to the queue',
+      highlightedLines: [],
+      visualState: {
+        tree,
+        queue: queue.map(node => node.id),
+        traversalOrder: [],
+        currentNode: tree.root.id
+      }
+    });
+
+    let iteration = 0;
+    while (queue.length > 0) {
+      iteration++;
       const node = queue.shift();
-      currentLevel.push(node.value);
-      
-      if (node.left) queue.push(node.left);
-      if (node.right) queue.push(node.right);
-    }
-    
-    result.push(currentLevel);
-  }
-  
-  return result;
-}`,
-  explanation: `<p>Level Order Traversal, also known as Breadth-First Search (BFS) for trees, is a tree traversal algorithm that visits all nodes at the current depth level before moving to nodes at the next depth level.</p>
-  <p>Key characteristics:</p>
-  <ul>
-    <li>Uses a queue data structure to track nodes to visit</li>
-    <li>Processes all nodes at the same level before moving to the next level</li>
-    <li>Traverses the tree level by level from top to bottom</li>
-    <li>Within each level, nodes are processed from left to right</li>
-  </ul>
-  <p>Applications of level order traversal:</p>
-  <ul>
-    <li>Finding the shortest path between two nodes in an unweighted graph</li>
-    <li>Level-by-level processing of a tree (useful for printing a tree)</li>
-    <li>Connecting nodes at the same level (e.g., connecting cousins in a tree)</li>
-    <li>Finding the minimum height of a binary tree</li>
-  </ul>`,
-  generateSteps: (input: { withLevels: boolean }) => {
-    const { withLevels = false } = input;
-    const steps: AlgorithmStep[] = [];
-    
-    // Create a sample binary tree for visualization
-    const treeArray = [10, 5, 15, 3, 7, 12, 18];
-    
-    steps.push({
-      id: 'init',
-      description: 'Starting level order traversal',
-      highlightedLines: [2, 3],
-      visualState: { 
-        tree: treeArray,
-        current: null,
-        visited: [],
-        queue: [0]
-      }
-    });
-    
-    // Level order traversal (BFS)
-    const levels = [
-      [0],         // Level 0: root (10)
-      [1, 2],      // Level 1: left child (5) and right child (15)
-      [3, 4, 5, 6] // Level 2: children of 5 and 15
-    ];
-    
-    let visitedSoFar: number[] = []; // Fix: Initialize as empty array
-    let currentLevel = 0;
-    
-    for (const level of levels) {
-      if (withLevels) {
-        steps.push({
-          id: `level-${currentLevel}`,
-          description: `Processing level ${currentLevel}`,
-          highlightedLines: [22, 23],
-          visualState: { 
-            tree: treeArray,
-            current: null,
-            visited: visitedSoFar,
-            currentLevel: level,
-            queue: level.slice(),
-            levelHighlight: true
-          }
-        });
-      }
-      
-      for (const nodeIdx of level) {
-        const nextQueue = [...visitedSoFar, nodeIdx].filter(idx => !level.includes(idx) || level.indexOf(idx) > level.indexOf(nodeIdx));
-        
-        steps.push({
-          id: `visit-${nodeIdx}`,
-          description: `Visit node ${treeArray[nodeIdx]} and add its children to the queue`,
-          highlightedLines: withLevels ? 25 : 8,
-          visualState: { 
-            tree: treeArray,
-            current: nodeIdx,
-            visited: visitedSoFar,
-            queue: nextQueue
-          }
-        });
-        
-        visitedSoFar.push(nodeIdx);
-      }
-      
-      currentLevel++;
-    }
-    
-    steps.push({
-      id: 'complete',
-      description: 'Level order traversal complete',
-      highlightedLines: withLevels ? 33 : 13,
-      visualState: { 
-        tree: treeArray,
-        visited: visitedSoFar,
-        complete: true,
-        queue: []
-      }
-    });
-    
-    return steps;
-  },
-  defaultInput: { withLevels: false }
-};
+      traversalOrder.push(node.value);
 
-// Pre-order Traversal
-export const preOrderTraversal: Algorithm = {
-  id: 'pre-order-traversal',
-  name: 'Pre-order Traversal',
-  type: 'tree',
-  description: 'Pre-order traversal visits the root node first, then recursively visits the left subtree, and finally the right subtree.',
-  timeComplexity: 'O(n)',
-  spaceComplexity: 'O(h) where h is the height of the tree',
-  code: `// JavaScript Implementation
-function preOrderTraversal(root) {
-  const result = [];
-  
-  function traverse(node) {
-    if (node !== null) {
-      // Visit root
-      result.push(node.value);
-      // Traverse left subtree
-      traverse(node.left);
-      // Traverse right subtree
-      traverse(node.right);
-    }
-  }
-  
-  traverse(root);
-  return result;
-}
-
-// Iterative implementation using a stack
-function preOrderTraversalIterative(root) {
-  if (!root) return [];
-  
-  const result = [];
-  const stack = [root];
-  
-  while (stack.length > 0) {
-    const node = stack.pop();
-    result.push(node.value);
-    
-    // Push right first so left is processed first (LIFO)
-    if (node.right) stack.push(node.right);
-    if (node.left) stack.push(node.left);
-  }
-  
-  return result;
-}`,
-  explanation: `<p>Pre-order traversal is a depth-first tree traversal algorithm that follows the Root-Left-Right pattern:</p>
-  <ol>
-    <li>Visit the current node (Root)</li>
-    <li>Recursively traverse the left subtree (Left)</li>
-    <li>Recursively traverse the right subtree (Right)</li>
-  </ol>
-  <p>Key characteristics:</p>
-  <ul>
-    <li>The root node is always the first node visited</li>
-    <li>Can be implemented recursively or iteratively (using a stack)</li>
-    <li>Useful for creating a copy of the tree or generating a prefix expression from an expression tree</li>
-  </ul>
-  <p>Applications of pre-order traversal:</p>
-  <ul>
-    <li>Creating a copy/clone of a tree</li>
-    <li>Prefix (Polish) notation of an expression tree</li>
-    <li>Used in serialization of a tree to string format</li>
-  </ul>`,
-  generateSteps: (input: { iterative: boolean }) => {
-    const { iterative = false } = input;
-    const steps: AlgorithmStep[] = [];
-    
-    // Create a sample binary tree for visualization
-    const treeArray = [10, 5, 15, 3, 7, 12, 18];
-    
-    steps.push({
-      id: 'init',
-      description: `Starting pre-order traversal (${iterative ? 'iterative' : 'recursive'})`,
-      highlightedLines: iterative ? [19, 20] : [2, 3],
-      visualState: { 
-        tree: treeArray,
-        current: null,
-        visited: [],
-        stack: iterative ? [0] : []
-      }
-    });
-    
-    if (iterative) {
-      // Iterative pre-order: using a stack
-      const visitOrder = [0, 1, 3, 4, 2, 5, 6]; // Node indices in visit order
-      let stackState = [0]; // Start with root
-      let visitedSoFar: number[] = []; // Fix: Initialize as empty array
-      
-      for (const nodeIdx of visitOrder) {
-        steps.push({
-          id: `visit-${nodeIdx}`,
-          description: `Pop and visit node ${treeArray[nodeIdx]}`,
-          highlightedLines: [23, 24],
-          visualState: { 
-            tree: treeArray,
-            current: nodeIdx,
-            visited: visitedSoFar,
-            stack: stackState
-          }
-        });
-        
-        visitedSoFar.push(nodeIdx);
-        
-        // Update stack - remove current and add children (right first, then left)
-        stackState = stackState.filter(idx => idx !== nodeIdx);
-        
-        // Right child (if exists)
-        const rightIdx = 2 * nodeIdx + 2;
-        if (rightIdx < treeArray.length && treeArray[rightIdx] !== null && treeArray[rightIdx] !== undefined) {
-          stackState.unshift(rightIdx); // Add to front (stack is LIFO)
-        }
-        
-        // Left child (if exists)
-        const leftIdx = 2 * nodeIdx + 1;
-        if (leftIdx < treeArray.length && treeArray[leftIdx] !== null && treeArray[leftIdx] !== undefined) {
-          stackState.unshift(leftIdx); // Add to front (stack is LIFO)
-        }
-        
-        steps.push({
-          id: `stack-update-${nodeIdx}`,
-          description: `Update stack with children (right first, then left)`,
-          highlightedLines: [27, 28],
-          visualState: { 
-            tree: treeArray,
-            current: null,
-            visited: visitedSoFar,
-            stack: stackState
-          }
-        });
-      }
-    } else {
-      // Recursive pre-order: Root -> Left -> Right
-      const visitOrder = [10, 5, 3, 7, 15, 12, 18];
-      const nodeIndices = [0, 1, 3, 4, 2, 5, 6];
-      
-      for (let i = 0; i < visitOrder.length; i++) {
-        steps.push({
-          id: `visit-${i}`,
-          description: `Pre-order: Visit node (${visitOrder[i]})`,
-          highlightedLines: [i === 0 ? 6 : (i < 4 ? 8 : 10)],
-          visualState: { 
-            tree: treeArray,
-            current: nodeIndices[i],
-            visited: nodeIndices.slice(0, i),
-            recursionStack: nodeIndices.slice(0, i).reverse()
-          }
-        });
-      }
-    }
-    
-    steps.push({
-      id: 'complete',
-      description: 'Pre-order traversal complete',
-      highlightedLines: iterative ? 31 : 14,
-      visualState: { 
-        tree: treeArray,
-        visited: [0, 1, 3, 4, 2, 5, 6],
-        complete: true,
-        stack: []
-      }
-    });
-    
-    return steps;
-  },
-  defaultInput: { iterative: false }
-};
-
-// Post-order Traversal
-export const postOrderTraversal: Algorithm = {
-  id: 'post-order-traversal',
-  name: 'Post-order Traversal',
-  type: 'tree',
-  description: 'Post-order traversal recursively visits the left subtree, then the right subtree, and finally the root node.',
-  timeComplexity: 'O(n)',
-  spaceComplexity: 'O(h) where h is the height of the tree',
-  code: `// JavaScript Implementation
-function postOrderTraversal(root) {
-  const result = [];
-  
-  function traverse(node) {
-    if (node !== null) {
-      // Traverse left subtree
-      traverse(node.left);
-      // Traverse right subtree
-      traverse(node.right);
-      // Visit root
-      result.push(node.value);
-    }
-  }
-  
-  traverse(root);
-  return result;
-}
-
-// Iterative implementation using two stacks
-function postOrderTraversalIterative(root) {
-  if (!root) return [];
-  
-  const result = [];
-  const stack1 = [root];
-  const stack2 = [];
-  
-  // First, use stack1 to create reverse post-order in stack2
-  while (stack1.length > 0) {
-    const node = stack1.pop();
-    stack2.push(node);
-    
-    if (node.left) stack1.push(node.left);
-    if (node.right) stack1.push(node.right);
-  }
-  
-  // Then pop from stack2 to get post-order
-  while (stack2.length > 0) {
-    const node = stack2.pop();
-    result.push(node.value);
-  }
-  
-  return result;
-}`,
-  explanation: `<p>Post-order traversal is a depth-first tree traversal algorithm that follows the Left-Right-Root pattern:</p>
-  <ol>
-    <li>Recursively traverse the left subtree (Left)</li>
-    <li>Recursively traverse the right subtree (Right)</li>
-    <li>Visit the current node (Root)</li>
-  </ol>
-  <p>Key characteristics:</p>
-  <ul>
-    <li>The root node is always the last node visited</li>
-    <li>Can be implemented recursively or iteratively (using two stacks or one stack with markers)</li>
-    <li>Children are processed before their parent nodes</li>
-  </ul>
-  <p>Applications of post-order traversal:</p>
-  <ul>
-    <li>Deleting a tree (children must be deleted before parent)</li>
-    <li>Evaluating postfix notation</li>
-    <li>Finding the height of a tree (bottom-up)</li>
-  </ul>`,
-  generateSteps: (input: { iterative: boolean }) => {
-    const { iterative = false } = input;
-    const steps: AlgorithmStep[] = [];
-    
-    // Create a sample binary tree for visualization
-    const treeArray = [10, 5, 15, 3, 7, 12, 18];
-    
-    steps.push({
-      id: 'init',
-      description: `Starting post-order traversal (${iterative ? 'iterative' : 'recursive'})`,
-      highlightedLines: iterative ? [19, 20] : [2, 3],
-      visualState: { 
-        tree: treeArray,
-        current: null,
-        visited: []
-      }
-    });
-    
-    if (iterative) {
-      // Step 1: Fill stack2 by processing nodes in pre-order but pushing to stack2
-      let stack1: number[] = [0]; // Start with root index
-      let stack2: number[] = [];
-      
       steps.push({
-        id: 'stack-init',
-        description: 'Initialize stack1 with the root node',
-        highlightedLines: [21, 22],
-        visualState: { 
-          tree: treeArray,
-          current: null,
-          visited: [],
-          stack1,
-          stack2
+        id: `visit-${node.id}`,
+        description: `Iteration ${iteration}: Visit node ${node.value}`,
+        highlightedLines: [],
+        visualState: {
+          tree,
+          queue: queue.map(n => n.id),
+          traversalOrder: [...traversalOrder],
+          currentNode: node.id
         }
       });
-      
-      while (stack1.length > 0) {
-        const nodeIdx = stack1.pop()!;
-        stack2.push(nodeIdx);
-        
+
+      if (node.left) {
+        queue.push(node.left);
         steps.push({
-          id: `stack1-pop-${nodeIdx}`,
-          description: `Pop node ${treeArray[nodeIdx]} from stack1 and push to stack2`,
-          highlightedLines: [24, 25],
-          visualState: { 
-            tree: treeArray,
-            current: nodeIdx,
-            visited: [],
-            stack1,
-            stack2
-          }
-        });
-        
-        // Left child (if exists)
-        const leftIdx = 2 * nodeIdx + 1;
-        if (leftIdx < treeArray.length && treeArray[leftIdx] !== null && treeArray[leftIdx] !== undefined) {
-          stack1.push(leftIdx);
-        }
-        
-        // Right child (if exists)
-        const rightIdx = 2 * nodeIdx + 2;
-        if (rightIdx < treeArray.length && treeArray[rightIdx] !== null && treeArray[rightIdx] !== undefined) {
-          stack1.push(rightIdx);
-        }
-        
-        steps.push({
-          id: `stack1-update-${nodeIdx}`,
-          description: 'Push children to stack1 (if they exist)',
-          highlightedLines: [27, 28],
-          visualState: { 
-            tree: treeArray,
-            current: null,
-            visited: [],
-            stack1,
-            stack2
+          id: `enqueue-left-${node.left.id}`,
+          description: `Enqueue left child ${node.left.value}`,
+          highlightedLines: [],
+          visualState: {
+            tree,
+            queue: queue.map(n => n.id),
+            traversalOrder: [...traversalOrder],
+            currentNode: node.id,
+            enqueuedLeft: node.left.id
           }
         });
       }
-      
-      // Step 2: Pop from stack2 to get post-order traversal
-      let visitedSoFar: number[] = [];
-      
-      steps.push({
-        id: 'stack2-process',
-        description: 'Process stack2 to get post-order traversal',
-        highlightedLines: [32, 33],
-        visualState: { 
-          tree: treeArray,
-          current: null,
-          visited: visitedSoFar,
-          stack2
-        }
-      });
-      
-      while (stack2.length > 0) {
-        const nodeIdx = stack2.pop()!;
-        visitedSoFar.push(nodeIdx);
-        
+
+      if (node.right) {
+        queue.push(node.right);
         steps.push({
-          id: `visit-${nodeIdx}`,
-          description: `Pop and visit node ${treeArray[nodeIdx]}`,
-          highlightedLines: [33, 34],
-          visualState: { 
-            tree: treeArray,
-            current: nodeIdx,
-            visited: visitedSoFar,
-            stack2
-          }
-        });
-      }
-    } else {
-      // Recursive post-order: Left -> Right -> Root
-      const visitOrder = [3, 7, 5, 12, 18, 15, 10];
-      const nodeIndices = [3, 4, 1, 5, 6, 2, 0];
-      
-      for (let i = 0; i < visitOrder.length; i++) {
-        steps.push({
-          id: `visit-${i}`,
-          description: `Post-order: Visit node (${visitOrder[i]})`,
-          highlightedLines: [i < 3 ? 6 : (i < 6 ? 8 : 10)],
-          visualState: { 
-            tree: treeArray,
-            current: nodeIndices[i],
-            visited: nodeIndices.slice(0, i),
-            recursionStack: nodeIndices.slice(0, i).reverse()
+          id: `enqueue-right-${node.right.id}`,
+          description: `Enqueue right child ${node.right.value}`,
+          highlightedLines: [],
+          visualState: {
+            tree,
+            queue: queue.map(n => n.id),
+            traversalOrder: [...traversalOrder],
+            currentNode: node.id,
+            enqueuedRight: node.right.id
           }
         });
       }
     }
-    
+
     steps.push({
       id: 'complete',
-      description: 'Post-order traversal complete',
-      highlightedLines: iterative ? 37 : 14,
-      visualState: { 
-        tree: treeArray,
-        visited: [3, 4, 1, 5, 6, 2, 0], // Post-order indices
+      description: `Traversal complete: ${traversalOrder.join(', ')}`,
+      highlightedLines: [],
+      visualState: {
+        tree,
+        queue: [],
+        traversalOrder,
         complete: true
       }
     });
-    
+
     return steps;
   },
-  defaultInput: { iterative: false }
+  defaultInput: {}
+};
+
+// Pre-Order Traversal (iterative)
+export const preOrderTraversal: Algorithm = {
+  id: 'pre-order-traversal',
+  name: 'Pre-Order Traversal (Iterative)',
+  type: 'tree',
+  description: 'Visualize iterative pre-order traversal of a binary tree.',
+  timeComplexity: 'O(n)',
+  spaceComplexity: 'O(n)',
+  code: `// JavaScript Implementation
+class Node {
+  constructor(value) {
+    this.value = value;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+function preOrderTraversal(root) {
+  if (!root) return [];
+
+  const result = [];
+  const stack = [root];
+
+  while (stack.length > 0) {
+    const node = stack.pop();
+    result.push(node.value);
+
+    if (node.right) {
+      stack.push(node.right);
+    }
+    if (node.left) {
+      stack.push(node.left);
+    }
+  }
+
+  return result;
+}
+
+// Example usage:
+const root = new Node(1);
+root.left = new Node(2);
+root.right = new Node(3);
+root.left.left = new Node(4);
+root.left.right = new Node(5);
+console.log(preOrderTraversal(root));`,
+  explanation: `<p>Pre-order traversal visits the root node before its left and right subtrees.</p>
+  <p>In the iterative version, a stack is used to keep track of the nodes to visit.</p>`,
+  generateSteps: (input: {}) => {
+    const steps: AlgorithmStep[] = [];
+
+    // Define the tree structure
+    const tree = {
+      root: {
+        id: '1',
+        value: 1,
+        left: {
+          id: '2',
+          value: 2,
+          left: { id: '4', value: 4, left: null, right: null },
+          right: { id: '5', value: 5, left: null, right: null }
+        },
+        right: {
+          id: '3',
+          value: 3,
+          left: null,
+          right: null
+        }
+      }
+    };
+
+    const traversalOrder: number[] = [];
+    const stack: any[] = [];
+
+    steps.push({
+      id: 'init',
+      description: 'Initialize iterative pre-order traversal',
+      highlightedLines: [],
+      visualState: {
+        tree,
+        stack: [],
+        traversalOrder: []
+      }
+    });
+
+    if (!tree.root) {
+      steps.push({
+        id: 'empty-tree',
+        description: 'Tree is empty, traversal complete',
+        highlightedLines: [],
+        visualState: {
+          tree,
+          stack: [],
+          traversalOrder: [],
+          complete: true
+        }
+      });
+      return steps;
+    }
+
+    stack.push(tree.root);
+
+    steps.push({
+      id: 'add-root',
+      description: 'Add root node to the stack',
+      highlightedLines: [],
+      visualState: {
+        tree,
+        stack: stack.map(node => node.id),
+        traversalOrder: [],
+        currentNode: tree.root.id
+      }
+    });
+
+    let iteration = 0;
+    while (stack.length > 0) {
+      iteration++;
+      const node = stack.pop();
+      traversalOrder.push(node.value);
+
+      steps.push({
+        id: `visit-${node.id}`,
+        description: `Iteration ${iteration}: Visit node ${node.value}`,
+        highlightedLines: [],
+        visualState: {
+          tree,
+          stack: stack.map(n => n.id),
+          traversalOrder: [...traversalOrder],
+          currentNode: node.id
+        }
+      });
+
+      if (node.right) {
+        stack.push(node.right);
+        steps.push({
+          id: `push-right-${node.right.id}`,
+          description: `Push right child ${node.right.value} onto the stack`,
+          highlightedLines: [],
+          visualState: {
+            tree,
+            stack: stack.map(n => n.id),
+            traversalOrder: [...traversalOrder],
+            currentNode: node.id,
+            pushedRight: node.right.id
+          }
+        });
+      }
+
+      if (node.left) {
+        stack.push(node.left);
+        steps.push({
+          id: `push-left-${node.left.id}`,
+          description: `Push left child ${node.left.value} onto the stack`,
+          highlightedLines: [],
+          visualState: {
+            tree,
+            stack: stack.map(n => n.id),
+            traversalOrder: [...traversalOrder],
+            currentNode: node.id,
+            pushedLeft: node.left.id
+          }
+        });
+      }
+    }
+
+    steps.push({
+      id: 'complete',
+      description: `Traversal complete: ${traversalOrder.join(', ')}`,
+      highlightedLines: [],
+      visualState: {
+        tree,
+        stack: [],
+        traversalOrder,
+        complete: true
+      }
+    });
+
+    return steps;
+  },
+  defaultInput: {}
+};
+
+// Post-Order Traversal (iterative)
+export const postOrderTraversal: Algorithm = {
+  id: 'post-order-traversal',
+  name: 'Post-Order Traversal (Iterative)',
+  type: 'tree',
+  description: 'Visualize iterative post-order traversal of a binary tree.',
+  timeComplexity: 'O(n)',
+  spaceComplexity: 'O(n)',
+  code: `// JavaScript Implementation
+class Node {
+  constructor(value) {
+    this.value = value;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+function postOrderTraversal(root) {
+  if (!root) return [];
+
+  const result = [];
+  const stack = [root];
+
+  while (stack.length > 0) {
+    const node = stack.pop();
+    result.unshift(node.value);
+
+    if (node.left) {
+      stack.push(node.left);
+    }
+    if (node.right) {
+      stack.push(node.right);
+    }
+  }
+
+  return result;
+}
+
+// Example usage:
+const root = new Node(1);
+root.left = new Node(2);
+root.right = new Node(3);
+root.left.left = new Node(4);
+root.left.right = new Node(5);
+console.log(postOrderTraversal(root));`,
+  explanation: `<p>Post-order traversal visits the left and right subtrees before the root node.</p>
+  <p>In the iterative version, a stack is used, and the result is built by unshifting values to the beginning of the result array.</p>`,
+  generateSteps: (input: {}) => {
+    const steps: AlgorithmStep[] = [];
+
+    // Define the tree structure
+    const tree = {
+      root: {
+        id: '1',
+        value: 1,
+        left: {
+          id: '2',
+          value: 2,
+          left: { id: '4', value: 4, left: null, right: null },
+          right: { id: '5', value: 5, left: null, right: null }
+        },
+        right: {
+          id: '3',
+          value: 3,
+          left: null,
+          right: null
+        }
+      }
+    };
+
+    const traversalOrder: number[] = [];
+    const stack: any[] = [];
+
+    steps.push({
+      id: 'init',
+      description: 'Initialize iterative post-order traversal',
+      highlightedLines: [],
+      visualState: {
+        tree,
+        stack: [],
+        traversalOrder: []
+      }
+    });
+
+    if (!tree.root) {
+      steps.push({
+        id: 'empty-tree',
+        description: 'Tree is empty, traversal complete',
+        highlightedLines: [],
+        visualState: {
+          tree,
+          stack: [],
+          traversalOrder: [],
+          complete: true
+        }
+      });
+      return steps;
+    }
+
+    stack.push(tree.root);
+
+    steps.push({
+      id: 'add-root',
+      description: 'Add root node to the stack',
+      highlightedLines: [],
+      visualState: {
+        tree,
+        stack: stack.map(node => node.id),
+        traversalOrder: [],
+        currentNode: tree.root.id
+      }
+    });
+
+    let iteration = 0;
+    while (stack.length > 0) {
+      iteration++;
+      const node = stack.pop();
+      traversalOrder.unshift(node.value);
+
+      steps.push({
+        id: `visit-${node.id}`,
+        description: `Iteration ${iteration}: Visit node ${node.value}`,
+        highlightedLines: [],
+        visualState: {
+          tree,
+          stack: stack.map(n => n.id),
+          traversalOrder: [...traversalOrder],
+          currentNode: node.id
+        }
+      });
+
+      if (node.left) {
+        stack.push(node.left);
+        steps.push({
+          id: `push-left-${node.left.id}`,
+          description: `Push left child ${node.left.value} onto the stack`,
+          highlightedLines: [],
+          visualState: {
+            tree,
+            stack: stack.map(n => n.id),
+            traversalOrder: [...traversalOrder],
+            currentNode: node.id,
+            pushedLeft: node.left.id
+          }
+        });
+      }
+
+      if (node.right) {
+        stack.push(node.right);
+        steps.push({
+          id: `push-right-${node.right.id}`,
+          description: `Push right child ${node.right.value} onto the stack`,
+          highlightedLines: [],
+          visualState: {
+            tree,
+            stack: stack.map(n => n.id),
+            traversalOrder: [...traversalOrder],
+            currentNode: node.id,
+            pushedRight: node.right.id
+          }
+        });
+      }
+    }
+
+    steps.push({
+      id: 'complete',
+      description: `Traversal complete: ${traversalOrder.join(', ')}`,
+      highlightedLines: [],
+      visualState: {
+        tree,
+        stack: [],
+        traversalOrder,
+        complete: true
+      }
+    });
+
+    return steps;
+  },
+  defaultInput: {}
 };

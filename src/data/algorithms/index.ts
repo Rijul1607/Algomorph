@@ -12,8 +12,15 @@ import {
 import {
   fibonacciDP,
   knapsackProblem,
-  longestCommonSubsequence
+  longestCommonSubsequence,
+  editDistance,
+  matrixChainMultiplication
 } from './dynamic-programming';
+import {
+  dijkstra,
+  bfs,
+  dfs
+} from './graph';
 
 export const algorithmData = [
   // Sorting algorithms
@@ -35,5 +42,12 @@ export const algorithmData = [
   // Dynamic Programming algorithms
   fibonacciDP,
   knapsackProblem,
-  longestCommonSubsequence
+  longestCommonSubsequence,
+  editDistance,
+  matrixChainMultiplication,
+  
+  // Graph algorithms
+  dijkstra,
+  bfs,
+  dfs
 ];

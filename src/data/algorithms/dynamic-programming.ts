@@ -1,3 +1,4 @@
+
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 
 // Fibonacci Sequence with Dynamic Programming
@@ -61,7 +62,7 @@ function fibonacciOptimized(n) {
       visualState: { 
         n,
         optimized,
-        dp: optimized ? [] : [0, 1], // Fix: Changed null to empty array
+        dp: optimized ? [] : [0, 1],
         prev: optimized ? 0 : null,
         curr: optimized ? 1 : null,
         result: null,
@@ -73,11 +74,11 @@ function fibonacciOptimized(n) {
       steps.push({
         id: 'base-case',
         description: `Base case: n = ${n}, return ${n}`,
-        highlightedLines: optimized ? 19 : 3,
+        highlightedLines: optimized ? [19] : [3],
         visualState: { 
           n,
           optimized,
-          dp: optimized ? [] : [0, 1], // Fix: Changed null to empty array
+          dp: optimized ? [] : [0, 1],
           prev: optimized ? 0 : null,
           curr: optimized ? 1 : null,
           result: n,
@@ -707,5 +708,447 @@ function longestCommonSubsequence(text1, text2) {
   defaultInput: { 
     text1: 'ABCBDAB',
     text2: 'BDCABA'
+  }
+};
+
+// Edit Distance / Levenshtein Distance
+export const editDistance: Algorithm = {
+  id: 'edit-distance',
+  name: 'Edit Distance',
+  type: 'dynamic-programming',
+  description: 'Calculate the minimum number of operations (insertions, deletions, replacements) required to transform one string into another.',
+  timeComplexity: 'O(m*n) where m and n are the lengths of the two strings',
+  spaceComplexity: 'O(m*n)',
+  code: `// JavaScript Implementation
+function editDistance(word1, word2) {
+  const m = word1.length;
+  const n = word2.length;
+  
+  // Create DP table
+  const dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
+  
+  // Initialize first row and column
+  for (let i = 0; i <= m; i++) {
+    dp[i][0] = i; // Delete i characters from word1
+  }
+  
+  for (let j = 0; j <= n; j++) {
+    dp[0][j] = j; // Insert j characters from word2
+  }
+  
+  // Fill the DP table
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (word1[i - 1] === word2[j - 1]) {
+        // No operation needed if characters match
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        // Minimum of insert, delete, or replace
+        dp[i][j] = 1 + Math.min(
+          dp[i][j - 1],     // Insert
+          dp[i - 1][j],     // Delete
+          dp[i - 1][j - 1]  // Replace
+        );
+      }
+    }
+  }
+  
+  return dp[m][n];
+}`,
+  explanation: `<p>The Edit Distance (also known as Levenshtein Distance) is a measure of how different two strings are from each other. It counts the minimum number of operations required to transform one string into another.</p>
+  <p>The allowed operations are:</p>
+  <ul>
+    <li><strong>Insert</strong> a character into the first string</li>
+    <li><strong>Delete</strong> a character from the first string</li>
+    <li><strong>Replace</strong> a character in the first string with one from the second string</li>
+  </ul>
+  <p>The dynamic programming approach:</p>
+  <ol>
+    <li>Create a 2D DP table where dp[i][j] represents the edit distance between the first i characters of word1 and the first j characters of word2</li>
+    <li>Initialize the first row and column with deletion and insertion costs</li>
+    <li>For each pair of characters:
+      <ul>
+        <li>If they match, no operation is needed</li>
+        <li>If they don't match, take the minimum of insert, delete, or replace operations and add 1</li>
+      </ul>
+    </li>
+  </ol>
+  <p>This algorithm has applications in spell checking, DNA sequence alignment, and natural language processing.</p>`,
+  generateSteps: (input: { word1: string, word2: string }) => {
+    const word1 = input?.word1 || 'kitten';
+    const word2 = input?.word2 || 'sitting';
+    
+    const steps: AlgorithmStep[] = [];
+    const m = word1.length;
+    const n = word2.length;
+    
+    steps.push({
+      id: 'init',
+      description: `Calculate edit distance between "${word1}" and "${word2}"`,
+      highlightedLines: [2, 3, 4],
+      visualState: { 
+        word1,
+        word2,
+        dp: null
+      }
+    });
+    
+    // Create and initialize DP table
+    const dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
+    
+    steps.push({
+      id: 'init-dp',
+      description: 'Create DP table and initialize it',
+      highlightedLines: [6, 7],
+      visualState: { 
+        word1,
+        word2,
+        dp: JSON.parse(JSON.stringify(dp))
+      }
+    });
+    
+    // Initialize first row and column
+    for (let i = 0; i <= m; i++) {
+      dp[i][0] = i;
+      
+      steps.push({
+        id: `init-row-${i}`,
+        description: `Initialize dp[${i}][0] = ${i} (delete ${i} characters from "${word1}")`,
+        highlightedLines: [9, 10],
+        visualState: { 
+          word1,
+          word2,
+          dp: JSON.parse(JSON.stringify(dp)),
+          currentI: i,
+          currentJ: 0
+        }
+      });
+    }
+    
+    for (let j = 0; j <= n; j++) {
+      dp[0][j] = j;
+      
+      steps.push({
+        id: `init-col-${j}`,
+        description: `Initialize dp[0][${j}] = ${j} (insert ${j} characters from "${word2}")`,
+        highlightedLines: [13, 14],
+        visualState: { 
+          word1,
+          word2,
+          dp: JSON.parse(JSON.stringify(dp)),
+          currentI: 0,
+          currentJ: j
+        }
+      });
+    }
+    
+    // Fill the DP table
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        steps.push({
+          id: `compare-${i}-${j}`,
+          description: `Compare characters: ${word1[i-1]} and ${word2[j-1]}`,
+          highlightedLines: [18],
+          visualState: { 
+            word1,
+            word2,
+            dp: JSON.parse(JSON.stringify(dp)),
+            charIndex1: i - 1,
+            charIndex2: j - 1
+          }
+        });
+        
+        if (word1[i - 1] === word2[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1];
+          
+          steps.push({
+            id: `match-${i}-${j}`,
+            description: `Characters match: dp[${i}][${j}] = dp[${i-1}][${j-1}] = ${dp[i][j]}`,
+            highlightedLines: [19, 20],
+            visualState: { 
+              word1,
+              word2,
+              dp: JSON.parse(JSON.stringify(dp)),
+              charIndex1: i - 1,
+              charIndex2: j - 1,
+              match: true
+            }
+          });
+        } else {
+          const insertCost = dp[i][j - 1];
+          const deleteCost = dp[i - 1][j];
+          const replaceCost = dp[i - 1][j - 1];
+          
+          dp[i][j] = 1 + Math.min(insertCost, deleteCost, replaceCost);
+          
+          steps.push({
+            id: `no-match-${i}-${j}`,
+            description: `Characters don't match: dp[${i}][${j}] = 1 + min(insert=${insertCost}, delete=${deleteCost}, replace=${replaceCost}) = ${dp[i][j]}`,
+            highlightedLines: [22, 23, 24, 25, 26],
+            visualState: { 
+              word1,
+              word2,
+              dp: JSON.parse(JSON.stringify(dp)),
+              charIndex1: i - 1,
+              charIndex2: j - 1,
+              match: false,
+              operations: {
+                insert: insertCost,
+                delete: deleteCost,
+                replace: replaceCost
+              }
+            }
+          });
+        }
+      }
+    }
+    
+    // Final result
+    const distance = dp[m][n];
+    
+    steps.push({
+      id: 'result',
+      description: `Final result: Edit distance between "${word1}" and "${word2}" is ${distance}`,
+      highlightedLines: [31],
+      visualState: { 
+        word1,
+        word2,
+        dp: JSON.parse(JSON.stringify(dp)),
+        distance,
+        complete: true
+      }
+    });
+    
+    return steps;
+  },
+  defaultInput: { 
+    word1: 'kitten',
+    word2: 'sitting'
+  }
+};
+
+// Matrix Chain Multiplication
+export const matrixChainMultiplication: Algorithm = {
+  id: 'matrix-chain-multiplication',
+  name: 'Matrix Chain Multiplication',
+  type: 'dynamic-programming',
+  description: 'Find the most efficient way to multiply a chain of matrices to minimize the total number of operations.',
+  timeComplexity: 'O(n³) where n is the number of matrices',
+  spaceComplexity: 'O(n²)',
+  code: `// JavaScript Implementation
+function matrixChainMultiplication(dimensions) {
+  const n = dimensions.length - 1; // Number of matrices
+  
+  // dp[i][j] = minimum cost of multiplying matrices i to j
+  const dp = Array(n).fill().map(() => Array(n).fill(0));
+  
+  // optimal split positions for parenthesization
+  const split = Array(n).fill().map(() => Array(n).fill(0));
+  
+  // l is the chain length (number of matrices in the chain)
+  for (let l = 2; l <= n; l++) {
+    for (let i = 0; i <= n - l; i++) {
+      const j = i + l - 1;
+      dp[i][j] = Infinity;
+      
+      // Try different split positions
+      for (let k = i; k < j; k++) {
+        const cost = dp[i][k] + dp[k + 1][j] + 
+                    dimensions[i] * dimensions[k + 1] * dimensions[j + 1];
+        
+        if (cost < dp[i][j]) {
+          dp[i][j] = cost;
+          split[i][j] = k;
+        }
+      }
+    }
+  }
+  
+  // Construct the optimal parenthesization
+  function printOptimalParenthesization(i, j) {
+    if (i === j) {
+      return 'A' + i;
+    }
+    
+    const k = split[i][j];
+    return '(' + printOptimalParenthesization(i, k) + 
+           ' × ' + printOptimalParenthesization(k + 1, j) + ')';
+  }
+  
+  const optimalParenthesization = printOptimalParenthesization(0, n - 1);
+  
+  return {
+    minOperations: dp[0][n - 1],
+    optimalParenthesization
+  };
+}`,
+  explanation: `<p>Matrix Chain Multiplication is an optimization problem that determines the most efficient way to multiply a chain of matrices, minimizing the total number of scalar multiplications.</p>
+  <p>For matrices, the cost (number of scalar multiplications) of multiplying a p×q matrix with a q×r matrix is p×q×r. The order in which we multiply matrices matters, as different orders can lead to different total costs.</p>
+  <p>For example, if we have matrices A (dimensions 10×30), B (30×5), and C (5×60):</p>
+  <ul>
+    <li>Multiplying ((A×B)×C) requires 10×30×5 + 10×5×60 = 1,500 + 3,000 = 4,500 operations</li>
+    <li>Multiplying (A×(B×C)) requires 30×5×60 + 10×30×60 = 9,000 + 18,000 = 27,000 operations</li>
+  </ul>
+  <p>The dynamic programming approach:</p>
+  <ol>
+    <li>Create a 2D DP table where dp[i][j] represents the minimum cost of multiplying matrices i through j</li>
+    <li>Base case: for a single matrix, the cost is 0 (dp[i][i] = 0)</li>
+    <li>For longer chains, try all possible split positions and take the minimum cost</li>
+  </ol>
+  <p>We also keep track of the optimal split positions to reconstruct the parenthesization.</p>`,
+  generateSteps: (input: { dimensions: number[] }) => {
+    const dimensions = input?.dimensions || [40, 20, 30, 10, 30];
+    
+    const steps: AlgorithmStep[] = [];
+    const n = dimensions.length - 1; // Number of matrices
+    
+    steps.push({
+      id: 'init',
+      description: `Find optimal matrix chain multiplication for ${n} matrices with dimensions ${dimensions.join('×')}`,
+      highlightedLines: [2, 3],
+      visualState: { 
+        dimensions,
+        n,
+        matrices: dimensions.slice(0, -1).map((rows, i) => ({
+          name: `A${i}`,
+          dimensions: `${rows}×${dimensions[i+1]}`
+        }))
+      }
+    });
+    
+    // Create and initialize DP table
+    const dp = Array(n).fill().map(() => Array(n).fill(0));
+    const split = Array(n).fill().map(() => Array(n).fill(0));
+    
+    steps.push({
+      id: 'init-dp',
+      description: 'Initialize DP table with zeros for single matrices',
+      highlightedLines: [6, 7, 9, 10],
+      visualState: { 
+        dimensions,
+        dp: JSON.parse(JSON.stringify(dp)),
+        split: JSON.parse(JSON.stringify(split))
+      }
+    });
+    
+    // l is the chain length (number of matrices in the chain)
+    for (let l = 2; l <= n; l++) {
+      steps.push({
+        id: `chain-length-${l}`,
+        description: `Consider chains of length ${l}`,
+        highlightedLines: [13],
+        visualState: { 
+          dimensions,
+          dp: JSON.parse(JSON.stringify(dp)),
+          split: JSON.parse(JSON.stringify(split)),
+          chainLength: l
+        }
+      });
+      
+      for (let i = 0; i <= n - l; i++) {
+        const j = i + l - 1;
+        dp[i][j] = Infinity;
+        
+        steps.push({
+          id: `chain-${i}-${j}`,
+          description: `Calculate minimum cost for multiplying matrices A${i} through A${j}`,
+          highlightedLines: [14, 15, 16],
+          visualState: { 
+            dimensions,
+            dp: JSON.parse(JSON.stringify(dp)),
+            split: JSON.parse(JSON.stringify(split)),
+            chainLength: l,
+            chainStart: i,
+            chainEnd: j,
+            currentMatrices: Array.from({ length: l }, (_, idx) => i + idx)
+          }
+        });
+        
+        // Try different split positions
+        for (let k = i; k < j; k++) {
+          const leftCost = dp[i][k];
+          const rightCost = dp[k + 1][j];
+          const multCost = dimensions[i] * dimensions[k + 1] * dimensions[j + 1];
+          const totalCost = leftCost + rightCost + multCost;
+          
+          steps.push({
+            id: `split-${i}-${j}-${k}`,
+            description: `Try split at k=${k}: (A${i}..A${k}) × (A${k+1}..A${j})`,
+            highlightedLines: [19, 20],
+            visualState: { 
+              dimensions,
+              dp: JSON.parse(JSON.stringify(dp)),
+              split: JSON.parse(JSON.stringify(split)),
+              chainLength: l,
+              chainStart: i,
+              chainEnd: j,
+              splitPos: k,
+              leftMatrices: Array.from({ length: k-i+1 }, (_, idx) => i + idx),
+              rightMatrices: Array.from({ length: j-k }, (_, idx) => k + 1 + idx),
+              costs: {
+                left: leftCost,
+                right: rightCost,
+                mult: multCost,
+                total: totalCost
+              }
+            }
+          });
+          
+          if (totalCost < dp[i][j]) {
+            dp[i][j] = totalCost;
+            split[i][j] = k;
+            
+            steps.push({
+              id: `update-${i}-${j}-${k}`,
+              description: `Update minimum: dp[${i}][${j}] = ${totalCost}, split[${i}][${j}] = ${k}`,
+              highlightedLines: [22, 23, 24],
+              visualState: { 
+                dimensions,
+                dp: JSON.parse(JSON.stringify(dp)),
+                split: JSON.parse(JSON.stringify(split)),
+                chainLength: l,
+                chainStart: i,
+                chainEnd: j,
+                splitPos: k,
+                isNewMin: true
+              }
+            });
+          }
+        }
+      }
+    }
+    
+    // Construct the optimal parenthesization using closure
+    let optimalParenthesization = '';
+    
+    const printParenthesization = (i: number, j: number): string => {
+      if (i === j) {
+        return `A${i}`;
+      }
+      
+      const k = split[i][j];
+      return '(' + printParenthesization(i, k) + ' × ' + printParenthesization(k + 1, j) + ')';
+    };
+    
+    optimalParenthesization = printParenthesization(0, n - 1);
+    
+    steps.push({
+      id: 'result',
+      description: `Final result: Minimum operations = ${dp[0][n-1]}, Optimal parenthesization = ${optimalParenthesization}`,
+      highlightedLines: [38, 39, 40],
+      visualState: { 
+        dimensions,
+        dp: JSON.parse(JSON.stringify(dp)),
+        split: JSON.parse(JSON.stringify(split)),
+        minOperations: dp[0][n-1],
+        optimalParenthesization,
+        complete: true
+      }
+    });
+    
+    return steps;
+  },
+  defaultInput: { 
+    dimensions: [40, 20, 30, 10, 30]
   }
 };
