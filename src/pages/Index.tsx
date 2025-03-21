@@ -6,6 +6,8 @@ import AlgorithmSelector from '@/components/AlgorithmSelector';
 import AlgorithmCodeInput from '@/components/AlgorithmCodeInput';
 import { Algorithm } from '@/types/algorithm';
 import { algorithmData } from '@/data/algorithms';
+import { useTheme } from '@/contexts/ThemeContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>(algorithmData[0]);
@@ -14,6 +16,7 @@ const Index = () => {
   const [customLanguage, setCustomLanguage] = useState<string>("js");
   const [customSteps, setCustomSteps] = useState<any[]>([]);
   const [isCustomAlgorithm, setIsCustomAlgorithm] = useState<boolean>(false);
+  const { theme } = useTheme();
 
   const handleAlgorithmChange = (algorithm: Algorithm) => {
     setSelectedAlgorithm(algorithm);
@@ -40,7 +43,7 @@ const Index = () => {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Speed:</span>
               <select 
-                className="px-2 py-1 border rounded-md text-sm" 
+                className="px-2 py-1 border rounded-md text-sm bg-background" 
                 value={speed}
                 onChange={(e) => handleSpeedChange(Number(e.target.value))}
               >
@@ -50,6 +53,7 @@ const Index = () => {
                 <option value={4}>4x</option>
               </select>
             </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>
