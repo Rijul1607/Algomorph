@@ -1,3 +1,4 @@
+
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 
 // Edit Distance
@@ -633,4 +634,140 @@ export const wordBreakProblem: Algorithm = {
 
   return dp[n];
 }`,
-  explanation: `<p>
+  explanation: `<p>The word break problem asks whether a given string can be segmented into a space-separated sequence of one or more dictionary words.</p>
+  <p>This algorithm uses dynamic programming to solve the problem. The key idea is to build an array dp where dp[i] is true if the substring s[0...i-1] can be segmented into dictionary words.</p>
+  <p>The algorithm fills the array in a bottom-up manner, using the following rules:</p>
+  <ul>
+    <li>Initialize dp[0] as true, representing an empty string which is always valid.</li>
+    <li>For each position i in the string, check all previous positions j. If dp[j] is true and the substring s[j...i-1] is in the dictionary, then dp[i] is true.</li>
+    <li>At the end, dp[n] indicates whether the entire string can be segmented.</li>
+  </ul>`,
+  generateSteps: (input: { s: string, wordDict: string[] }) => {
+    const s = input?.s || "leetcode";
+    const wordDict = input?.wordDict || ["leet", "code"];
+    const n = s.length;
+    const steps: AlgorithmStep[] = [];
+
+    // Initialize DP array
+    const dp = Array(n + 1).fill(false);
+    dp[0] = true;
+
+    steps.push({
+      id: 'init',
+      description: 'Initialize DP array with false, dp[0] = true (empty string is always valid)',
+      highlightedLines: [2, 3],
+      visualState: { s, wordDict, dp: [...dp] }
+    });
+
+    // Fill DP array
+    for (let i = 1; i <= n; i++) {
+      for (let j = 0; j < i; j++) {
+        steps.push({
+          id: `check-${i}-${j}`,
+          description: `Checking if dp[${j}] is true and substring "${s.substring(j, i)}" is in the dictionary`,
+          highlightedLines: [6, 7],
+          visualState: { s, wordDict, dp: [...dp], start: j, end: i }
+        });
+
+        if (dp[j] && wordDict.includes(s.substring(j, i))) {
+          dp[i] = true;
+          steps.push({
+            id: `update-${i}-${j}`,
+            description: `Found valid segmentation: dp[${j}] is true and "${s.substring(j, i)}" is in the dictionary. Setting dp[${i}] = true`,
+            highlightedLines: [8, 9],
+            visualState: { s, wordDict, dp: [...dp], start: j, end: i }
+          });
+          break;
+        }
+      }
+    }
+
+    steps.push({
+      id: 'complete',
+      description: `The string "${s}" ${dp[n] ? 'can' : 'cannot'} be segmented into dictionary words`,
+      highlightedLines: [14],
+      visualState: { s, wordDict, dp: [...dp] }
+    });
+
+    return steps;
+  },
+  defaultInput: { s: "leetcode", wordDict: ["leet", "code"] }
+};
+
+// Fibonacci using Dynamic Programming
+export const fibonacciDP: Algorithm = {
+  id: 'fibonacci-dp',
+  name: 'Fibonacci (DP)',
+  type: 'dynamic-programming',
+  description: 'Calculate the nth Fibonacci number using dynamic programming.',
+  timeComplexity: 'O(n)',
+  spaceComplexity: 'O(n)',
+  code: `function fibonacci(n) {
+  // Create an array to store Fibonacci numbers
+  const f = Array(n + 1).fill(0);
+  
+  // Base cases
+  f[0] = 0;
+  f[1] = 1;
+  
+  // Fill the array in bottom-up manner
+  for (let i = 2; i <= n; i++) {
+    f[i] = f[i - 1] + f[i - 2];
+  }
+  
+  return f[n];
+}`,
+  explanation: `<p>The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1.</p>
+  <p>This algorithm uses dynamic programming to efficiently compute the nth Fibonacci number. The key idea is to build an array where each element f[i] represents the ith Fibonacci number.</p>
+  <p>The algorithm fills the array in a bottom-up manner, using the following rules:</p>
+  <ul>
+    <li>Initialize f[0] = 0 and f[1] = 1 (base cases).</li>
+    <li>For each i from 2 to n, calculate f[i] = f[i-1] + f[i-2].</li>
+    <li>Return f[n] as the nth Fibonacci number.</li>
+  </ul>`,
+  generateSteps: (input: { n: number }) => {
+    const n = input?.n || 10;
+    const steps: AlgorithmStep[] = [];
+
+    // Initialize DP array
+    const f = Array(n + 1).fill(0);
+    f[0] = 0;
+    f[1] = 1;
+
+    steps.push({
+      id: 'init',
+      description: 'Initialize DP array with base cases: f[0] = 0, f[1] = 1',
+      highlightedLines: [2, 5, 6],
+      visualState: { n, f: [...f] }
+    });
+
+    // Fill DP array
+    for (let i = 2; i <= n; i++) {
+      steps.push({
+        id: `before-${i}`,
+        description: `Computing f[${i}] = f[${i-1}] + f[${i-2}] = ${f[i-1]} + ${f[i-2]}`,
+        highlightedLines: [9],
+        visualState: { n, f: [...f], current: i }
+      });
+
+      f[i] = f[i - 1] + f[i - 2];
+
+      steps.push({
+        id: `after-${i}`,
+        description: `Computed f[${i}] = ${f[i]}`,
+        highlightedLines: [9],
+        visualState: { n, f: [...f], current: i }
+      });
+    }
+
+    steps.push({
+      id: 'complete',
+      description: `The ${n}th Fibonacci number is ${f[n]}`,
+      highlightedLines: [12],
+      visualState: { n, f: [...f] }
+    });
+
+    return steps;
+  },
+  defaultInput: { n: 10 }
+};
