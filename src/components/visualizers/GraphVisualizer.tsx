@@ -1,5 +1,6 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
+import { ChartContainer } from '@/components/ui/chart';
 
 interface GraphVisualizerProps {
   data: {
@@ -60,14 +61,13 @@ const GraphVisualizer: React.FC<GraphVisualizerProps> = ({ data }) => {
     target,
     queue,
     stack,
-    visited,
+    visited = [],
     distance = {},
     path = {},
     step,
     totalSteps,
     complete,
-    foundPath,
-    shortestDistance
+    foundPath
   } = data;
   
   const svgWidth = 600;
@@ -75,26 +75,28 @@ const GraphVisualizer: React.FC<GraphVisualizerProps> = ({ data }) => {
   const nodeRadius = 20;
   
   // If node positions are not defined, generate them in a circular layout
-  const nodesWithPositions = nodes.map((node, index) => {
-    if (node.x === undefined || node.y === undefined) {
-      const angle = (index / nodes.length) * 2 * Math.PI;
-      const radius = Math.min(svgWidth, svgHeight) * 0.4;
-      return {
-        ...node,
-        x: svgWidth / 2 + radius * Math.cos(angle),
-        y: svgHeight / 2 + radius * Math.sin(angle)
-      };
-    }
-    return node;
-  });
+  const nodesWithPositions = useMemo(() => {
+    return nodes.map((node, index) => {
+      if (node.x === undefined || node.y === undefined) {
+        const angle = (index / nodes.length) * 2 * Math.PI;
+        const radius = Math.min(svgWidth, svgHeight) * 0.4;
+        return {
+          ...node,
+          x: svgWidth / 2 + radius * Math.cos(angle),
+          y: svgHeight / 2 + radius * Math.sin(angle)
+        };
+      }
+      return node;
+    });
+  }, [nodes, svgWidth, svgHeight]);
   
   // Determine node colors based on their state
-  const getNodeColor = (node: typeof nodesWithPositions[0]) => {
+  const getNodeColor = (node: (typeof nodesWithPositions)[0]) => {
     if (node.id === current) return 'fill-warning';
     if (node.id === start) return 'fill-blue-500';
     if (node.id === target) return 'fill-success';
-    if (node.path || (foundPath && path[node.id] !== undefined)) return 'fill-teal-400';
-    if (node.visited || (visited && visited.includes(node.id))) return 'fill-primary-light';
+    if (node.path || isNodeInPath(node.id)) return 'fill-teal-400';
+    if (node.visited || visited.includes(node.id)) return 'fill-primary-light';
     if (node.processing) return 'fill-amber-400';
     if (node.neighbor) return 'fill-blue-300';
     return 'fill-muted';
@@ -102,10 +104,23 @@ const GraphVisualizer: React.FC<GraphVisualizerProps> = ({ data }) => {
   
   // Determine edge colors based on their state
   const getEdgeColor = (edge: typeof edges[0]) => {
-    if (edge.path) return 'stroke-success';
+    if (edge.path || isEdgeOnPath(edge)) return 'stroke-success';
     if (edge.visited) return 'stroke-primary';
     if (edge.current) return 'stroke-warning';
     return 'stroke-muted-foreground';
+  };
+  
+  // Check if a node is on the found path
+  const isNodeInPath = (nodeId: string | number) => {
+    if (!foundPath || !path) return false;
+    
+    let currentNode: string | number | undefined = target;
+    while (currentNode && path[currentNode] !== undefined) {
+      if (currentNode === nodeId) return true;
+      currentNode = path[currentNode];
+    }
+    
+    return false;
   };
   
   // Check if an edge is on the path (for visualization)
@@ -127,84 +142,111 @@ const GraphVisualizer: React.FC<GraphVisualizerProps> = ({ data }) => {
   return (
     <div className="w-full overflow-auto">
       <div className="flex flex-col items-center">
-        <svg 
-          width={svgWidth} 
-          height={svgHeight} 
+        <ChartContainer 
+          config={{ 
+            path: { color: "#666" },
+            visited: { color: "#8b5cf6" },
+            current: { color: "#f59e0b" },
+            start: { color: "#3b82f6" },
+            target: { color: "#10b981" }
+          }}
           className="border rounded-md bg-card"
         >
-          {/* Render edges first so they appear behind nodes */}
-          {edges.map((edge, idx) => {
-            const fromNode = nodesWithPositions.find(node => node.id === edge.from);
-            const toNode = nodesWithPositions.find(node => node.id === edge.to);
+          <svg 
+            width={svgWidth} 
+            height={svgHeight} 
+            className="border rounded-md bg-card"
+          >
+            {/* Render edges first so they appear behind nodes */}
+            {edges.map((edge, idx) => {
+              const fromNode = nodesWithPositions.find(node => node.id === edge.from);
+              const toNode = nodesWithPositions.find(node => node.id === edge.to);
+              
+              if (!fromNode || !toNode) return null;
+              
+              const isPath = edge.path || isEdgeOnPath(edge);
+              
+              return (
+                <g key={`edge-${idx}`}>
+                  <line
+                    x1={fromNode.x}
+                    y1={fromNode.y}
+                    x2={toNode.x}
+                    y2={toNode.y}
+                    className={`${getEdgeColor(edge)} ${isPath ? 'stroke-2' : 'stroke-1'}`}
+                  />
+                  {edge.weight !== undefined && (
+                    <text
+                      x={(fromNode.x! + toNode.x!) / 2}
+                      y={(fromNode.y! + toNode.y!) / 2}
+                      dy="-5"
+                      className="text-xs fill-muted-foreground text-center bg-background"
+                    >
+                      {edge.weight}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
             
-            if (!fromNode || !toNode) return null;
-            
-            const isPath = edge.path || isEdgeOnPath(edge);
-            
-            return (
-              <g key={`edge-${idx}`}>
-                <line
-                  x1={fromNode.x}
-                  y1={fromNode.y}
-                  x2={toNode.x}
-                  y2={toNode.y}
-                  className={`${getEdgeColor(edge)} ${isPath ? 'stroke-2' : 'stroke-1'}`}
-                />
-                {edge.weight !== undefined && (
-                  <text
-                    x={(fromNode.x! + toNode.x!) / 2}
-                    y={(fromNode.y! + toNode.y!) / 2}
-                    dy="-5"
-                    className="text-xs fill-muted-foreground text-center bg-background"
-                  >
-                    {edge.weight}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-          
-          {/* Render nodes */}
-          {nodesWithPositions.map((node, idx) => {
-            const isCurrentNode = node.id === current;
-            const isNodeInPath = node.path || (foundPath && path && path[node.id] !== undefined);
-            
-            return (
-              <g key={`node-${idx}`}>
-                <circle
-                  cx={node.x}
-                  cy={node.y}
-                  r={nodeRadius}
-                  className={`${getNodeColor(node)} stroke-2 ${isCurrentNode ? 'stroke-warning-dark' : 'stroke-border'}`}
-                />
-                <text
-                  x={node.x}
-                  y={node.y}
-                  dy="0.3em"
-                  className="text-center fill-foreground font-medium"
-                  textAnchor="middle"
-                >
-                  {node.label || node.id}
-                </text>
-                
-                {/* Display distance if available */}
-                {distance && distance[node.id] !== undefined && (
+            {/* Render nodes */}
+            {nodesWithPositions.map((node, idx) => {
+              const isCurrentNode = node.id === current;
+              const isNodeOnPath = node.path || isNodeInPath(node.id);
+              
+              return (
+                <g key={`node-${idx}`} className="transition-all duration-300">
+                  <circle
+                    cx={node.x}
+                    cy={node.y}
+                    r={nodeRadius}
+                    className={`${getNodeColor(node)} stroke-2 transition-colors duration-300 ${isCurrentNode ? 'stroke-warning-dark animate-pulse' : 'stroke-border'}`}
+                  />
                   <text
                     x={node.x}
-                    y={node.y! + nodeRadius + 15}
-                    className="text-xs text-center fill-muted-foreground"
+                    y={node.y}
+                    dy="0.3em"
+                    className="text-center fill-foreground font-medium"
                     textAnchor="middle"
                   >
-                    d: {distance[node.id]}
+                    {node.label || node.id}
                   </text>
-                )}
-              </g>
-            );
-          })}
-        </svg>
+                  
+                  {/* Display distance if available */}
+                  {distance && distance[node.id] !== undefined && (
+                    <text
+                      x={node.x}
+                      y={node.y! + nodeRadius + 15}
+                      className="text-xs text-center fill-muted-foreground"
+                      textAnchor="middle"
+                    >
+                      d: {distance[node.id]}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </ChartContainer>
         
-        {/* Additional information */}
+        {/* Algorithm info section */}
         <div className="w-full max-w-xl mt-4">
+          {/* Progress bar */}
+          {step !== undefined && totalSteps !== undefined && (
+            <div className="mb-3">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                <span>Step {step + 1} of {totalSteps}</span>
+                <span>{Math.round(((step + 1) / totalSteps) * 100)}%</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-2">
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${((step + 1) / totalSteps) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+          
           {/* Queue/Stack visualization if available */}
           {(queue || stack) && (
             <div className="mb-3">
@@ -272,9 +314,9 @@ const GraphVisualizer: React.FC<GraphVisualizerProps> = ({ data }) => {
                       ));
                     })()}
                   </div>
-                  {shortestDistance !== undefined && (
+                  {data.shortestDistance !== undefined && (
                     <div className="mt-2">
-                      <span className="font-medium">Distance:</span> {shortestDistance}
+                      <span className="font-medium">Distance:</span> {data.shortestDistance}
                     </div>
                   )}
                 </div>

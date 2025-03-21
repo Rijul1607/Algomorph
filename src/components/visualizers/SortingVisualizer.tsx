@@ -29,7 +29,7 @@ const SortingVisualizer: React.FC<SortingVisualizerProps> = ({ data }) => {
   const maxValue = Math.max(...array);
   
   return (
-    <div className="w-full h-full flex items-end justify-center gap-1 p-4">
+    <div className="w-full h-[300px] flex items-end justify-center gap-1 p-4 bg-card/50 rounded-md border border-border/50">
       {array.map((value, index) => {
         const height = (value / maxValue) * 100;
         const isComparing = comparing?.includes(index);
@@ -50,10 +50,14 @@ const SortingVisualizer: React.FC<SortingVisualizerProps> = ({ data }) => {
                     : isSorted 
                       ? 'bg-success' 
                       : 'bg-primary'
-              } transition-all duration-300 rounded-t-sm`}
+              } transition-all duration-300 rounded-t-sm relative group`}
               style={{ height: `${height}%` }}
-            />
-            <div className="text-xs mt-1 font-mono">{value}</div>
+            >
+              <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-background border rounded px-2 py-1 text-xs pointer-events-none transition-opacity">
+                {value}
+              </div>
+            </div>
+            <div className="text-xs mt-1 font-mono text-muted-foreground">{value}</div>
           </div>
         );
       })}
