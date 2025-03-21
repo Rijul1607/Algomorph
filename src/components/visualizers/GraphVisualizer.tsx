@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { ChevronRight } from 'lucide-react';
 
@@ -266,24 +267,28 @@ const DijkstraVisualizer: React.FC<{ data: any }> = ({ data }) => {
         <div className="p-4 bg-primary/10 rounded-lg max-w-md w-full">
           <h3 className="font-medium mb-3">Shortest Paths from {startNode}:</h3>
           <div className="space-y-2">
-            {Object.entries(paths).map(([node, pathData]) => (
-              <div key={node} className="p-3 border rounded-md">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="font-medium">To {node}</div>
-                  <div className="font-mono bg-primary/20 px-2 py-0.5 rounded">
-                    {formatDistance(pathData.distance)}
+            {Object.entries(paths).map(([node, pathData]) => {
+              // Add type assertion to tell TypeScript that pathData has the expected structure
+              const typedPathData = pathData as { distance: number, path: string[] };
+              return (
+                <div key={node} className="p-3 border rounded-md">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="font-medium">To {node}</div>
+                    <div className="font-mono bg-primary/20 px-2 py-0.5 rounded">
+                      {formatDistance(typedPathData.distance)}
+                    </div>
+                  </div>
+                  <div className="flex items-center flex-wrap">
+                    {typedPathData.path.map((step, i) => (
+                      <React.Fragment key={i}>
+                        <span className="bg-card px-2 py-1 rounded">{step}</span>
+                        {i < typedPathData.path.length - 1 && <ChevronRight className="w-4 h-4 mx-1 text-muted-foreground" />}
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
-                <div className="flex items-center flex-wrap">
-                  {pathData.path.map((step, i) => (
-                    <React.Fragment key={i}>
-                      <span className="bg-card px-2 py-1 rounded">{step}</span>
-                      {i < pathData.path.length - 1 && <ChevronRight className="w-4 h-4 mx-1 text-muted-foreground" />}
-                    </React.Fragment>
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

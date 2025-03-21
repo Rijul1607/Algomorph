@@ -32,8 +32,10 @@ export const bubbleSort: Algorithm = {
     <li>In-place algorithm (requires O(1) extra space)</li>
     <li>Stable sort (does not change the relative order of equal elements)</li>
   </ul>`,
-  generateSteps: (input: number[]) => {
-    const arr = [...input];
+  generateSteps: (input: any) => {
+    // Ensure input is an array before proceeding
+    const arr = Array.isArray(input) ? [...input] : input && typeof input === 'object' && input.array ? [...input.array] : [64, 34, 25, 12, 22, 11, 90];
+    
     const steps: AlgorithmStep[] = [];
     const n = arr.length;
     
@@ -164,8 +166,10 @@ function partition(arr, low, high) {
     <li>Not stable (may change the relative order of equal elements)</li>
     <li>In-place partitioning (requires only O(log n) additional space)</li>
   </ul>`,
-  generateSteps: (input: number[]) => {
-    const arr = [...input];
+  generateSteps: (input: any) => {
+    // Ensure input is an array before proceeding
+    const arr = Array.isArray(input) ? [...input] : input && typeof input === 'object' && input.array ? [...input.array] : [38, 27, 43, 3, 9, 82, 10];
+    
     const steps: AlgorithmStep[] = [];
     const sorted: number[] = [];
     
@@ -328,51 +332,7 @@ function selectionSort(arr) {
   }
   
   return arr;
-}
-
-/* C++ Implementation
-#include <vector>
-
-std::vector<int> selectionSort(std::vector<int> arr) {
-  int n = arr.size();
-  
-  for (int i = 0; i < n - 1; i++) {
-    // Find the minimum element in the unsorted array
-    int minIndex = i;
-    
-    for (int j = i + 1; j < n; j++) {
-      if (arr[j] < arr[minIndex]) {
-        minIndex = j;
-      }
-    }
-    
-    // Swap the found minimum element with the element at index i
-    if (minIndex != i) {
-      std::swap(arr[i], arr[minIndex]);
-    }
-  }
-  
-  return arr;
-}
-*/
-
-# Python Implementation
-def selection_sort(arr):
-    n = len(arr)
-    
-    for i in range(n - 1):
-        # Find the minimum element in the unsorted array
-        min_index = i
-        
-        for j in range(i + 1, n):
-            if arr[j] < arr[min_index]:
-                min_index = j
-        
-        # Swap the found minimum element with the element at index i
-        if min_index != i:
-            arr[i], arr[min_index] = arr[min_index], arr[i]
-    
-    return arr`,
+}`,
   explanation: `<p>Selection sort is a simple and efficient sorting algorithm that works by repeatedly selecting the smallest (or largest) element from the unsorted portion of the list and moving it to the sorted portion of the list.</p>
   <p>Key characteristics:</p>
   <ul>
@@ -389,8 +349,10 @@ def selection_sort(arr):
     <li>Swap the minimum element with the element at the first position</li>
     <li>Increment the position and repeat steps 2-3 until the array is sorted</li>
   </ol>`,
-  generateSteps: (input: number[]) => {
-    const arr = [...input];
+  generateSteps: (input: any) => {
+    // Ensure input is an array before proceeding
+    const arr = Array.isArray(input) ? [...input] : input && typeof input === 'object' && input.array ? [...input.array] : [29, 15, 56, 8, 32, 44, 61, 19, 72];
+    
     const steps: AlgorithmStep[] = [];
     const n = arr.length;
     

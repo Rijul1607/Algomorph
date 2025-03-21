@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ArrowDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface FlowchartViewProps {
   code: string;
@@ -140,7 +141,5 @@ function getStepContent(step: any): string {
       return step.content || '';
   }
 }
-
-import { cn } from '@/lib/utils';
 
 export default FlowchartView;
