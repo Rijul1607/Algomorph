@@ -8,7 +8,6 @@ import { Algorithm } from '@/types/algorithm';
 import { algorithmData } from '@/data/algorithms';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>(algorithmData[0]);
@@ -67,8 +66,8 @@ const Index = () => {
           </TabsList>
           
           <TabsContent value="built-in" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-              <div className="border rounded-lg p-4 bg-card">
+            <div className="flex gap-6">
+              <div className="w-1/4 border rounded-lg p-4 bg-card">
                 <h2 className="text-lg font-medium mb-4">Algorithms</h2>
                 <AlgorithmSelector 
                   algorithms={algorithmData} 
@@ -77,7 +76,7 @@ const Index = () => {
                 />
               </div>
               
-              <div className="border rounded-lg p-4 bg-card">
+              <div className="w-3/4 border rounded-lg p-4 bg-card">
                 <Tabs defaultValue="visualization">
                   <TabsList className="mb-4">
                     <TabsTrigger value="visualization">Visualization</TabsTrigger>
@@ -93,44 +92,29 @@ const Index = () => {
                   </TabsContent>
                   
                   <TabsContent value="code">
-                    <div className="relative">
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge variant="outline" className="mb-2">
-                          {selectedAlgorithm.code.includes('function') ? 'JavaScript' : 
-                          selectedAlgorithm.code.includes('def') ? 'Python' :
-                          selectedAlgorithm.code.includes('class') ? 'Java' : 'Code'}
-                        </Badge>
-                      </div>
-                      <div className="font-mono text-sm bg-muted p-4 rounded-md overflow-auto h-[500px]">
-                        <pre className="whitespace-pre-wrap">{selectedAlgorithm.code}</pre>
-                      </div>
+                    <div className="font-mono text-sm bg-muted p-4 rounded-md overflow-auto h-[500px]">
+                      <pre>{selectedAlgorithm.code}</pre>
                     </div>
                   </TabsContent>
                   
                   <TabsContent value="explanation">
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <div className="prose prose-sm max-w-none">
                       <h3 className="text-xl font-medium mb-2">{selectedAlgorithm.name}</h3>
                       <p className="mb-4">{selectedAlgorithm.description}</p>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="border rounded-md p-4 bg-card">
-                          <h4 className="text-lg font-medium mb-2">Time Complexity</h4>
-                          <p className="mb-0">
-                            <span className="font-mono bg-muted px-2 py-1 rounded">
-                              {selectedAlgorithm.timeComplexity}
-                            </span>
-                          </p>
-                        </div>
-                        
-                        <div className="border rounded-md p-4 bg-card">
-                          <h4 className="text-lg font-medium mb-2">Space Complexity</h4>
-                          <p className="mb-0">
-                            <span className="font-mono bg-muted px-2 py-1 rounded">
-                              {selectedAlgorithm.spaceComplexity}
-                            </span>
-                          </p>
-                        </div>
-                      </div>
+                      <h4 className="text-lg font-medium mb-2">Time Complexity</h4>
+                      <p className="mb-4">
+                        <span className="font-mono bg-muted px-1 rounded">
+                          {selectedAlgorithm.timeComplexity}
+                        </span>
+                      </p>
+                      
+                      <h4 className="text-lg font-medium mb-2">Space Complexity</h4>
+                      <p className="mb-4">
+                        <span className="font-mono bg-muted px-1 rounded">
+                          {selectedAlgorithm.spaceComplexity}
+                        </span>
+                      </p>
                       
                       <h4 className="text-lg font-medium mb-2">How it works</h4>
                       <div dangerouslySetInnerHTML={{ __html: selectedAlgorithm.explanation }} />

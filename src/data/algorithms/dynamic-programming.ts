@@ -1,133 +1,209 @@
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 
-// Edit Distance
-export const editDistance: Algorithm = {
-  id: 'edit-distance',
-  name: 'Edit Distance',
+// Fibonacci Sequence with Dynamic Programming
+export const fibonacciDP: Algorithm = {
+  id: 'fibonacci-dp',
+  name: 'Fibonacci (DP)',
   type: 'dynamic-programming',
-  description: 'Calculates the minimum number of operations required to transform one string into another.',
-  timeComplexity: 'O(m*n)',
-  spaceComplexity: 'O(m*n)',
-  code: `function editDistance(str1, str2) {
-  const m = str1.length;
-  const n = str2.length;
-
-  // Create a DP table to store results of subproblems
-  const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
-
-  // If str1 is empty, the only option is to insert all characters of str2
-  for (let i = 0; i <= m; i++) {
-    dp[i][0] = i;
+  description: 'Calculate the nth Fibonacci number using dynamic programming to avoid redundant calculations.',
+  timeComplexity: 'O(n)',
+  spaceComplexity: 'O(n)',
+  code: `// JavaScript Implementation
+function fibonacci(n) {
+  // Base cases
+  if (n <= 1) return n;
+  
+  // Initialize dp array
+  const dp = new Array(n + 1);
+  dp[0] = 0;
+  dp[1] = 1;
+  
+  // Fill dp array
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
   }
+  
+  return dp[n];
+}
 
-  // If str2 is empty, the only option is to remove all characters of str1
-  for (let j = 0; j <= n; j++) {
-    dp[0][j] = j;
+// Alternative approach with O(1) space
+function fibonacciOptimized(n) {
+  if (n <= 1) return n;
+  
+  let prev = 0;
+  let curr = 1;
+  
+  for (let i = 2; i <= n; i++) {
+    const next = prev + curr;
+    prev = curr;
+    curr = next;
   }
-
-  // Fill the DP table
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      // If the last characters are the same, no operation is needed
-      if (str1[i - 1] === str2[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1];
-      } else {
-        // If the last characters are different, consider all possibilities and find the minimum
-        dp[i][j] = 1 + Math.min(
-          dp[i - 1][j],    // Remove
-          dp[i][j - 1],    // Insert
-          dp[i - 1][j - 1]  // Replace
-        );
-      }
-    }
-  }
-
-  // Return the edit distance between str1 and str2
-  return dp[m][n];
+  
+  return curr;
 }`,
-  explanation: `<p>The edit distance between two strings is the minimum number of operations (insertions, deletions, or substitutions) needed to transform one string into the other.</p>
-  <p>This algorithm uses dynamic programming to efficiently compute the edit distance. The key idea is to build a table where each cell (i, j) represents the edit distance between the first i characters of string1 and the first j characters of string2.</p>
-  <p>The algorithm fills the table in a bottom-up manner, using the following rules:</p>
+  explanation: `<p>The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1.</p>
+  <p>The sequence starts: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...</p>
+  <p>While a recursive solution is simple to write, it has exponential time complexity due to redundant calculations. Dynamic programming can optimize this:</p>
   <ul>
-    <li>If the characters at the current positions in both strings are the same, no operation is needed, and the edit distance is the same as the edit distance between the prefixes without these characters.</li>
-    <li>If the characters are different, we consider all three possible operations (insert, delete, replace) and choose the one that results in the minimum edit distance.</li>
-  </ul>`,
-  generateSteps: (input: { str1: string, str2: string }) => {
-    const str1 = input?.str1 || "kitten";
-    const str2 = input?.str2 || "sitting";
-    const m = str1.length;
-    const n = str2.length;
+    <li><strong>Top-down approach (memoization):</strong> Use recursion but store computed results to avoid recalculation</li>
+    <li><strong>Bottom-up approach (tabulation):</strong> Build up the solution iteratively, storing results in a table</li>
+  </ul>
+  <p>The bottom-up approach uses an array to store all Fibonacci numbers up to n, resulting in O(n) time complexity and O(n) space complexity.</p>
+  <p>For even better space efficiency, we can use just two variables to track the previous two Fibonacci numbers, reducing space complexity to O(1).</p>`,
+  generateSteps: (input: { n: number, optimized: boolean }) => {
+    const { n = 5, optimized = false } = input;
     const steps: AlgorithmStep[] = [];
-
-    // Initialize DP table
-    const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
-
+    
     steps.push({
       id: 'init',
-      description: 'Initialize DP table',
-      highlightedLines: [2, 3],
-      visualState: { str1, str2, dp: dp.map(row => [...row]) }
+      description: `Calculate the ${n}th Fibonacci number using ${optimized ? 'optimized' : 'standard'} DP`,
+      highlightedLines: optimized ? [18, 19] : [2, 3],
+      visualState: { 
+        n,
+        optimized,
+        dp: optimized ? [] : [0, 1], // Fix: Changed null to empty array
+        prev: optimized ? 0 : null,
+        curr: optimized ? 1 : null,
+        result: null,
+        currentStep: 0
+      }
     });
-
-    // Initialize first row and column
-    for (let i = 0; i <= m; i++) {
-      dp[i][0] = i;
-    }
-    for (let j = 0; j <= n; j++) {
-      dp[0][j] = j;
-    }
-
-    steps.push({
-      id: 'init-first-row-col',
-      description: 'Initialize first row and column of DP table',
-      highlightedLines: [6, 11],
-      visualState: { str1, str2, dp: dp.map(row => [...row]) }
-    });
-
-    // Fill DP table
-    for (let i = 1; i <= m; i++) {
-      for (let j = 1; j <= n; j++) {
+    
+    if (n <= 1) {
+      steps.push({
+        id: 'base-case',
+        description: `Base case: n = ${n}, return ${n}`,
+        highlightedLines: optimized ? 19 : 3,
+        visualState: { 
+          n,
+          optimized,
+          dp: optimized ? [] : [0, 1], // Fix: Changed null to empty array
+          prev: optimized ? 0 : null,
+          curr: optimized ? 1 : null,
+          result: n,
+          currentStep: 0
+        }
+      });
+    } else {
+      if (optimized) {
+        // Optimized approach with O(1) space
+        let prev = 0;
+        let curr = 1;
+        
         steps.push({
-          id: `compare-${i}-${j}`,
-          description: `Comparing str1[${i - 1}]='${str1[i - 1]}' and str2[${j - 1}]='${str2[j - 1]}'`,
-          highlightedLines: [16],
-          visualState: { str1, str2, dp: dp.map(row => [...row]), current: [i, j] }
+          id: 'init-vars',
+          description: 'Initialize variables: prev = 0, curr = 1',
+          highlightedLines: [21, 22],
+          visualState: { 
+            n,
+            optimized,
+            prev,
+            curr,
+            currentStep: 0
+          }
         });
-
-        if (str1[i - 1] === str2[j - 1]) {
-          dp[i][j] = dp[i - 1][j - 1];
+        
+        for (let i = 2; i <= n; i++) {
+          const next = prev + curr;
+          
           steps.push({
-            id: `same-${i}-${j}`,
-            description: `Characters are the same, no operation needed. dp[${i}][${j}] = dp[${i - 1}][${j - 1}] = ${dp[i][j]}`,
-            highlightedLines: [17, 18],
-            visualState: { str1, str2, dp: dp.map(row => [...row]), current: [i, j] }
+            id: `calc-next-${i}`,
+            description: `Calculate F(${i}) = F(${i-2}) + F(${i-1}) = ${prev} + ${curr} = ${next}`,
+            highlightedLines: [25],
+            visualState: { 
+              n,
+              optimized,
+              prev,
+              curr,
+              next,
+              currentStep: i,
+              currentCalc: [prev, curr]
+            }
           });
-        } else {
-          dp[i][j] = 1 + Math.min(
-            dp[i - 1][j],    // Remove
-            dp[i][j - 1],    // Insert
-            dp[i - 1][j - 1]  // Replace
-          );
+          
+          prev = curr;
+          curr = next;
+          
           steps.push({
-            id: `diff-${i}-${j}`,
-            description: `Characters differ, take minimum of insert, delete, replace. dp[${i}][${j}] = ${dp[i][j]}`,
-            highlightedLines: [20, 25],
-            visualState: { str1, str2, dp: dp.map(row => [...row]), current: [i, j] }
+            id: `update-vars-${i}`,
+            description: `Update variables: prev = ${prev}, curr = ${curr}`,
+            highlightedLines: [26, 27],
+            visualState: { 
+              n,
+              optimized,
+              prev,
+              curr,
+              currentStep: i
+            }
           });
         }
+        
+        steps.push({
+          id: 'result',
+          description: `Result: F(${n}) = ${curr}`,
+          highlightedLines: [30],
+          visualState: { 
+            n,
+            optimized,
+            prev,
+            curr,
+            result: curr,
+            currentStep: n
+          }
+        });
+      } else {
+        // Standard DP approach
+        const dp = new Array(n + 1);
+        dp[0] = 0;
+        dp[1] = 1;
+        
+        steps.push({
+          id: 'init-dp',
+          description: 'Initialize DP array with base cases: dp[0] = 0, dp[1] = 1',
+          highlightedLines: [6, 7, 8],
+          visualState: { 
+            n,
+            optimized,
+            dp: [...dp.slice(0, 2)],
+            currentStep: 0
+          }
+        });
+        
+        for (let i = 2; i <= n; i++) {
+          dp[i] = dp[i - 1] + dp[i - 2];
+          
+          steps.push({
+            id: `calc-dp-${i}`,
+            description: `Calculate dp[${i}] = dp[${i-1}] + dp[${i-2}] = ${dp[i-1]} + ${dp[i-2]} = ${dp[i]}`,
+            highlightedLines: [11],
+            visualState: { 
+              n,
+              optimized,
+              dp: [...dp.slice(0, i+1)],
+              currentStep: i,
+              currentCalc: [i-2, i-1]
+            }
+          });
+        }
+        
+        steps.push({
+          id: 'result',
+          description: `Result: F(${n}) = dp[${n}] = ${dp[n]}`,
+          highlightedLines: [14],
+          visualState: { 
+            n,
+            optimized,
+            dp,
+            result: dp[n],
+            currentStep: n
+          }
+        });
       }
     }
-
-    steps.push({
-      id: 'complete',
-      description: `Edit distance between '${str1}' and '${str2}' is ${dp[m][n]}`,
-      highlightedLines: [29],
-      visualState: { str1, str2, dp: dp.map(row => [...row]) }
-    });
-
+    
     return steps;
   },
-  defaultInput: { str1: "kitten", str2: "sitting" }
+  defaultInput: { n: 5, optimized: false }
 };
 
 // Knapsack Problem
@@ -135,102 +211,236 @@ export const knapsackProblem: Algorithm = {
   id: 'knapsack-problem',
   name: 'Knapsack Problem',
   type: 'dynamic-programming',
-  description: 'Find the most valuable combination of items to fit into a knapsack with a limited weight capacity.',
-  timeComplexity: 'O(n*W)',
+  description: 'Solve the 0/1 Knapsack problem: maximize value while keeping total weight within capacity.',
+  timeComplexity: 'O(n*W) where n is the number of items and W is the capacity',
   spaceComplexity: 'O(n*W)',
-  code: `function knapsack(capacity, weights, values, n) {
-  // dp[i][w] will store the maximum value that can be obtained with items up to i-th item
-  // and with knapsack capacity w
-  const dp = Array(n + 1).fill(null).map(() => Array(capacity + 1).fill(0));
-
-  // Build table dp[][] in bottom up manner
+  code: `// JavaScript Implementation
+function knapsack(values, weights, capacity) {
+  const n = values.length;
+  
+  // Create DP table
+  const dp = Array(n + 1).fill().map(() => Array(capacity + 1).fill(0));
+  
+  // Fill the DP table
   for (let i = 1; i <= n; i++) {
-    for (let w = 1; w <= capacity; w++) {
-      if (weights[i - 1] <= w) {
-        // Check if the i-th item can be included in the knapsack
-        dp[i][w] = Math.max(
-          values[i - 1] + dp[i - 1][w - weights[i - 1]], // Include item
-          dp[i - 1][w]                                    // Exclude item
-        );
-      } else {
-        // If the i-th item's weight is more than the knapsack capacity, cannot include this item
+    for (let w = 0; w <= capacity; w++) {
+      // If current item weight is more than capacity, skip it
+      if (weights[i - 1] > w) {
         dp[i][w] = dp[i - 1][w];
+      }
+      // Otherwise, take maximum of including or excluding the item
+      else {
+        dp[i][w] = Math.max(
+          dp[i - 1][w],
+          dp[i - 1][w - weights[i - 1]] + values[i - 1]
+        );
       }
     }
   }
-
-  // Return the maximum value that can be obtained
-  return dp[n][capacity];
+  
+  // Backtrack to find the items included
+  const result = {
+    maxValue: dp[n][capacity],
+    includedItems: []
+  };
+  
+  let w = capacity;
+  for (let i = n; i > 0; i--) {
+    // If this item is included
+    if (dp[i][w] !== dp[i - 1][w]) {
+      result.includedItems.push(i - 1);
+      w -= weights[i - 1];
+    }
+  }
+  
+  return result;
 }`,
-  explanation: `<p>The knapsack problem is a classic optimization problem where you have a knapsack with a limited weight capacity and a set of items, each with a weight and a value. The goal is to determine the most valuable combination of items to include in the knapsack without exceeding its capacity.</p>
-  <p>This algorithm uses dynamic programming to solve the knapsack problem. The key idea is to build a table where each cell (i, w) represents the maximum value that can be obtained with items up to the i-th item and with a knapsack capacity of w.</p>
-  <p>The algorithm fills the table in a bottom-up manner, using the following rules:</p>
-  <ul>
-    <li>If the weight of the current item is less than or equal to the current capacity, we have two choices: either include the item in the knapsack or exclude it. We choose the option that gives us the maximum value.</li>
-    <li>If the weight of the current item is greater than the current capacity, we cannot include the item in the knapsack, so the maximum value is the same as the maximum value without this item.</li>
-  </ul>`,
-  generateSteps: (input: { capacity: number, weights: number[], values: number[] }) => {
-    const capacity = input?.capacity || 10;
-    const weights = input?.weights || [5, 4, 6, 3];
-    const values = input?.values || [10, 40, 30, 50];
-    const n = weights.length;
+  explanation: `<p>The Knapsack Problem is a classic optimization problem: Given a set of items, each with a weight and a value, determine which items to include in a collection so that the total weight is less than or equal to a given limit (capacity) and the total value is as large as possible.</p>
+  <p>The 0/1 Knapsack Problem refers to the constraint that each item can either be taken (1) or left (0) - it cannot be divided.</p>
+  <p>Dynamic programming approach:</p>
+  <ol>
+    <li>Create a 2D DP table where dp[i][w] represents the maximum value that can be obtained using the first i items with a maximum weight of w</li>
+    <li>For each item, we have two choices: include it or exclude it</li>
+    <li>If including the item exceeds the weight limit, we must exclude it</li>
+    <li>Otherwise, we take the maximum value between including and excluding the item</li>
+  </ol>
+  <p>After filling the DP table, we can backtrack to determine which items were included in the optimal solution.</p>`,
+  generateSteps: (input: { values: number[], weights: number[], capacity: number }) => {
+    const values = input?.values || [60, 100, 120];
+    const weights = input?.weights || [10, 20, 30];
+    const capacity = input?.capacity !== undefined ? input.capacity : 50;
+    
     const steps: AlgorithmStep[] = [];
-
-    // Initialize DP table
-    const dp = Array(n + 1).fill(null).map(() => Array(capacity + 1).fill(0));
-
+    const n = values.length;
+    
     steps.push({
       id: 'init',
-      description: 'Initialize DP table',
+      description: 'Initialize the knapsack problem',
       highlightedLines: [2, 3],
-      visualState: { capacity, weights, values, dp: dp.map(row => [...row]) }
+      visualState: { 
+        values,
+        weights,
+        capacity,
+        currentItem: null,
+        currentWeight: null,
+        dp: null
+      }
     });
-
-    // Build DP table
+    
+    // Create and initialize DP table
+    const dp = Array(n + 1).fill().map(() => Array(capacity + 1).fill(0));
+    
+    steps.push({
+      id: 'init-dp',
+      description: 'Create DP table initialized with zeros',
+      highlightedLines: [5, 6],
+      visualState: { 
+        values,
+        weights,
+        capacity,
+        dp: JSON.parse(JSON.stringify(dp))
+      }
+    });
+    
+    // Fill the DP table
     for (let i = 1; i <= n; i++) {
-      for (let w = 1; w <= capacity; w++) {
+      for (let w = 0; w <= capacity; w++) {
         steps.push({
-          id: `item-${i}-capacity-${w}`,
-          description: `Checking item ${i} with weight ${weights[i - 1]} and value ${values[i - 1]} for capacity ${w}`,
-          highlightedLines: [6],
-          visualState: { capacity, weights, values, dp: dp.map(row => [...row]), current: [i, w] }
+          id: `consider-${i}-${w}`,
+          description: `Consider item ${i} (value: ${values[i-1]}, weight: ${weights[i-1]}) with remaining capacity ${w}`,
+          highlightedLines: [9],
+          visualState: { 
+            values,
+            weights,
+            capacity,
+            dp: JSON.parse(JSON.stringify(dp)),
+            currentItem: i - 1,
+            currentWeight: w
+          }
         });
-
-        if (weights[i - 1] <= w) {
-          // Can include item
-          dp[i][w] = Math.max(
-            values[i - 1] + dp[i - 1][w - weights[i - 1]], // Include item
-            dp[i - 1][w]                                    // Exclude item
-          );
+        
+        if (weights[i - 1] > w) {
+          // If current item is too heavy, skip it
+          dp[i][w] = dp[i - 1][w];
+          
           steps.push({
-            id: `include-exclude-${i}-${w}`,
-            description: `Can include item. Choose max of including (value: ${values[i - 1]}, remaining capacity: ${w - weights[i - 1]}) or excluding. dp[${i}][${w}] = ${dp[i][w]}`,
-            highlightedLines: [8, 11],
-            visualState: { capacity, weights, values, dp: dp.map(row => [...row]), current: [i, w] }
+            id: `too-heavy-${i}-${w}`,
+            description: `Item ${i} (weight: ${weights[i-1]}) is too heavy for capacity ${w}, skip it: dp[${i}][${w}] = dp[${i-1}][${w}] = ${dp[i][w]}`,
+            highlightedLines: [11, 12],
+            visualState: { 
+              values,
+              weights,
+              capacity,
+              dp: JSON.parse(JSON.stringify(dp)),
+              currentItem: i - 1,
+              currentWeight: w,
+              tooHeavy: true
+            }
           });
         } else {
-          // Cannot include item
-          dp[i][w] = dp[i - 1][w];
+          // Choose maximum of including or excluding the item
+          const includeValue = dp[i - 1][w - weights[i - 1]] + values[i - 1];
+          const excludeValue = dp[i - 1][w];
+          dp[i][w] = Math.max(includeValue, excludeValue);
+          
           steps.push({
-            id: `exclude-${i}-${w}`,
-            description: `Cannot include item. dp[${i}][${w}] = dp[${i - 1}][${w}] = ${dp[i][w]}`,
-            highlightedLines: [13, 14],
-            visualState: { capacity, weights, values, dp: dp.map(row => [...row]), current: [i, w] }
+            id: `choose-${i}-${w}`,
+            description: `Choose max between including (${includeValue}) or excluding (${excludeValue}) item ${i}: dp[${i}][${w}] = ${dp[i][w]}`,
+            highlightedLines: [15, 16, 17],
+            visualState: { 
+              values,
+              weights,
+              capacity,
+              dp: JSON.parse(JSON.stringify(dp)),
+              currentItem: i - 1,
+              currentWeight: w,
+              includeValue,
+              excludeValue
+            }
           });
         }
       }
     }
-
+    
+    // Get the maximum value
+    const maxValue = dp[n][capacity];
+    
     steps.push({
-      id: 'complete',
-      description: `Maximum value that can be carried in the knapsack is ${dp[n][capacity]}`,
-      highlightedLines: [18],
-      visualState: { capacity, weights, values, dp: dp.map(row => [...row]) }
+      id: 'max-value',
+      description: `Maximum value: ${maxValue}`,
+      highlightedLines: [23, 24],
+      visualState: { 
+        values,
+        weights,
+        capacity,
+        dp: JSON.parse(JSON.stringify(dp)),
+        maxValue
+      }
     });
-
+    
+    // Backtrack to find included items
+    const includedItems: number[] = [];
+    let w = capacity;
+    
+    for (let i = n; i > 0; i--) {
+      if (dp[i][w] !== dp[i - 1][w]) {
+        includedItems.push(i - 1);
+        w -= weights[i - 1];
+        
+        steps.push({
+          id: `backtrack-${i}`,
+          description: `Include item ${i} (value: ${values[i-1]}, weight: ${weights[i-1]}) in the solution`,
+          highlightedLines: [30, 31, 32],
+          visualState: { 
+            values,
+            weights,
+            capacity,
+            dp: JSON.parse(JSON.stringify(dp)),
+            maxValue,
+            includedItems: [...includedItems],
+            backtrackItem: i - 1
+          }
+        });
+      } else {
+        steps.push({
+          id: `skip-${i}`,
+          description: `Skip item ${i} (not part of optimal solution)`,
+          highlightedLines: [29],
+          visualState: { 
+            values,
+            weights,
+            capacity,
+            dp: JSON.parse(JSON.stringify(dp)),
+            maxValue,
+            includedItems: [...includedItems],
+            backtrackItem: null
+          }
+        });
+      }
+    }
+    
+    steps.push({
+      id: 'result',
+      description: `Final result: max value = ${maxValue}, included items = [${includedItems.map(i => i+1).join(', ')}]`,
+      highlightedLines: [36],
+      visualState: { 
+        values,
+        weights,
+        capacity,
+        dp: JSON.parse(JSON.stringify(dp)),
+        maxValue,
+        includedItems,
+        complete: true
+      }
+    });
+    
     return steps;
   },
-  defaultInput: { capacity: 10, weights: [5, 4, 6, 3], values: [10, 40, 30, 50] }
+  defaultInput: { 
+    values: [60, 100, 120],
+    weights: [10, 20, 30],
+    capacity: 50
+  }
 };
 
 // Longest Common Subsequence
@@ -238,535 +448,264 @@ export const longestCommonSubsequence: Algorithm = {
   id: 'longest-common-subsequence',
   name: 'Longest Common Subsequence',
   type: 'dynamic-programming',
-  description: 'Find the length of the longest subsequence common to two strings.',
-  timeComplexity: 'O(m*n)',
+  description: 'Find the longest subsequence common to two sequences.',
+  timeComplexity: 'O(m*n) where m and n are the lengths of the two sequences',
   spaceComplexity: 'O(m*n)',
-  code: `function longestCommonSubsequence(str1, str2) {
-  const m = str1.length;
-  const n = str2.length;
-
-  // Initialize a DP table to store lengths of LCS for subproblems
-  const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
-
-  // Build the DP table in bottom-up manner
+  code: `// JavaScript Implementation
+function longestCommonSubsequence(text1, text2) {
+  const m = text1.length;
+  const n = text2.length;
+  
+  // Create DP table
+  const dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
+  
+  // Fill the DP table
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      if (str1[i - 1] === str2[j - 1]) {
-        // If the current characters match, increment the LCS length
+      if (text1[i - 1] === text2[j - 1]) {
         dp[i][j] = dp[i - 1][j - 1] + 1;
       } else {
-        // If the current characters do not match, take the maximum LCS length from the adjacent cells
         dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
       }
     }
   }
-
-  // The length of the LCS is stored in dp[m][n]
-  return dp[m][n];
+  
+  // Length of LCS
+  const lcsLength = dp[m][n];
+  
+  // Backtrack to find the actual LCS
+  let lcs = '';
+  let i = m, j = n;
+  
+  while (i > 0 && j > 0) {
+    if (text1[i - 1] === text2[j - 1]) {
+      lcs = text1[i - 1] + lcs;
+      i--;
+      j--;
+    } else if (dp[i - 1][j] > dp[i][j - 1]) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+  
+  return { length: lcsLength, sequence: lcs };
 }`,
-  explanation: `<p>The longest common subsequence (LCS) of two strings is the longest subsequence common to both strings. A subsequence is a sequence that can be derived from another sequence by deleting some or no elements without changing the order of the remaining elements.</p>
-  <p>This algorithm uses dynamic programming to efficiently compute the length of the LCS. The key idea is to build a table where each cell (i, j) represents the length of the LCS between the first i characters of string1 and the first j characters of string2.</p>
-  <p>The algorithm fills the table in a bottom-up manner, using the following rules:</p>
-  <ul>
-    <li>If the characters at the current positions in both strings are the same, the length of the LCS is the length of the LCS between the prefixes without these characters, plus 1.</li>
-    <li>If the characters are different, the length of the LCS is the maximum of the lengths of the LCS between the prefix of string1 without the current character and the prefix of string2, and the prefix of string1 and the prefix of string2 without the current character.</li>
-  </ul>`,
-  generateSteps: (input: { str1: string, str2: string }) => {
-    const str1 = input?.str1 || "AGGTAB";
-    const str2 = input?.str2 || "GXTXAYB";
-    const m = str1.length;
-    const n = str2.length;
+  explanation: `<p>The Longest Common Subsequence (LCS) problem is to find the longest subsequence common to two sequences. A subsequence is a sequence that can be derived from another sequence by deleting some or no elements without changing the order of the remaining elements.</p>
+  <p>For example, the LCS of "ABCBDAB" and "BDCABA" is "BCBA" with length 4.</p>
+  <p>Dynamic programming approach:</p>
+  <ol>
+    <li>Create a 2D DP table where dp[i][j] represents the length of the LCS of the first i characters of text1 and the first j characters of text2</li>
+    <li>If the current characters match, increment the LCS length</li>
+    <li>If not, take the maximum of the LCS without the current character from either text1 or text2</li>
+    <li>After filling the table, dp[m][n] gives the length of the LCS</li>
+    <li>We can backtrack through the table to find the actual subsequence</li>
+  </ol>
+  <p>The LCS problem has applications in file comparison, DNA sequence analysis, and version control systems.</p>`,
+  generateSteps: (input: { text1: string, text2: string }) => {
+    const text1 = input?.text1 || 'ABCBDAB';
+    const text2 = input?.text2 || 'BDCABA';
+    
     const steps: AlgorithmStep[] = [];
-
-    // Initialize DP table
-    const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
-
+    const m = text1.length;
+    const n = text2.length;
+    
     steps.push({
       id: 'init',
-      description: 'Initialize DP table',
-      highlightedLines: [2, 3],
-      visualState: { str1, str2, dp: dp.map(row => [...row]) }
+      description: `Find longest common subsequence of "${text1}" and "${text2}"`,
+      highlightedLines: [2, 3, 4],
+      visualState: { 
+        text1,
+        text2,
+        dp: null
+      }
     });
-
-    // Build DP table
+    
+    // Create and initialize DP table
+    const dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
+    
+    steps.push({
+      id: 'init-dp',
+      description: 'Create DP table initialized with zeros',
+      highlightedLines: [6, 7],
+      visualState: { 
+        text1,
+        text2,
+        dp: JSON.parse(JSON.stringify(dp))
+      }
+    });
+    
+    // Fill the DP table
     for (let i = 1; i <= m; i++) {
       for (let j = 1; j <= n; j++) {
         steps.push({
           id: `compare-${i}-${j}`,
-          description: `Comparing str1[${i - 1}]='${str1[i - 1]}' and str2[${j - 1}]='${str2[j - 1]}'`,
-          highlightedLines: [6],
-          visualState: { str1, str2, dp: dp.map(row => [...row]), current: [i, j] }
+          description: `Compare characters: ${text1[i-1]} and ${text2[j-1]}`,
+          highlightedLines: [10],
+          visualState: { 
+            text1,
+            text2,
+            dp: JSON.parse(JSON.stringify(dp)),
+            charIndex1: i - 1,
+            charIndex2: j - 1
+          }
         });
-
-        if (str1[i - 1] === str2[j - 1]) {
-          // Characters match
+        
+        if (text1[i - 1] === text2[j - 1]) {
           dp[i][j] = dp[i - 1][j - 1] + 1;
+          
           steps.push({
             id: `match-${i}-${j}`,
-            description: `Characters match. dp[${i}][${j}] = dp[${i - 1}][${j - 1}] + 1 = ${dp[i][j]}`,
-            highlightedLines: [8, 9],
-            visualState: { str1, str2, dp: dp.map(row => [...row]), current: [i, j] }
+            description: `Characters match: dp[${i}][${j}] = dp[${i-1}][${j-1}] + 1 = ${dp[i][j]}`,
+            highlightedLines: [11],
+            visualState: { 
+              text1,
+              text2,
+              dp: JSON.parse(JSON.stringify(dp)),
+              charIndex1: i - 1,
+              charIndex2: j - 1,
+              match: true
+            }
           });
         } else {
-          // Characters do not match
           dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+          
           steps.push({
             id: `no-match-${i}-${j}`,
-            description: `Characters do not match. dp[${i}][${j}] = max(dp[${i - 1}][${j}], dp[${i}][${j - 1}]) = ${dp[i][j]}`,
-            highlightedLines: [11, 12],
-            visualState: { str1, str2, dp: dp.map(row => [...row]), current: [i, j] }
+            description: `Characters don't match: dp[${i}][${j}] = max(dp[${i-1}][${j}], dp[${i}][${j-1}]) = ${dp[i][j]}`,
+            highlightedLines: [13],
+            visualState: { 
+              text1,
+              text2,
+              dp: JSON.parse(JSON.stringify(dp)),
+              charIndex1: i - 1,
+              charIndex2: j - 1,
+              match: false
+            }
           });
         }
       }
     }
-
+    
+    // Length of LCS
+    const lcsLength = dp[m][n];
+    
     steps.push({
-      id: 'complete',
-      description: `Length of the longest common subsequence is ${dp[m][n]}`,
-      highlightedLines: [16],
-      visualState: { str1, str2, dp: dp.map(row => [...row]) }
-    });
-
-    return steps;
-  },
-  defaultInput: { str1: "AGGTAB", str2: "GXTXAYB" }
-};
-
-// Matrix Chain Multiplication
-export const matrixChainMultiplication: Algorithm = {
-  id: 'matrix-chain-multiplication',
-  name: 'Matrix Chain Multiplication',
-  type: 'dynamic-programming',
-  description: 'Find the most efficient way to multiply a given sequence of matrices.',
-  timeComplexity: 'O(n^3)',
-  spaceComplexity: 'O(n^2)',
-  code: `function matrixChainOrder(p, n) {
-  // m[i,j] = Minimum number of scalar multiplications needed to compute the matrix A_iA_{i+1}...A_j
-  // m[i,i] = 0 since a single matrix doesn't need any scalar multiplications.
-
-  const m = Array(n).fill(null).map(() => Array(n).fill(0));
-
-  // cost is zero when multiplying one matrix.
-  for (let i = 1; i < n; i++) {
-    m[i][i] = 0;
-  }
-
-  // L is chain length.  Chain of length 1 is already minimized in the above loop.
-  for (let L = 2; L < n; L++) {
-    for (let i = 1; i < n - L + 1; i++) {
-      const j = i + L - 1;
-      m[i][j] = Infinity;
-      for (let k = i; k <= j - 1; k++) {
-        // q = cost/scalar multiplications
-        const q = m[i][k] + m[k + 1][j] + p[i - 1] * p[k] * p[j];
-        if (q < m[i][j]) {
-          m[i][j] = q;
-        }
+      id: 'lcs-length',
+      description: `Length of longest common subsequence: ${lcsLength}`,
+      highlightedLines: [18],
+      visualState: { 
+        text1,
+        text2,
+        dp: JSON.parse(JSON.stringify(dp)),
+        lcsLength
       }
-    }
-  }
-
-  return m[1][n - 1];
-}
-`,
-  explanation: `<p>Given a sequence of matrices, find the most efficient way to multiply these matrices together. The problem is not actually to perform the multiplications, but merely to decide the sequence of the matrix multiplications involved.</p>
-  <p>This algorithm uses dynamic programming to solve the matrix chain multiplication problem. The key idea is to build a table where each cell (i, j) represents the minimum number of scalar multiplications needed to compute the matrix A_iA_{i+1}...A_j.</p>
-  <p>The algorithm fills the table in a bottom-up manner, using the following rules:</p>
-  <ul>
-    <li>m[i,i] = 0 since a single matrix doesn't need any scalar multiplications.</li>
-    <li>For each chain length L, we iterate through all possible starting positions i and calculate the cost of multiplying the subchains.</li>
-    <li>We choose the value of k that minimizes the cost of multiplying the subchains.</li>
-  </ul>`,
-  generateSteps: (input: { dimensions: number[] }) => {
-    const dimensions = input?.dimensions || [40, 20, 30, 10, 30];
-    const n = dimensions.length;
-    const steps: AlgorithmStep[] = [];
-
-    // Initialize DP table
-    const m = Array(n).fill(null).map(() => Array(n).fill(0));
-
-    steps.push({
-      id: 'init',
-      description: 'Initialize DP table',
-      highlightedLines: [2, 5],
-      visualState: { dimensions, m: m.map(row => [...row]) }
     });
-
-    // cost is zero when multiplying one matrix.
-    for (let i = 1; i < n; i++) {
-      m[i][i] = 0;
-    }
-
+    
+    // Backtrack to find the actual LCS
+    let lcs = '';
+    let i = m, j = n;
+    let backtrackSteps: string[] = [];
+    
     steps.push({
-      id: 'init-diagonal',
-      description: 'Initialize diagonal of DP table to 0',
-      highlightedLines: [8, 11],
-      visualState: { dimensions, m: m.map(row => [...row]) }
+      id: 'backtrack-start',
+      description: 'Backtrack to find the actual subsequence',
+      highlightedLines: [21, 22],
+      visualState: { 
+        text1,
+        text2,
+        dp: JSON.parse(JSON.stringify(dp)),
+        lcsLength,
+        backtrackI: i,
+        backtrackJ: j,
+        lcs
+      }
     });
-
-    // L is chain length.  Chain of length 1 is already minimized in the above loop.
-    for (let L = 2; L < n; L++) {
-      for (let i = 1; i < n - L + 1; i++) {
-        const j = i + L - 1;
-        m[i][j] = Infinity;
+    
+    while (i > 0 && j > 0) {
+      if (text1[i - 1] === text2[j - 1]) {
+        lcs = text1[i - 1] + lcs;
+        backtrackSteps.push(`Characters match: Add "${text1[i - 1]}" to LCS`);
+        
         steps.push({
-          id: `chain-${i}-${j}`,
-          description: `Calculating cost for chain from matrix ${i} to ${j}`,
-          highlightedLines: [14, 16],
-          visualState: { dimensions, m: m.map(row => [...row]), current: [i, j] }
-        });
-        for (let k = i; k <= j - 1; k++) {
-          // q = cost/scalar multiplications
-          const q = m[i][k] + m[k + 1][j] + dimensions[i - 1] * dimensions[k] * dimensions[j];
-          steps.push({
-            id: `split-${i}-${j}-${k}`,
-            description: `Trying split at matrix ${k}. Cost = ${m[i][k]} + ${m[k + 1][j]} + ${dimensions[i - 1]} * ${dimensions[k]} * ${dimensions[j]} = ${q}`,
-            highlightedLines: [18, 20],
-            visualState: { dimensions, m: m.map(row => [...row]), current: [i, j], split: k }
-          });
-          if (q < m[i][j]) {
-            m[i][j] = q;
-            steps.push({
-              id: `update-${i}-${j}-${k}`,
-              description: `Found lower cost at split ${k}. Updating m[${i}][${j}] to ${q}`,
-              highlightedLines: [21, 22],
-              visualState: { dimensions, m: m.map(row => [...row]), current: [i, j] }
-            });
+          id: `backtrack-match-${i}-${j}`,
+          description: `Characters match: Add "${text1[i-1]}" to LCS, now "${lcs}"`,
+          highlightedLines: [24, 25, 26],
+          visualState: { 
+            text1,
+            text2,
+            dp: JSON.parse(JSON.stringify(dp)),
+            lcsLength,
+            backtrackI: i,
+            backtrackJ: j,
+            lcs,
+            match: true
           }
-        }
-      }
-    }
-
-    steps.push({
-      id: 'complete',
-      description: `Minimum number of scalar multiplications is ${m[1][n - 1]}`,
-      highlightedLines: [27],
-      visualState: { dimensions, m: m.map(row => [...row]) }
-    });
-
-    return steps;
-  },
-  defaultInput: { dimensions: [40, 20, 30, 10, 30] }
-};
-
-// Coin Change Problem (Minimum Coins)
-export const coinChangeMinimumCoins: Algorithm = {
-  id: 'coin-change-minimum-coins',
-  name: 'Coin Change (Minimum Coins)',
-  type: 'dynamic-programming',
-  description: 'Find the minimum number of coins that make a given value.',
-  timeComplexity: 'O(amount * coins.length)',
-  spaceComplexity: 'O(amount)',
-  code: `function coinChange(coins, amount) {
-  // Initialize DP array with Infinity, dp[i] represents the minimum number of coins needed to make amount i
-  const dp = Array(amount + 1).fill(Infinity);
-
-  // Base case: 0 coins needed to make amount 0
-  dp[0] = 0;
-
-  // Compute minimum coins needed for each amount from 1 to amount
-  for (let i = 1; i <= amount; i++) {
-    for (const coin of coins) {
-      if (i - coin >= 0) {
-        dp[i] = Math.min(dp[i], dp[i - coin] + 1);
-      }
-    }
-  }
-
-  // If dp[amount] is still Infinity, it means no solution was found
-  return dp[amount] === Infinity ? -1 : dp[amount];
-}`,
-  explanation: `<p>Given a set of coin denominations and a target amount, find the minimum number of coins needed to make up that amount.</p>
-  <p>This algorithm uses dynamic programming to solve the coin change problem. The key idea is to build an array where each element dp[i] represents the minimum number of coins needed to make up the amount i.</p>
-  <p>The algorithm fills the array in a bottom-up manner, using the following rules:</p>
-  <ul>
-    <li>Initialize the array with Infinity, except for dp[0] which is 0 (no coins needed to make amount 0).</li>
-    <li>For each amount i from 1 to the target amount, iterate through each coin denomination.</li>
-    <li>If the coin denomination is less than or equal to the current amount, update dp[i] with the minimum between its current value and dp[i - coin] + 1 (using the coin).</li>
-    <li>If dp[amount] is still Infinity after the iterations, it means no solution was found, and we return -1.</li>
-  </ul>`,
-  generateSteps: (input: { coins: number[], amount: number }) => {
-    const coins = input?.coins || [1, 2, 5];
-    const amount = input?.amount || 11;
-    const steps: AlgorithmStep[] = [];
-
-    // Initialize DP array
-    const dp = Array(amount + 1).fill(Infinity);
-    dp[0] = 0;
-
-    steps.push({
-      id: 'init',
-      description: 'Initialize DP array with Infinity, dp[0] = 0',
-      highlightedLines: [2, 5],
-      visualState: { coins, amount, dp: [...dp] }
-    });
-
-    // Compute minimum coins needed for each amount from 1 to amount
-    for (let i = 1; i <= amount; i++) {
-      for (const coin of coins) {
-        steps.push({
-          id: `amount-${i}-coin-${coin}`,
-          description: `Checking coin ${coin} for amount ${i}`,
-          highlightedLines: [8],
-          visualState: { coins, amount, dp: [...dp], current: i, coin }
         });
-        if (i - coin >= 0) {
-          dp[i] = Math.min(dp[i], dp[i - coin] + 1);
-          steps.push({
-            id: `update-${i}-coin-${coin}`,
-            description: `Using coin ${coin}, dp[${i}] = min(dp[${i}], dp[${i - coin}] + 1) = ${dp[i]}`,
-            highlightedLines: [9],
-            visualState: { coins, amount, dp: [...dp], current: i, coin }
-          });
-        }
-      }
-    }
-
-    steps.push({
-      id: 'complete',
-      description: `Minimum number of coins needed to make amount ${amount} is ${dp[amount] === Infinity ? 'not possible' : dp[amount]}`,
-      highlightedLines: [13],
-      visualState: { coins, amount, dp: [...dp] }
-    });
-
-    return steps;
-  },
-  defaultInput: { coins: [1, 2, 5], amount: 11 }
-};
-
-// Rod Cutting Problem
-export const rodCuttingProblem: Algorithm = {
-  id: 'rod-cutting-problem',
-  name: 'Rod Cutting Problem',
-  type: 'dynamic-programming',
-  description: 'Determine the maximum obtainable value by cutting up a rod and selling the pieces.',
-  timeComplexity: 'O(n^2)',
-  spaceComplexity: 'O(n)',
-  code: `function rodCutting(prices, n) {
-  // dp[i] will store the maximum value that can be obtained for a rod of length i
-  const dp = Array(n + 1).fill(0);
-
-  // Build the dp[] table in bottom up manner
-  for (let i = 1; i <= n; i++) {
-    for (let j = 1; j <= i; j++) {
-      dp[i] = Math.max(dp[i], prices[j - 1] + dp[i - j]);
-    }
-  }
-
-  return dp[n];
-}`,
-  explanation: `<p>Given a rod of length n and a table of prices p_i for i = 1, 2, ..., n, determine the maximum revenue obtainable by cutting up the rod and selling the pieces.</p>
-  <p>This algorithm uses dynamic programming to solve the rod cutting problem. The key idea is to build an array where each element dp[i] represents the maximum value that can be obtained for a rod of length i.</p>
-  <p>The algorithm fills the array in a bottom-up manner, using the following rules:</p>
-  <ul>
-    <li>Initialize the array with 0.</li>
-    <li>For each length i from 1 to n, iterate through each possible cut length j from 1 to i.</li>
-    <li>Update dp[i] with the maximum between its current value and prices[j - 1] + dp[i - j] (selling a piece of length j and the remaining rod of length i - j).</li>
-  </ul>`,
-  generateSteps: (input: { prices: number[], length: number }) => {
-    const prices = input?.prices || [1, 5, 8, 9, 10, 17, 17, 20];
-    const n = input?.length || prices.length;
-    const steps: AlgorithmStep[] = [];
-
-    // Initialize DP array
-    const dp = Array(n + 1).fill(0);
-
-    steps.push({
-      id: 'init',
-      description: 'Initialize DP array with 0',
-      highlightedLines: [2, 3],
-      visualState: { prices, length: n, dp: [...dp] }
-    });
-
-    // Build DP table
-    for (let i = 1; i <= n; i++) {
-      for (let j = 1; j <= i; j++) {
+        
+        i--;
+        j--;
+      } else if (dp[i - 1][j] > dp[i][j - 1]) {
+        backtrackSteps.push(`Move up: dp[${i-1}][${j}] > dp[${i}][${j-1}]`);
+        
         steps.push({
-          id: `length-${i}-cut-${j}`,
-          description: `Checking cut of length ${j} for rod of length ${i}`,
-          highlightedLines: [6],
-          visualState: { prices, length: n, dp: [...dp], current: i, cut: j }
+          id: `backtrack-up-${i}-${j}`,
+          description: `Move up: dp[${i-1}][${j}] > dp[${i}][${j-1}]`,
+          highlightedLines: [27, 28],
+          visualState: { 
+            text1,
+            text2,
+            dp: JSON.parse(JSON.stringify(dp)),
+            lcsLength,
+            backtrackI: i,
+            backtrackJ: j,
+            lcs,
+            moveDirection: 'up'
+          }
         });
-        dp[i] = Math.max(dp[i], prices[j - 1] + dp[i - j]);
+        
+        i--;
+      } else {
+        backtrackSteps.push(`Move left: dp[${i-1}][${j}] <= dp[${i}][${j-1}]`);
+        
         steps.push({
-          id: `update-${i}-cut-${j}`,
-          description: `Cutting rod of length ${j}, dp[${i}] = max(dp[${i}], prices[${j - 1}] + dp[${i - j}]) = ${dp[i]}`,
-          highlightedLines: [7],
-          visualState: { prices, length: n, dp: [...dp], current: i, cut: j }
+          id: `backtrack-left-${i}-${j}`,
+          description: `Move left: dp[${i-1}][${j}] <= dp[${i}][${j-1}]`,
+          highlightedLines: [29, 30],
+          visualState: { 
+            text1,
+            text2,
+            dp: JSON.parse(JSON.stringify(dp)),
+            lcsLength,
+            backtrackI: i,
+            backtrackJ: j,
+            lcs,
+            moveDirection: 'left'
+          }
         });
+        
+        j--;
       }
     }
-
+    
     steps.push({
-      id: 'complete',
-      description: `Maximum value that can be obtained for a rod of length ${n} is ${dp[n]}`,
-      highlightedLines: [11],
-      visualState: { prices, length: n, dp: [...dp] }
+      id: 'result',
+      description: `Final result: LCS = "${lcs}" with length ${lcsLength}`,
+      highlightedLines: [34],
+      visualState: { 
+        text1,
+        text2,
+        dp: JSON.parse(JSON.stringify(dp)),
+        lcsLength,
+        lcs,
+        complete: true
+      }
     });
-
+    
     return steps;
   },
-  defaultInput: { prices: [1, 5, 8, 9, 10, 17, 17, 20], length: 8 }
-};
-
-// Word Break Problem
-export const wordBreakProblem: Algorithm = {
-  id: 'word-break-problem',
-  name: 'Word Break Problem',
-  type: 'dynamic-programming',
-  description: 'Determine if a string can be segmented into a space-separated sequence of one or more dictionary words.',
-  timeComplexity: 'O(n^3)',
-  spaceComplexity: 'O(n)',
-  code: `function wordBreak(s, wordDict) {
-  const n = s.length;
-  const dp = Array(n + 1).fill(false);
-  dp[0] = true;
-
-  for (let i = 1; i <= n; i++) {
-    for (let j = 0; j < i; j++) {
-      if (dp[j] && wordDict.includes(s.substring(j, i))) {
-        dp[i] = true;
-        break;
-      }
-    }
+  defaultInput: { 
+    text1: 'ABCBDAB',
+    text2: 'BDCABA'
   }
-
-  return dp[n];
-}`,
-  explanation: `<p>The word break problem asks whether a given string can be segmented into a space-separated sequence of one or more dictionary words.</p>
-  <p>This algorithm uses dynamic programming to solve the problem. The key idea is to build an array dp where dp[i] is true if the substring s[0...i-1] can be segmented into dictionary words.</p>
-  <p>The algorithm fills the array in a bottom-up manner, using the following rules:</p>
-  <ul>
-    <li>Initialize dp[0] as true, representing an empty string which is always valid.</li>
-    <li>For each position i in the string, check all previous positions j. If dp[j] is true and the substring s[j...i-1] is in the dictionary, then dp[i] is true.</li>
-    <li>At the end, dp[n] indicates whether the entire string can be segmented.</li>
-  </ul>`,
-  generateSteps: (input: { s: string, wordDict: string[] }) => {
-    const s = input?.s || "leetcode";
-    const wordDict = input?.wordDict || ["leet", "code"];
-    const n = s.length;
-    const steps: AlgorithmStep[] = [];
-
-    // Initialize DP array
-    const dp = Array(n + 1).fill(false);
-    dp[0] = true;
-
-    steps.push({
-      id: 'init',
-      description: 'Initialize DP array with false, dp[0] = true (empty string is always valid)',
-      highlightedLines: [2, 3],
-      visualState: { s, wordDict, dp: [...dp] }
-    });
-
-    // Fill DP array
-    for (let i = 1; i <= n; i++) {
-      for (let j = 0; j < i; j++) {
-        steps.push({
-          id: `check-${i}-${j}`,
-          description: `Checking if dp[${j}] is true and substring "${s.substring(j, i)}" is in the dictionary`,
-          highlightedLines: [6, 7],
-          visualState: { s, wordDict, dp: [...dp], start: j, end: i }
-        });
-
-        if (dp[j] && wordDict.includes(s.substring(j, i))) {
-          dp[i] = true;
-          steps.push({
-            id: `update-${i}-${j}`,
-            description: `Found valid segmentation: dp[${j}] is true and "${s.substring(j, i)}" is in the dictionary. Setting dp[${i}] = true`,
-            highlightedLines: [8, 9],
-            visualState: { s, wordDict, dp: [...dp], start: j, end: i }
-          });
-          break;
-        }
-      }
-    }
-
-    steps.push({
-      id: 'complete',
-      description: `The string "${s}" ${dp[n] ? 'can' : 'cannot'} be segmented into dictionary words`,
-      highlightedLines: [14],
-      visualState: { s, wordDict, dp: [...dp] }
-    });
-
-    return steps;
-  },
-  defaultInput: { s: "leetcode", wordDict: ["leet", "code"] }
-};
-
-// Fibonacci using Dynamic Programming
-export const fibonacciDP: Algorithm = {
-  id: 'fibonacci-dp',
-  name: 'Fibonacci (DP)',
-  type: 'dynamic-programming',
-  description: 'Calculate the nth Fibonacci number using dynamic programming.',
-  timeComplexity: 'O(n)',
-  spaceComplexity: 'O(n)',
-  code: `function fibonacci(n) {
-  // Create an array to store Fibonacci numbers
-  const f = Array(n + 1).fill(0);
-  
-  // Base cases
-  f[0] = 0;
-  f[1] = 1;
-  
-  // Fill the array in bottom-up manner
-  for (let i = 2; i <= n; i++) {
-    f[i] = f[i - 1] + f[i - 2];
-  }
-  
-  return f[n];
-}`,
-  explanation: `<p>The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1.</p>
-  <p>This algorithm uses dynamic programming to efficiently compute the nth Fibonacci number. The key idea is to build an array where each element f[i] represents the ith Fibonacci number.</p>
-  <p>The algorithm fills the array in a bottom-up manner, using the following rules:</p>
-  <ul>
-    <li>Initialize f[0] = 0 and f[1] = 1 (base cases).</li>
-    <li>For each i from 2 to n, calculate f[i] = f[i-1] + f[i-2].</li>
-    <li>Return f[n] as the nth Fibonacci number.</li>
-  </ul>`,
-  generateSteps: (input: { n: number }) => {
-    const n = input?.n || 10;
-    const steps: AlgorithmStep[] = [];
-
-    // Initialize DP array
-    const f = Array(n + 1).fill(0);
-    f[0] = 0;
-    f[1] = 1;
-
-    steps.push({
-      id: 'init',
-      description: 'Initialize DP array with base cases: f[0] = 0, f[1] = 1',
-      highlightedLines: [2, 5, 6],
-      visualState: { n, f: [...f] }
-    });
-
-    // Fill DP array
-    for (let i = 2; i <= n; i++) {
-      steps.push({
-        id: `before-${i}`,
-        description: `Computing f[${i}] = f[${i-1}] + f[${i-2}] = ${f[i-1]} + ${f[i-2]}`,
-        highlightedLines: [9],
-        visualState: { n, f: [...f], current: i, currentCalc: [i-1, i-2] }
-      });
-
-      f[i] = f[i - 1] + f[i - 2];
-
-      steps.push({
-        id: `after-${i}`,
-        description: `Computed f[${i}] = ${f[i]}`,
-        highlightedLines: [9],
-        visualState: { n, f: [...f], current: i }
-      });
-    }
-
-    steps.push({
-      id: 'complete',
-      description: `The ${n}th Fibonacci number is ${f[n]}`,
-      highlightedLines: [12],
-      visualState: { n, f: [...f], result: f[n], complete: true }
-    });
-
-    return steps;
-  },
-  defaultInput: { n: 10 }
 };

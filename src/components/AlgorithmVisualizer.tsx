@@ -1,291 +1,530 @@
 
-import React, { useEffect, useRef } from 'react';
-import DPVisualizer from '@/components/visualizers/DPVisualizer';
-import GraphVisualizer from '@/components/visualizers/GraphVisualizer';
-import SortingVisualizer from '@/components/visualizers/SortingVisualizer';
-import SearchingVisualizer from '@/components/visualizers/SearchingVisualizer';
-import TreeVisualizer from '@/components/visualizers/TreeVisualizer';
-import { Algorithm } from '@/types/algorithm';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useEffect, useRef } from 'react';
+import { Algorithm, AlgorithmStep } from '@/types/algorithm';
+import { Play, Pause, SkipBack, SkipForward, RefreshCw, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import SortingVisualizer from './visualizers/SortingVisualizer';
+import SearchingVisualizer from './visualizers/SearchingVisualizer';
+import TreeVisualizer from './visualizers/TreeVisualizer';
+import DPVisualizer from './visualizers/DPVisualizer';
 
 interface AlgorithmVisualizerProps {
   algorithm: Algorithm;
   speed: number;
 }
 
-const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({ algorithm, speed }) => {
-  const { generateSteps, defaultInput, type } = algorithm;
-  const [currentStep, setCurrentStep] = React.useState(0);
-  const [steps, setSteps] = React.useState<any[]>([]);
-  const [visualState, setVisualState] = React.useState<any>(null);
-  const [playing, setPlaying] = React.useState(false);
-  const [input, setInput] = React.useState<any>(defaultInput);
+const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
+  algorithm,
+  speed
+}) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [steps, setSteps] = useState<AlgorithmStep[]>([]);
+  const [input, setInput] = useState(algorithm.defaultInput);
+  const [showInputDialog, setShowInputDialog] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  const totalSteps = steps.length;
-  const delay = 1000 / speed;
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Generate steps on algorithm or input change
+  // Generate algorithm steps when algorithm or input changes
   useEffect(() => {
-    const newSteps = generateSteps(input);
-    setSteps(newSteps);
-    setCurrentStep(0);
-    setVisualState(newSteps[0]?.visualState || null);
-  }, [algorithm, input, generateSteps]);
-  
-  // Play effect
-  useEffect(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
+    const generatedSteps = algorithm.generateSteps(input);
+    setSteps(generatedSteps);
+    setCurrentStepIndex(0);
+    setIsPlaying(false);
     
-    if (playing && currentStep < totalSteps - 1) {
-      timeoutRef.current = setTimeout(() => {
-        setCurrentStep((prevStep) => prevStep + 1);
-      }, delay);
-    } else if (currentStep >= totalSteps - 1) {
-      setPlaying(false);
+    // Clean up any running interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, [algorithm, input]);
+  
+  // Handle play/pause logic
+  useEffect(() => {
+    if (isPlaying) {
+      intervalRef.current = setInterval(() => {
+        setCurrentStepIndex(prev => {
+          if (prev >= steps.length - 1) {
+            setIsPlaying(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000 / speed);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
     
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [playing, currentStep, totalSteps, delay]);
+  }, [isPlaying, steps.length, speed]);
   
-  // Update visual state on step change
-  useEffect(() => {
-    setVisualState(steps[currentStep]?.visualState || null);
-  }, [currentStep, steps]);
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput({
-      ...input,
-      [e.target.name]: Number(e.target.value)
-    });
-  };
-  
-  const handleObjectInputChange = (name: string, value: any) => {
-    setInput({
-      ...input,
-      [name]: value
-    });
-  };
-  
-  const handleArrayInputChange = (name: string, index: number, value: any) => {
-    const newArray = [...input[name]];
-    newArray[index] = Number(value);
-    handleObjectInputChange(name, newArray);
-  };
-  
-  const handlePlay = () => {
-    setPlaying(true);
-  };
-  
-  const handlePause = () => {
-    setPlaying(false);
-  };
-  
-  const handleStepBackward = () => {
-    setPlaying(false);
-    setCurrentStep((prevStep) => Math.max(0, prevStep - 1));
+  const handlePlayPause = () => {
+    if (currentStepIndex >= steps.length - 1) {
+      // If at the end, restart
+      setCurrentStepIndex(0);
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(!isPlaying);
+    }
   };
   
   const handleStepForward = () => {
-    setPlaying(false);
-    setCurrentStep((prevStep) => Math.min(totalSteps - 1, prevStep + 1));
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex(prev => prev + 1);
+    }
+  };
+  
+  const handleStepBackward = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(prev => prev - 1);
+    }
   };
   
   const handleReset = () => {
-    setPlaying(false);
-    setCurrentStep(0);
+    setCurrentStepIndex(0);
+    setIsPlaying(false);
   };
   
-  // Render input controls based on input type
-  const renderInputControls = () => {
-    return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Object.entries(defaultInput).map(([key, value]) => {
-          if (Array.isArray(value)) {
-            return (
-              <div key={key} className="space-y-2">
-                <div className="text-sm font-medium capitalize">{key}</div>
-                <div className="flex flex-wrap gap-2">
-                  {input[key].map((item: any, index: number) => (
-                    <input
-                      key={`${key}-${index}`}
-                      type="number"
-                      className="w-16 px-2 py-1 border rounded-md text-sm bg-background"
-                      value={item}
-                      onChange={(e) => handleArrayInputChange(key, index, e.target.value)}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          } else if (typeof value === 'number') {
-            return (
-              <div key={key} className="flex flex-col space-y-1">
-                <label htmlFor={key} className="text-sm font-medium capitalize">{key}</label>
-                <input
-                  type="number"
-                  id={key}
-                  name={key}
-                  className="w-full px-2 py-1 border rounded-md text-sm bg-background"
-                  value={input[key]}
-                  onChange={handleInputChange}
-                />
-              </div>
-            );
-          } else if (typeof value === 'string') {
-            return (
-              <div key={key} className="flex flex-col space-y-1">
-                <label htmlFor={key} className="text-sm font-medium capitalize">{key}</label>
-                <input
-                  type="text"
-                  id={key}
-                  name={key}
-                  className="w-full px-2 py-1 border rounded-md text-sm bg-background"
-                  value={input[key]}
-                  onChange={(e) => handleObjectInputChange(key, e.target.value)}
-                />
-              </div>
-            );
-          }
-          return null;
-        })}
-      </div>
-    );
+  const handleRegenerate = () => {
+    // For sorting and searching, generate random input
+    if (algorithm.type === 'sorting') {
+      const randomArray = Array.from({ length: 10 }, () => Math.floor(Math.random() * 100));
+      setInput(randomArray);
+    } else if (algorithm.type === 'searching') {
+      const array = Array.from({ length: 10 }, () => Math.floor(Math.random() * 100)).sort((a, b) => a - b);
+      const target = array[Math.floor(Math.random() * array.length)];
+      setInput({ array, target });
+    } else if (algorithm.type === 'tree') {
+      // For tree algorithms, we have different options
+      if (algorithm.id === 'binary-search-tree') {
+        const values = [8, 10, 12, 15, 17, 20, 25];
+        const randomTarget = values[Math.floor(Math.random() * values.length)];
+        setInput({ ...input, value: randomTarget });
+      } else if (algorithm.id === 'binary-tree-traversal') {
+        const traversalTypes = ['inorder', 'preorder', 'postorder', 'levelorder'];
+        const randomType = traversalTypes[Math.floor(Math.random() * traversalTypes.length)];
+        setInput({ traversalType: randomType });
+      } else if (algorithm.id === 'level-order-traversal') {
+        setInput({ withLevels: Math.random() > 0.5 });
+      } else if (algorithm.id === 'pre-order-traversal' || algorithm.id === 'post-order-traversal') {
+        setInput({ iterative: Math.random() > 0.5 });
+      }
+    } else if (algorithm.type === 'dynamic-programming') {
+      if (algorithm.id === 'fibonacci-dp') {
+        const n = Math.floor(Math.random() * 15) + 5; // Random n between 5 and 20
+        setInput({ n, optimized: Math.random() > 0.5 });
+      } else if (algorithm.id === 'knapsack-problem') {
+        // Keep the default values for knapsack
+        setInput({ ...algorithm.defaultInput });
+      } else if (algorithm.id === 'longest-common-subsequence') {
+        // Keep the default values for LCS
+        setInput({ ...algorithm.defaultInput });
+      }
+    }
+  };
+
+  const handleInputChange = (newInputValues: any) => {
+    setInput(newInputValues);
+    setShowInputDialog(false);
+  };
+  
+  const renderVisualizer = () => {
+    const currentStep = steps[currentStepIndex] || null;
+    
+    switch (algorithm.type) {
+      case 'sorting':
+        return <SortingVisualizer data={currentStep?.visualState || input} />;
+      case 'searching':
+        return <SearchingVisualizer data={currentStep?.visualState || { array: input.array || [], target: input.target || 0 }} />;
+      case 'tree':
+        return <TreeVisualizer data={currentStep?.visualState || { tree: input.tree || [] }} />;
+      case 'dynamic-programming':
+        return <DPVisualizer data={currentStep?.visualState || input} />;
+      default:
+        return <div className="text-center py-10">Visualization not available for this algorithm type</div>;
+    }
+  };
+
+  // Render appropriate input form based on algorithm type
+  const renderInputForm = () => {
+    switch (algorithm.type) {
+      case 'sorting':
+        return <SortingInputForm initialInput={input} onSubmit={handleInputChange} />;
+      case 'searching':
+        return <SearchingInputForm initialInput={input} onSubmit={handleInputChange} />;
+      case 'dynamic-programming':
+        if (algorithm.id === 'fibonacci-dp') {
+          return <FibonacciInputForm initialInput={input} onSubmit={handleInputChange} />;
+        } else if (algorithm.id === 'knapsack-problem') {
+          return <KnapsackInputForm initialInput={input} onSubmit={handleInputChange} />;
+        } else if (algorithm.id === 'longest-common-subsequence') {
+          return <LCSInputForm initialInput={input} onSubmit={handleInputChange} />;
+        }
+        return <div>No input form available for this algorithm</div>;
+      default:
+        return <div>No input form available for this algorithm type</div>;
+    }
   };
   
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-medium flex items-center gap-2">
-            {algorithm.name}
-            <Badge variant="outline" className="ml-2">
-              {algorithm.type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-            </Badge>
-          </h2>
-          <p className="text-muted-foreground">{algorithm.description}</p>
+          <h2 className="text-xl font-bold">{algorithm.name}</h2>
+          <p className="text-muted-foreground">{algorithm.type.replace('-', ' ')}</p>
         </div>
-        <div className="flex items-center gap-2 self-end">
-          <span className="text-sm font-medium">Speed:</span>
-          <select 
-            className="px-2 py-1 border rounded-md text-sm bg-background" 
-            value={speed}
-            onChange={(e) => e.target.value}
-          >
-            <option value={0.5}>0.5x</option>
-            <option value={1}>1x</option>
-            <option value={2}>2x</option>
-            <option value={4}>4x</option>
-          </select>
+        <div className="flex gap-2">
+          <Dialog open={showInputDialog} onOpenChange={setShowInputDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Settings className="w-4 h-4" />
+                Custom Input
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Customize Algorithm Input</DialogTitle>
+              </DialogHeader>
+              {renderInputForm()}
+            </DialogContent>
+          </Dialog>
+          <Button variant="outline" onClick={handleRegenerate} className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            New Data
+          </Button>
         </div>
       </div>
       
-      <div className="rounded-md border bg-card/50">
-        <div className="p-4 border-b">
-          <h3 className="text-lg font-medium mb-3">Algorithm Inputs</h3>
-          {renderInputControls()}
-        </div>
-        
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-sm font-medium text-muted-foreground">
-              Step {currentStep + 1} of {totalSteps}
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handleStepBackward}
-                disabled={currentStep === 0}
-                className="p-2 rounded-md hover:bg-accent transition-colors disabled:opacity-50"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-rewind"><polygon points="11 19 2 12 11 5"></polygon><polygon points="22 19 13 12 22 5"></polygon></svg>
-              </button>
-              <button
-                onClick={playing ? handlePause : handlePlay}
-                className="p-2 rounded-md hover:bg-accent transition-colors"
-              >
-                {playing ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pause"><rect width="4" height="16" x="6" y="4"></rect><rect width="4" height="16" x="14" y="4"></rect></svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-play"><polygon points="5 3 19 12 5 21"></polygon></svg>
-                )}
-              </button>
-              <button
-                onClick={handleStepForward}
-                disabled={currentStep === totalSteps - 1}
-                className="p-2 rounded-md hover:bg-accent transition-colors disabled:opacity-50"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-fast-forward"><polygon points="13 19 22 12 13 5"></polygon><polygon points="2 19 11 12 2 5"></polygon></svg>
-              </button>
-              <button
-                onClick={handleReset}
-                className="p-2 rounded-md hover:bg-accent transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-rotate-ccw"><path d="M8 3a5 5 0 0 0-4 5H3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a5 5 0 0 0 4 5v-1.5"></path><path d="M16 5.15A7 7 0 1 0 7.5 16.58"></path><polyline points="21 12 16 12 16 7"></polyline></svg>
-              </button>
-            </div>
+      <div className="border rounded-md h-80 bg-muted/30 flex items-center justify-center relative">
+        {steps.length > 0 ? (
+          renderVisualizer()
+        ) : (
+          <div className="text-center text-muted-foreground">
+            No visualization steps available
           </div>
-          
-          {/* Progress bar */}
-          <div className="w-full bg-muted rounded-full h-2 mb-4">
-            <div 
-              className="bg-primary h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
-            ></div>
-          </div>
-          
-          <div className="text-center text-lg font-medium mb-4 min-h-[2rem]">
-            {steps[currentStep]?.description}
-          </div>
-          
-          {/* Algorithm Visualization */}
-          <div className="min-h-[300px]">
-            {(() => {
-              switch (type) {
-                case 'dynamic-programming':
-                  return <DPVisualizer data={visualState} />;
-                case 'graph':
-                  return <GraphVisualizer data={visualState} />;
-                case 'sorting':
-                  return <SortingVisualizer data={visualState} />;
-                case 'searching':
-                  return <SearchingVisualizer data={visualState} />;
-                case 'tree':
-                  return <TreeVisualizer data={visualState} />;
-                default:
-                  return <div className="text-muted-foreground">No visualization available for this algorithm type.</div>;
-              }
-            })()}
-          </div>
-          
-          {/* Code highlighting */}
-          {steps[currentStep]?.highlightedLines && (
-            <div className="mt-4 border-t pt-4">
-              <h3 className="text-sm font-medium mb-2">Code Execution:</h3>
-              <div className="bg-muted p-4 rounded-md overflow-x-auto">
-                <pre className="text-xs leading-relaxed">
-                  {algorithm.code.split('\n').map((line, idx) => (
-                    <div 
-                      key={idx} 
-                      className={`${steps[currentStep]?.highlightedLines?.includes(idx + 1) ? 'bg-primary/20 -mx-4 px-4' : ''}`}
-                    >
-                      <span className="text-muted-foreground mr-2">{idx + 1}</span>
-                      {line}
-                    </div>
-                  ))}
-                </pre>
-              </div>
-            </div>
-          )}
-        </div>
+        )}
       </div>
+      
+      {steps.length > 0 && (
+        <>
+          <div className="flex items-center justify-center gap-4">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={handleReset} 
+              disabled={currentStepIndex === 0}
+            >
+              <SkipBack className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={handleStepBackward} 
+              disabled={currentStepIndex === 0}
+            >
+              <SkipBack className="w-4 h-4" />
+            </Button>
+            <Button 
+              onClick={handlePlayPause} 
+              className="gap-2 w-24"
+            >
+              {isPlaying ? (
+                <>
+                  <Pause className="w-4 h-4" /> Pause
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" /> Play
+                </>
+              )}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={handleStepForward} 
+              disabled={currentStepIndex >= steps.length - 1}
+            >
+              <SkipForward className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Step {currentStepIndex + 1} of {steps.length}</span>
+              <span>{Math.round((currentStepIndex / (steps.length - 1)) * 100)}%</span>
+            </div>
+            <Slider
+              value={[currentStepIndex]}
+              min={0}
+              max={steps.length - 1}
+              step={1}
+              onValueChange={(values) => setCurrentStepIndex(values[0])}
+            />
+          </div>
+          
+          <div className="bg-muted/30 p-4 rounded-md">
+            <h3 className="font-medium mb-2">Step Explanation:</h3>
+            <p>{steps[currentStepIndex]?.description || "No explanation available"}</p>
+          </div>
+        </>
+      )}
     </div>
+  );
+};
+
+// Input form components for different algorithm types
+const SortingInputForm: React.FC<{ initialInput: any, onSubmit: (input: any) => void }> = ({ initialInput, onSubmit }) => {
+  const [arrayInput, setArrayInput] = useState(initialInput.join(', '));
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const newArray = arrayInput.split(',').map((num: string) => parseInt(num.trim()));
+      onSubmit(newArray);
+    } catch (error) {
+      console.error('Invalid input:', error);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Array (comma-separated numbers):
+        </label>
+        <Input 
+          value={arrayInput} 
+          onChange={(e) => setArrayInput(e.target.value)}
+          placeholder="10, 5, 3, 8, 2, 7"
+          className="w-full"
+        />
+      </div>
+      <div className="flex justify-end">
+        <Button type="submit">Apply</Button>
+      </div>
+    </form>
+  );
+};
+
+const SearchingInputForm: React.FC<{ initialInput: any, onSubmit: (input: any) => void }> = ({ initialInput, onSubmit }) => {
+  const [arrayInput, setArrayInput] = useState(initialInput.array?.join(', ') || '');
+  const [targetInput, setTargetInput] = useState(initialInput.target?.toString() || '');
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const array = arrayInput.split(',').map((num: string) => parseInt(num.trim()));
+      const target = parseInt(targetInput.trim());
+      onSubmit({ array, target });
+    } catch (error) {
+      console.error('Invalid input:', error);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Array (comma-separated numbers):
+        </label>
+        <Input 
+          value={arrayInput} 
+          onChange={(e) => setArrayInput(e.target.value)}
+          placeholder="1, 3, 5, 7, 9, 11"
+          className="w-full"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Target value:
+        </label>
+        <Input 
+          value={targetInput} 
+          onChange={(e) => setTargetInput(e.target.value)}
+          placeholder="5"
+          className="w-full"
+        />
+      </div>
+      <div className="flex justify-end">
+        <Button type="submit">Apply</Button>
+      </div>
+    </form>
+  );
+};
+
+const FibonacciInputForm: React.FC<{ initialInput: any, onSubmit: (input: any) => void }> = ({ initialInput, onSubmit }) => {
+  const [n, setN] = useState(initialInput.n?.toString() || '5');
+  const [optimized, setOptimized] = useState(initialInput.optimized || false);
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      onSubmit({ n: parseInt(n), optimized });
+    } catch (error) {
+      console.error('Invalid input:', error);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Number (n):
+        </label>
+        <Input 
+          type="number"
+          min="1"
+          max="20"
+          value={n} 
+          onChange={(e) => setN(e.target.value)}
+          placeholder="5"
+          className="w-full"
+        />
+        <p className="text-xs text-muted-foreground mt-1">Maximum value: 20</p>
+      </div>
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="optimized"
+          checked={optimized}
+          onChange={() => setOptimized(!optimized)}
+          className="mr-2"
+        />
+        <label htmlFor="optimized" className="text-sm">
+          Use optimized (O(1) space) algorithm
+        </label>
+      </div>
+      <div className="flex justify-end">
+        <Button type="submit">Apply</Button>
+      </div>
+    </form>
+  );
+};
+
+const KnapsackInputForm: React.FC<{ initialInput: any, onSubmit: (input: any) => void }> = ({ initialInput, onSubmit }) => {
+  const [valuesInput, setValuesInput] = useState(initialInput.values?.join(', ') || '60, 100, 120');
+  const [weightsInput, setWeightsInput] = useState(initialInput.weights?.join(', ') || '10, 20, 30');
+  const [capacityInput, setCapacityInput] = useState(initialInput.capacity?.toString() || '50');
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const values = valuesInput.split(',').map((num: string) => parseInt(num.trim()));
+      const weights = weightsInput.split(',').map((num: string) => parseInt(num.trim()));
+      const capacity = parseInt(capacityInput.trim());
+      
+      // Validate inputs
+      if (values.length !== weights.length) {
+        alert('Values and weights arrays must have the same length');
+        return;
+      }
+      
+      onSubmit({ values, weights, capacity });
+    } catch (error) {
+      console.error('Invalid input:', error);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Values (comma-separated numbers):
+        </label>
+        <Input 
+          value={valuesInput} 
+          onChange={(e) => setValuesInput(e.target.value)}
+          placeholder="60, 100, 120"
+          className="w-full"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Weights (comma-separated numbers):
+        </label>
+        <Input 
+          value={weightsInput} 
+          onChange={(e) => setWeightsInput(e.target.value)}
+          placeholder="10, 20, 30"
+          className="w-full"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Capacity:
+        </label>
+        <Input 
+          type="number"
+          min="1"
+          max="100"
+          value={capacityInput} 
+          onChange={(e) => setCapacityInput(e.target.value)}
+          placeholder="50"
+          className="w-full"
+        />
+      </div>
+      <div className="flex justify-end">
+        <Button type="submit">Apply</Button>
+      </div>
+    </form>
+  );
+};
+
+const LCSInputForm: React.FC<{ initialInput: any, onSubmit: (input: any) => void }> = ({ initialInput, onSubmit }) => {
+  const [text1, setText1] = useState(initialInput.text1 || 'ABCBDAB');
+  const [text2, setText2] = useState(initialInput.text2 || 'BDCABA');
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      onSubmit({ text1, text2 });
+    } catch (error) {
+      console.error('Invalid input:', error);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          String 1:
+        </label>
+        <Input 
+          value={text1} 
+          onChange={(e) => setText1(e.target.value)}
+          placeholder="ABCBDAB"
+          className="w-full"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          String 2:
+        </label>
+        <Input 
+          value={text2} 
+          onChange={(e) => setText2(e.target.value)}
+          placeholder="BDCABA"
+          className="w-full"
+        />
+      </div>
+      <div className="flex justify-end">
+        <Button type="submit">Apply</Button>
+      </div>
+    </form>
   );
 };
 
