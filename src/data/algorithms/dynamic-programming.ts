@@ -1,4 +1,3 @@
-
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 
 // Edit Distance
@@ -747,7 +746,7 @@ export const fibonacciDP: Algorithm = {
         id: `before-${i}`,
         description: `Computing f[${i}] = f[${i-1}] + f[${i-2}] = ${f[i-1]} + ${f[i-2]}`,
         highlightedLines: [9],
-        visualState: { n, f: [...f], current: i }
+        visualState: { n, f: [...f], current: i, currentCalc: [i-1, i-2] }
       });
 
       f[i] = f[i - 1] + f[i - 2];
@@ -764,7 +763,7 @@ export const fibonacciDP: Algorithm = {
       id: 'complete',
       description: `The ${n}th Fibonacci number is ${f[n]}`,
       highlightedLines: [12],
-      visualState: { n, f: [...f] }
+      visualState: { n, f: [...f], result: f[n], complete: true }
     });
 
     return steps;
