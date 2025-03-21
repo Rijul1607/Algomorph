@@ -1,3 +1,4 @@
+
 import React from 'react';
 import DPVisualizer from '@/components/visualizers/DPVisualizer';
 import GraphVisualizer from '@/components/visualizers/GraphVisualizer';
@@ -39,7 +40,7 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({ algorithm, sp
       setPlaying(false);
     }
     
-    return () => clearTimeoutId;
+    return () => clearTimeout(timeoutId);
   }, [playing, currentStep, totalSteps, delay]);
   
   // Update visual state on step change
