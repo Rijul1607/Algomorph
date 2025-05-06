@@ -106,7 +106,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
               If it's a search algorithm, track the 'current' and 'found' indices.
               ONLY RETURN VALID JSON with no additional text, comments or markdown formatting. The response must be parseable JSON.`
             }]
-          }),
+          }],
           generationConfig: {
             temperature: 0.2,
             topP: 0.8,
