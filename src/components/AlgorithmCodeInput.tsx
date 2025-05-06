@@ -111,7 +111,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
             temperature: 0.2,
             topP: 0.8,
             topK: 40,
-            maxOutputTokens: 8192,
+            maxOutputTokens: 8192
           }
         })
       });
