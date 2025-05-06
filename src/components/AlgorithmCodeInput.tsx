@@ -76,29 +76,37 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `I have a ${language === 'js' ? 'JavaScript' : language === 'py' ? 'Python' : 'C++'} algorithm that I want to visualize. 
-              Please generate visualization steps for the following algorithm:
+              text: `I have a ${language === 'js' ? 'JavaScript' : language === 'py' ? 'Python' : 'C++'} algorithm that I want to visualize step-by-step. 
+              Please generate detailed visualization steps for the following algorithm:
               
               ${code}
               
               ${description ? `Additional context about the algorithm: ${description}` : ''}
               
-              Please generate a JSON array of visualization steps in this format:
+              Please generate a JSON array of visualization steps in the following format:
               [
                 {
                   "id": "step-1",
-                  "description": "Description of what happens in this step",
+                  "description": "Detailed explanation of what happens in this step",
                   "visualState": {
-                    // State object with variables, data structures, etc. at this step
+                    "array": [array state at this step],
+                    "variables": {key-value pairs of all variables and their values},
+                    "comparing": [indices being compared if any],
+                    "swapping": [indices being swapped if any],
+                    "sorted": [indices of sorted elements if any],
+                    "current": [current index or position],
+                    "highlighted": [indices to highlight]
                   }
                 },
                 // More steps...
               ]
               
-              Include detailed descriptions and visualState objects that can be used to render the algorithm step by step.
-              ONLY RETURN VALID JSON with no additional text.`
+              Include detailed descriptions and complete visualState objects for each step.
+              If the algorithm sorts an array, make sure to properly track the 'comparing', 'swapping', and 'sorted' indices.
+              If it's a search algorithm, track the 'current' and 'found' indices.
+              ONLY RETURN VALID JSON with no additional text, comments or markdown formatting. The response must be parseable JSON.`
             }]
-          }],
+          }),
           generationConfig: {
             temperature: 0.2,
             topP: 0.8,
@@ -126,19 +134,55 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       let steps;
       try {
         steps = JSON.parse(jsonStr);
+        
+        // Ensure all steps have the required fields and format
+        steps = steps.map((step: any, index: number) => {
+          // Make sure we have an ID
+          if (!step.id) {
+            step.id = `step-${index + 1}`;
+          }
+          
+          // Ensure we have a description
+          if (!step.description) {
+            step.description = `Step ${index + 1}`;
+          }
+          
+          // Initialize visualState if missing
+          if (!step.visualState) {
+            step.visualState = {};
+          }
+          
+          // If array is missing but we have other visualization data, create an array
+          if (!step.visualState.array && 
+              (step.visualState.comparing || 
+               step.visualState.swapping || 
+               step.visualState.sorted)) {
+            step.visualState.array = [];
+          }
+          
+          return step;
+        });
+        
       } catch (e) {
         console.error("Failed to parse JSON from Gemini:", jsonStr);
-        toast.error("Failed to parse Gemini's response as JSON");
-        throw e;
+        toast.error("Failed to parse Gemini's response as JSON. Falling back to built-in visualization.");
+        
+        // Fall back to built-in simulation
+        const { steps: fallbackSteps, output } = simulateCustomCodeExecution(code, language);
+        onCodeSubmit(code, language, fallbackSteps);
+        return;
       }
 
       // Submit the steps
       onCodeSubmit(code, language, steps);
-      toast.success('Visualization generated with Gemini AI');
+      toast.success('Enhanced visualization generated with Gemini AI');
     } catch (error) {
       console.error('Gemini API Error:', error);
-      toast.error('Error with Gemini AI visualization. Please check your API key and try again.');
-      throw error;
+      toast.error('Error with Gemini AI visualization. Falling back to built-in visualization.');
+      
+      // Fall back to built-in simulation
+      const { steps: fallbackSteps, output } = simulateCustomCodeExecution(code, language);
+      onCodeSubmit(code, language, fallbackSteps);
     }
   };
 
@@ -191,18 +235,23 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       />
 
       <div className="p-4 border rounded-md bg-card">
-        <div className="flex items-center mb-4">
-          <input
-            type="checkbox"
-            id="use-gemini"
-            checked={isUsingGemini}
-            onChange={() => setIsUsingGemini(!isUsingGemini)}
-            className="mr-2"
-          />
-          <label htmlFor="use-gemini" className="flex items-center">
-            <Sparkles className="h-4 w-4 mr-2 text-warning" />
-            <span className="font-medium">Use Gemini AI for enhanced visualization</span>
-          </label>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="use-gemini"
+              checked={isUsingGemini}
+              onChange={() => setIsUsingGemini(!isUsingGemini)}
+              className="mr-2"
+            />
+            <label htmlFor="use-gemini" className="flex items-center">
+              <Sparkles className="h-4 w-4 mr-2 text-warning" />
+              <span className="font-medium">Use Gemini AI for enhanced visualization</span>
+            </label>
+          </div>
+          <div className="flex-grow text-xs text-muted-foreground">
+            (Recommended for detailed step-by-step breakdowns)
+          </div>
         </div>
 
         {isUsingGemini && (
@@ -239,17 +288,25 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       </div>
       
       <div className="text-sm text-muted-foreground">
-        <p className="font-medium">Tips:</p>
+        <p className="font-medium">Tips for better visualizations:</p>
         <ul className="list-disc pl-5 mt-1 space-y-1">
           <li>Use clear variable names for better visualization</li>
           <li>Add comments to explain your algorithm</li>
           <li>Make sure your code is syntactically correct</li>
           <li>Keep the algorithm simple for better visualization results</li>
-          <li>For tree algorithms, use 'node', 'left', and 'right' in your code</li>
-          <li>For sorting, use 'sort' or 'swap' keywords</li>
-          <li>For searching, use 'search' or 'find' keywords</li>
-          {isUsingGemini && (
-            <li className="text-primary">Gemini AI will generate enhanced visualizations based on your code's logic and structure</li>
+          {isUsingGemini ? (
+            <>
+              <li className="text-primary">Gemini AI will analyze your code and generate detailed step-by-step visualizations</li>
+              <li className="text-primary">Include sample data in your code for the best results</li>
+              <li className="text-primary">For sorting algorithms, use array operations like swapping elements</li>
+              <li className="text-primary">For searching, clearly mark the target value</li>
+            </>
+          ) : (
+            <>
+              <li>For tree algorithms, use 'node', 'left', and 'right' in your code</li>
+              <li>For sorting, use 'sort' or 'swap' keywords</li>
+              <li>For searching, use 'search' or 'find' keywords</li>
+            </>
           )}
         </ul>
       </div>
