@@ -37,7 +37,7 @@ const SearchingVisualizer: React.FC<SearchingVisualizerProps> = ({ data }) => {
           const isCurrent = index === current;
           const isInRange = left !== undefined && right !== undefined && index >= left && index <= right;
           const isFound = isCurrent && found;
-          const isChecked = checked ? checked.includes(index) : false;
+          const isChecked = checked && Array.isArray(checked) ? checked.includes(index) : false;
           
           return (
             <div 

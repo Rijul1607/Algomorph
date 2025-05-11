@@ -34,60 +34,750 @@ export function simulateCustomCodeExecution(code: string, language: string) {
       output = 'Code execution completed';
     }
   } else if (language === 'py') {
-    if (isTree) {
+    if (isSort) {
+      // Simulate Python sort
+      steps = generatePythonSortSteps(code);
+      output = 'Python sorting algorithm executed';
+    } else if (isSearch) {
+      // Simulate Python search
+      steps = generatePythonSearchSteps(code);
+      output = 'Python search algorithm executed';
+    } else if (isTree) {
       // Simulate tree operations
       steps = generateTreeSteps(code, language);
-      output = 'Tree operations completed';
+      output = 'Python tree operations completed';
     } else if (code.includes('for') || code.includes('while')) {
       // Simulate loop execution
       steps = generateLoopSteps(code, language);
-      output = 'Loop execution completed';
+      output = 'Python loop execution completed';
     } else if (code.includes('if') || code.includes('else')) {
       // Simulate conditional execution
       steps = generateConditionalSteps(code, language);
-      output = 'Conditional execution completed';
+      output = 'Python conditional execution completed';
     } else if (code.includes('def')) {
       // Simulate function execution
       steps = generateFunctionSteps(code, language);
-      output = 'Function execution completed';
+      output = 'Python function execution completed';
     } else {
       // Generic execution
       steps = generateGenericSteps(code, language);
-      output = 'Code execution completed';
+      output = 'Python code execution completed';
     }
   } else if (language === 'cpp') {
-    if (isTree) {
+    if (isSort) {
+      // Simulate C++ sort
+      steps = generateCppSortSteps(code);
+      output = 'C++ sorting algorithm executed';
+    } else if (isSearch) {
+      // Simulate C++ search
+      steps = generateCppSearchSteps(code);
+      output = 'C++ search algorithm executed';
+    } else if (isTree) {
       // Simulate tree operations
       steps = generateTreeSteps(code, language);
-      output = 'Tree operations completed';
+      output = 'C++ tree operations completed';
     } else if (code.includes('for') || code.includes('while')) {
       // Simulate loop execution
       steps = generateLoopSteps(code, language);
-      output = 'Loop execution completed';
+      output = 'C++ loop execution completed';
     } else if (code.includes('if') || code.includes('else')) {
       // Simulate conditional execution
       steps = generateConditionalSteps(code, language);
-      output = 'Conditional execution completed';
+      output = 'C++ conditional execution completed';
     } else if (code.includes('void') || code.includes('int') || code.includes('function')) {
       // Simulate function execution
       steps = generateFunctionSteps(code, language);
-      output = 'Function execution completed';
+      output = 'C++ function execution completed';
     } else {
       // Generic execution
       steps = generateGenericSteps(code, language);
+      output = 'C++ code execution completed';
+    }
+  } else if (language === 'java') {
+    if (isSort) {
+      // Simulate Java sort
+      steps = generateJavaSortSteps(code);
+      output = 'Java sorting algorithm executed';
+    } else if (isSearch) {
+      // Simulate Java search
+      steps = generateJavaSearchSteps(code);
+      output = 'Java search algorithm executed';
+    } else if (isTree) {
+      // Simulate tree operations
+      steps = generateTreeSteps(code, language);
+      output = 'Java tree operations completed';
+    } else if (code.includes('for') || code.includes('while')) {
+      // Simulate loop execution
+      steps = generateLoopSteps(code, language);
+      output = 'Java loop execution completed';
+    } else if (code.includes('if') || code.includes('else')) {
+      // Simulate conditional execution
+      steps = generateConditionalSteps(code, language);
+      output = 'Java conditional execution completed';
+    } else if (code.includes('void') || code.includes('int') || code.includes('public') || code.includes('private')) {
+      // Simulate function execution
+      steps = generateFunctionSteps(code, language);
+      output = 'Java method execution completed';
+    } else {
+      // Generic execution
+      steps = generateGenericSteps(code, language);
+      output = 'Java code execution completed';
+    }
+  } else {
+    // Default JavaScript
+    if (isTree) {
+      // Simulate tree operations
+      steps = generateTreeSteps(code, 'js');
+      output = 'Tree operations completed';
+    } else if (code.includes('for') || code.includes('while')) {
+      // Simulate loop execution
+      steps = generateLoopSteps(code, 'js');
+      output = 'Loop execution completed';
+    } else if (code.includes('if') || code.includes('else')) {
+      // Simulate conditional execution
+      steps = generateConditionalSteps(code, 'js');
+      output = 'Conditional execution completed';
+    } else if (code.includes('function')) {
+      // Simulate function execution
+      steps = generateFunctionSteps(code, 'js');
+      output = 'Function execution completed';
+    } else if (code.includes('async') || code.includes('await')) {
+      // Simulate async execution
+      steps = generateAsyncSteps(code, 'js');
+      output = 'Async execution completed';
+    } else {
+      // Generic execution
+      steps = generateGenericSteps(code, 'js');
       output = 'Code execution completed';
     }
   }
   
   if (isSort) {
-    output = 'Sorting algorithm executed';
+    output = language.toUpperCase() + ' sorting algorithm executed';
   } else if (isSearch) {
-    output = 'Search algorithm executed';
+    output = language.toUpperCase() + ' search algorithm executed';
   } else if (isTree) {
-    output = 'Tree algorithm executed';
+    output = language.toUpperCase() + ' tree algorithm executed';
   }
   
   return { steps, output };
+}
+
+function generatePythonSortSteps(code: string) {
+  // Sample data for visualization
+  const array = [64, 34, 25, 12, 22, 11, 90];
+  const steps = [];
+  
+  // Initial state
+  steps.push({
+    id: 'init',
+    description: 'Initial array',
+    visualState: {
+      array: [...array],
+      variables: { 'n': array.length },
+      comparing: [],
+      swapping: [],
+      sorted: []
+    }
+  });
+  
+  // Simulate bubble sort steps
+  for (let i = 0; i < array.length; i++) {
+    for (let j = 0; j < array.length - i - 1; j++) {
+      // Comparing step
+      steps.push({
+        id: `compare-${i}-${j}`,
+        description: `Comparing elements at indices ${j} and ${j+1}`,
+        visualState: {
+          array: [...array],
+          variables: { 'i': i, 'j': j, 'n': array.length },
+          comparing: [j, j+1],
+          swapping: [],
+          sorted: Array.from({length: i}, (_, idx) => array.length - 1 - idx)
+        }
+      });
+      
+      if (array[j] > array[j + 1]) {
+        // Swap step
+        const temp = array[j];
+        array[j] = array[j + 1];
+        array[j + 1] = temp;
+        
+        steps.push({
+          id: `swap-${i}-${j}`,
+          description: `Swapping elements at indices ${j} and ${j+1}`,
+          visualState: {
+            array: [...array],
+            variables: { 'i': i, 'j': j, 'n': array.length },
+            comparing: [],
+            swapping: [j, j+1],
+            sorted: Array.from({length: i}, (_, idx) => array.length - 1 - idx)
+          }
+        });
+      }
+    }
+    
+    // Mark element as sorted
+    steps.push({
+      id: `sorted-${i}`,
+      description: `Element at index ${array.length - 1 - i} is now sorted`,
+      visualState: {
+        array: [...array],
+        variables: { 'i': i, 'n': array.length },
+        comparing: [],
+        swapping: [],
+        sorted: Array.from({length: i+1}, (_, idx) => array.length - 1 - idx)
+      }
+    });
+  }
+  
+  // Final sorted array
+  steps.push({
+    id: 'final',
+    description: 'Array is fully sorted',
+    visualState: {
+      array: [...array],
+      variables: { 'n': array.length },
+      comparing: [],
+      swapping: [],
+      sorted: Array.from({length: array.length}, (_, i) => i)
+    }
+  });
+  
+  return steps;
+}
+
+function generateCppSortSteps(code: string) {
+  // Similar to Python sort steps but with C++ specific formatting
+  const array = [64, 34, 25, 12, 22, 11, 90];
+  const steps = [];
+  
+  // Initial state
+  steps.push({
+    id: 'init',
+    description: 'Initial array',
+    visualState: {
+      array: [...array],
+      variables: { 'size': array.length },
+      comparing: [],
+      swapping: [],
+      sorted: []
+    }
+  });
+  
+  // Simulate selection sort steps for C++
+  for (let i = 0; i < array.length - 1; i++) {
+    let minIndex = i;
+    
+    steps.push({
+      id: `outer-${i}`,
+      description: `Outer loop iteration ${i+1}, looking for minimum element`,
+      visualState: {
+        array: [...array],
+        variables: { 'i': i, 'minIndex': minIndex, 'size': array.length },
+        comparing: [],
+        swapping: [],
+        sorted: Array.from({length: i}, (_, idx) => idx)
+      }
+    });
+    
+    for (let j = i + 1; j < array.length; j++) {
+      // Comparing step
+      steps.push({
+        id: `compare-${i}-${j}`,
+        description: `Comparing elements at indices ${minIndex} and ${j}`,
+        visualState: {
+          array: [...array],
+          variables: { 'i': i, 'j': j, 'minIndex': minIndex, 'size': array.length },
+          comparing: [minIndex, j],
+          swapping: [],
+          sorted: Array.from({length: i}, (_, idx) => idx)
+        }
+      });
+      
+      if (array[j] < array[minIndex]) {
+        minIndex = j;
+        steps.push({
+          id: `update-min-${i}-${j}`,
+          description: `Updating minimum index to ${j}`,
+          visualState: {
+            array: [...array],
+            variables: { 'i': i, 'j': j, 'minIndex': minIndex, 'size': array.length },
+            comparing: [],
+            highlighted: [minIndex],
+            sorted: Array.from({length: i}, (_, idx) => idx)
+          }
+        });
+      }
+    }
+    
+    // Swap step if needed
+    if (minIndex !== i) {
+      const temp = array[i];
+      array[i] = array[minIndex];
+      array[minIndex] = temp;
+      
+      steps.push({
+        id: `swap-${i}`,
+        description: `Swapping elements at indices ${i} and ${minIndex}`,
+        visualState: {
+          array: [...array],
+          variables: { 'i': i, 'minIndex': minIndex, 'size': array.length },
+          comparing: [],
+          swapping: [i, minIndex],
+          sorted: Array.from({length: i}, (_, idx) => idx)
+        }
+      });
+    }
+    
+    // Mark element as sorted
+    steps.push({
+      id: `sorted-${i}`,
+      description: `Element at index ${i} is now sorted`,
+      visualState: {
+        array: [...array],
+        variables: { 'i': i, 'size': array.length },
+        comparing: [],
+        swapping: [],
+        sorted: Array.from({length: i+1}, (_, idx) => idx)
+      }
+    });
+  }
+  
+  // Final sorted array
+  steps.push({
+    id: 'final',
+    description: 'Array is fully sorted',
+    visualState: {
+      array: [...array],
+      variables: { 'size': array.length },
+      comparing: [],
+      swapping: [],
+      sorted: Array.from({length: array.length}, (_, i) => i)
+    }
+  });
+  
+  return steps;
+}
+
+function generateJavaSortSteps(code: string) {
+  // Similar to C++ sort steps but with Java specific formatting
+  const array = [64, 34, 25, 12, 22, 11, 90];
+  const steps = [];
+  
+  // Initial state
+  steps.push({
+    id: 'init',
+    description: 'Initial array',
+    visualState: {
+      array: [...array],
+      variables: { 'length': array.length },
+      comparing: [],
+      swapping: [],
+      sorted: []
+    }
+  });
+  
+  // Simulate insertion sort steps for Java
+  for (let i = 1; i < array.length; i++) {
+    let key = array[i];
+    let j = i - 1;
+    
+    steps.push({
+      id: `outer-${i}`,
+      description: `Outer loop iteration ${i}, processing element ${key}`,
+      visualState: {
+        array: [...array],
+        variables: { 'i': i, 'key': key, 'j': j, 'length': array.length },
+        comparing: [],
+        highlighted: [i],
+        sorted: Array.from({length: i}, (_, idx) => idx)
+      }
+    });
+    
+    while (j >= 0 && array[j] > key) {
+      // Comparing step
+      steps.push({
+        id: `compare-${i}-${j}`,
+        description: `Comparing elements at indices ${j} and key value ${key}`,
+        visualState: {
+          array: [...array],
+          variables: { 'i': i, 'key': key, 'j': j, 'length': array.length },
+          comparing: [j, i],
+          swapping: [],
+          sorted: Array.from({length: i}, (_, idx) => idx)
+        }
+      });
+      
+      // Move elements
+      array[j + 1] = array[j];
+      
+      steps.push({
+        id: `shift-${i}-${j}`,
+        description: `Shifting element at index ${j} to position ${j+1}`,
+        visualState: {
+          array: [...array],
+          variables: { 'i': i, 'key': key, 'j': j, 'length': array.length },
+          comparing: [],
+          swapping: [j, j+1],
+          sorted: Array.from({length: i}, (_, idx) => idx)
+        }
+      });
+      
+      j = j - 1;
+    }
+    
+    array[j + 1] = key;
+    
+    steps.push({
+      id: `insert-${i}`,
+      description: `Inserting key ${key} at position ${j+1}`,
+      visualState: {
+        array: [...array],
+        variables: { 'i': i, 'key': key, 'j': j, 'length': array.length },
+        comparing: [],
+        highlighted: [j+1],
+        sorted: Array.from({length: i+1}, (_, idx) => idx)
+      }
+    });
+  }
+  
+  // Final sorted array
+  steps.push({
+    id: 'final',
+    description: 'Array is fully sorted',
+    visualState: {
+      array: [...array],
+      variables: { 'length': array.length },
+      comparing: [],
+      swapping: [],
+      sorted: Array.from({length: array.length}, (_, i) => i)
+    }
+  });
+  
+  return steps;
+}
+
+function generatePythonSearchSteps(code: string) {
+  // Sample data for visualization
+  const array = [11, 22, 25, 34, 64, 90];
+  const target = 25;
+  const steps = [];
+  
+  // Initial state
+  steps.push({
+    id: 'init',
+    description: 'Initial array and search target',
+    visualState: {
+      array: [...array],
+      target: target,
+      variables: { 'n': array.length, 'target': target },
+      current: null,
+    }
+  });
+  
+  // Simulate binary search steps
+  let left = 0;
+  let right = array.length - 1;
+  let found = false;
+  
+  steps.push({
+    id: 'search-start',
+    description: 'Starting binary search with left and right pointers',
+    visualState: {
+      array: [...array],
+      target: target,
+      variables: { 'left': left, 'right': right, 'target': target },
+      left: left,
+      right: right
+    }
+  });
+  
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    
+    // Calculate middle position
+    steps.push({
+      id: `mid-calc-${left}-${right}`,
+      description: `Calculate middle position: (${left} + ${right}) / 2 = ${mid}`,
+      visualState: {
+        array: [...array],
+        target: target,
+        variables: { 'left': left, 'right': right, 'mid': mid, 'target': target },
+        left: left,
+        right: right,
+        current: mid
+      }
+    });
+    
+    // Compare with target
+    steps.push({
+      id: `compare-${mid}`,
+      description: `Comparing middle element ${array[mid]} with target ${target}`,
+      visualState: {
+        array: [...array],
+        target: target,
+        variables: { 'left': left, 'right': right, 'mid': mid, 'arr[mid]': array[mid], 'target': target },
+        left: left,
+        right: right,
+        current: mid,
+        checked: [mid]
+      }
+    });
+    
+    if (array[mid] === target) {
+      found = true;
+      
+      steps.push({
+        id: 'found',
+        description: `Target ${target} found at index ${mid}!`,
+        visualState: {
+          array: [...array],
+          target: target,
+          variables: { 'left': left, 'right': right, 'mid': mid, 'target': target },
+          left: left,
+          right: right,
+          current: mid,
+          found: true
+        }
+      });
+      
+      break;
+    } else if (array[mid] < target) {
+      left = mid + 1;
+      
+      steps.push({
+        id: `move-left-${left}`,
+        description: `Middle element ${array[mid]} < target ${target}, moving left pointer to ${left}`,
+        visualState: {
+          array: [...array],
+          target: target,
+          variables: { 'left': left, 'right': right, 'mid': mid, 'target': target },
+          left: left,
+          right: right,
+          checked: Array.from({length: mid + 1}, (_, i) => i)
+        }
+      });
+    } else {
+      right = mid - 1;
+      
+      steps.push({
+        id: `move-right-${right}`,
+        description: `Middle element ${array[mid]} > target ${target}, moving right pointer to ${right}`,
+        visualState: {
+          array: [...array],
+          target: target,
+          variables: { 'left': left, 'right': right, 'mid': mid, 'target': target },
+          left: left,
+          right: right,
+          checked: Array.from({length: array.length - mid}, (_, i) => mid + i)
+        }
+      });
+    }
+  }
+  
+  if (!found) {
+    steps.push({
+      id: 'not-found',
+      description: `Target ${target} not found in the array!`,
+      visualState: {
+        array: [...array],
+        target: target,
+        variables: { 'left': left, 'right': right, 'target': target },
+        checked: Array.from({length: array.length}, (_, i) => i),
+        found: false
+      }
+    });
+  }
+  
+  return steps;
+}
+
+function generateCppSearchSteps(code: string) {
+  // Similar to Python search but with C++ specific formatting
+  const array = [11, 22, 25, 34, 64, 90];
+  const target = 64;
+  const steps = [];
+  
+  // Initial state for linear search in C++
+  steps.push({
+    id: 'init',
+    description: 'Initial array and search target',
+    visualState: {
+      array: [...array],
+      target: target,
+      variables: { 'size': array.length, 'target': target },
+      current: null,
+    }
+  });
+  
+  // Simulate linear search steps
+  let found = false;
+  let foundIndex = -1;
+  
+  for (let i = 0; i < array.length; i++) {
+    steps.push({
+      id: `check-${i}`,
+      description: `Checking element at index ${i}: ${array[i]}`,
+      visualState: {
+        array: [...array],
+        target: target,
+        variables: { 'i': i, 'current': array[i], 'target': target },
+        current: i,
+        checked: Array.from({length: i}, (_, idx) => idx)
+      }
+    });
+    
+    if (array[i] === target) {
+      found = true;
+      foundIndex = i;
+      
+      steps.push({
+        id: 'found',
+        description: `Target ${target} found at index ${i}!`,
+        visualState: {
+          array: [...array],
+          target: target,
+          variables: { 'i': i, 'found': true, 'target': target },
+          current: i,
+          found: true
+        }
+      });
+      
+      break;
+    }
+  }
+  
+  if (!found) {
+    steps.push({
+      id: 'not-found',
+      description: `Target ${target} not found in the array!`,
+      visualState: {
+        array: [...array],
+        target: target,
+        variables: { 'found': false, 'target': target },
+        checked: Array.from({length: array.length}, (_, i) => i),
+        found: false
+      }
+    });
+  } else {
+    steps.push({
+      id: 'search-complete',
+      description: `Search complete. Target ${target} found at index ${foundIndex}`,
+      visualState: {
+        array: [...array],
+        target: target,
+        variables: { 'result': foundIndex, 'target': target },
+        current: foundIndex,
+        found: true
+      }
+    });
+  }
+  
+  return steps;
+}
+
+function generateJavaSearchSteps(code: string) {
+  // Jump search implementation for Java
+  const array = [11, 22, 25, 34, 64, 90];
+  const target = 34;
+  const steps = [];
+  
+  // Initial state
+  steps.push({
+    id: 'init',
+    description: 'Initial array and search target',
+    visualState: {
+      array: [...array],
+      target: target,
+      variables: { 'length': array.length, 'target': target },
+      current: null,
+    }
+  });
+  
+  // Jump search parameters
+  const blockSize = Math.floor(Math.sqrt(array.length));
+  let prev = 0;
+  
+  steps.push({
+    id: 'block-size',
+    description: `Calculating block size: sqrt(${array.length}) = ${blockSize}`,
+    visualState: {
+      array: [...array],
+      target: target,
+      variables: { 'length': array.length, 'blockSize': blockSize, 'target': target },
+    }
+  });
+  
+  // Finding the block
+  let step = blockSize;
+  while (step < array.length && array[step - 1] < target) {
+    steps.push({
+      id: `jump-${prev}-${step}`,
+      description: `Jumping to index ${step}`,
+      visualState: {
+        array: [...array],
+        target: target,
+        variables: { 'prev': prev, 'step': step, 'target': target },
+        current: step - 1,
+        checked: Array.from({length: step}, (_, i) => i)
+      }
+    });
+    
+    prev = step;
+    step += blockSize;
+  }
+  
+  // Linear search within block
+  let found = false;
+  for (let i = prev; i < Math.min(step, array.length); i++) {
+    steps.push({
+      id: `check-${i}`,
+      description: `Checking element at index ${i}: ${array[i]}`,
+      visualState: {
+        array: [...array],
+        target: target,
+        variables: { 'i': i, 'current': array[i], 'target': target },
+        current: i,
+        left: prev,
+        right: Math.min(step, array.length) - 1
+      }
+    });
+    
+    if (array[i] === target) {
+      found = true;
+      
+      steps.push({
+        id: 'found',
+        description: `Target ${target} found at index ${i}!`,
+        visualState: {
+          array: [...array],
+          target: target,
+          variables: { 'i': i, 'found': true, 'target': target },
+          current: i,
+          found: true
+        }
+      });
+      
+      break;
+    }
+  }
+  
+  if (!found) {
+    steps.push({
+      id: 'not-found',
+      description: `Target ${target} not found in the array!`,
+      visualState: {
+        array: [...array],
+        target: target,
+        variables: { 'found': false, 'target': target },
+        checked: Array.from({length: array.length}, (_, i) => i),
+        found: false
+      }
+    });
+  }
+  
+  return steps;
 }
 
 function generateLoopSteps(code: string, language: string) {

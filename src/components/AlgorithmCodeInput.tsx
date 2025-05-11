@@ -24,7 +24,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
   const [code, setCode] = useState<string>(`// Write your algorithm here\nfunction myAlgorithm(input) {\n  // Your code\n  return result;\n}`);
   const [language, setLanguage] = useState<string>('js');
   const [loading, setLoading] = useState(false);
-  const [geminiKey, setGeminiKey] = useState('');
+  const [geminiKey, setGeminiKey] = useState('AIzaSyAlxO91rmKzvIp-AWScqLzDzbK2PZnNKpg');
   const [isUsingGemini, setIsUsingGemini] = useState(false);
   const [description, setDescription] = useState('');
 
@@ -36,6 +36,8 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       setCode(`// Write your algorithm here\nfunction myAlgorithm(input) {\n  // Your code\n  return result;\n}`);
     } else if (value === 'cpp' && (code.includes('function') || code.includes('def'))) {
       setCode(`// Write your algorithm here\n#include <iostream>\n#include <vector>\n\nint myAlgorithm(std::vector<int> input) {\n  // Your code\n  return result;\n}`);
+    } else if (value === 'java' && (code.includes('function') || code.includes('def'))) {
+      setCode(`// Write your algorithm here\nimport java.util.*;\n\npublic class Algorithm {\n  public int myAlgorithm(int[] input) {\n    // Your code\n    return result;\n  }\n}`);
     }
   };
 
@@ -67,7 +69,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
   const handleGeminiVisualization = async () => {
     try {
       // Call Gemini API
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +78,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `I have a ${language === 'js' ? 'JavaScript' : language === 'py' ? 'Python' : 'C++'} algorithm that I want to visualize step-by-step. 
+              text: `I have a ${language === 'js' ? 'JavaScript' : language === 'py' ? 'Python' : language === 'java' ? 'Java' : 'C++'} algorithm that I want to visualize step-by-step. 
               Please generate detailed visualization steps for the following algorithm:
               
               ${code}
@@ -141,7 +143,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
         }
         
         // Ensure all steps have the required fields and format
-        steps = parsedData.map((step: any, index: number) => {
+        steps = parsedData.map((step, index) => {
           // Make sure we have an ID
           if (!step.id) {
             step.id = `step-${index + 1}`;
@@ -212,7 +214,10 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
 
   const codeBlock: CodeBlock = {
     language,
-    filename: language === 'js' ? 'algorithm.js' : language === 'py' ? 'algorithm.py' : 'algorithm.cpp',
+    filename: language === 'js' ? 'algorithm.js' : 
+              language === 'py' ? 'algorithm.py' : 
+              language === 'java' ? 'Algorithm.java' : 
+              'algorithm.cpp',
     code
   };
 
@@ -237,6 +242,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
               <SelectItem value="js">JavaScript</SelectItem>
               <SelectItem value="py">Python</SelectItem>
               <SelectItem value="cpp">C++</SelectItem>
+              <SelectItem value="java">Java</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={handleSubmit} disabled={loading}>

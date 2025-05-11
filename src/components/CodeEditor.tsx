@@ -56,6 +56,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onLanguageChange, onChang
               <SelectItem value="js">JavaScript</SelectItem>
               <SelectItem value="py">Python</SelectItem>
               <SelectItem value="cpp">C++</SelectItem>
+              <SelectItem value="java">Java</SelectItem>
               <SelectItem value="tsx">TypeScript</SelectItem>
               <SelectItem value="jsx">React</SelectItem>
               <SelectItem value="html">HTML</SelectItem>
@@ -105,4 +106,3 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onLanguageChange, onChang
 };
 
 export default CodeEditor;
-
