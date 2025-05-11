@@ -123,7 +123,11 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       }
 
       const data = await response.json();
-      const responseText = data.candidates[0].content.parts[0].text;
+      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (!responseText) {
+        throw new Error('Invalid response format from Gemini API');
+      }
       
       // Extract JSON from response (Gemini might wrap it in markdown code blocks)
       let jsonStr = responseText;
@@ -163,7 +167,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
           if (!step.visualState.array) {
             step.visualState.array = [];
           } else if (!Array.isArray(step.visualState.array)) {
-            step.visualState.array = [];
+            step.visualState.array = Array.isArray(step.visualState.array) ? step.visualState.array : [];
           }
           
           // Ensure comparing is always an array

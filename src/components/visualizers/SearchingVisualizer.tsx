@@ -25,6 +25,9 @@ const SearchingVisualizer: React.FC<SearchingVisualizerProps> = ({ data }) => {
     );
   }
   
+  // Ensure checked is always an array
+  const safeChecked = Array.isArray(checked) ? checked : [];
+  
   return (
     <div className="w-full h-full flex flex-col justify-center items-center gap-6 p-4">
       <div className="text-center">
@@ -37,7 +40,7 @@ const SearchingVisualizer: React.FC<SearchingVisualizerProps> = ({ data }) => {
           const isCurrent = index === current;
           const isInRange = left !== undefined && right !== undefined && index >= left && index <= right;
           const isFound = isCurrent && found;
-          const isChecked = checked && Array.isArray(checked) ? checked.includes(index) : false;
+          const isChecked = safeChecked.includes(index);
           
           return (
             <div 
