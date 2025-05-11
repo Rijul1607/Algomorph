@@ -1,4 +1,3 @@
-
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 
 // Binary Tree Traversal
@@ -119,7 +118,7 @@ function levelOrderTraversal(root) {
       highlightedLines: [1, 2],
       visualState: { 
         tree: treeArray,
-        current: null,
+        current: [0],
         visited: [],
         traversalType
       }
@@ -137,7 +136,7 @@ function levelOrderTraversal(root) {
           highlightedLines: [i < visitOrder.length/2 ? 21 : 25],
           visualState: { 
             tree: treeArray,
-            current: nodeIndices[i],
+            current: [nodeIndices[i]],
             visited: nodeIndices.slice(0, i),
             traversalType
           }
@@ -155,7 +154,7 @@ function levelOrderTraversal(root) {
           highlightedLines: [i === 0 ? 36 : (i < 4 ? 38 : 40)],
           visualState: { 
             tree: treeArray,
-            current: nodeIndices[i],
+            current: [nodeIndices[i]],
             visited: nodeIndices.slice(0, i),
             traversalType
           }
@@ -173,7 +172,7 @@ function levelOrderTraversal(root) {
           highlightedLines: [i < 3 ? 55 : (i < 6 ? 57 : 59)],
           visualState: { 
             tree: treeArray,
-            current: nodeIndices[i],
+            current: [nodeIndices[i]],
             visited: nodeIndices.slice(0, i),
             traversalType
           }
@@ -191,7 +190,7 @@ function levelOrderTraversal(root) {
           highlightedLines: [75],
           visualState: { 
             tree: treeArray,
-            current: nodeIndices[i],
+            current: [nodeIndices[i]],
             visited: nodeIndices.slice(0, i),
             traversalType,
             queue: nodeIndices.slice(i + 1, Math.min(i + 3, nodeIndices.length))
@@ -344,7 +343,7 @@ class BinarySearchTree {
       highlightedLines: [55, 56],
       visualState: { 
         tree,
-        current: 0,
+        current: [0],
         searching: value
       }
     });
@@ -356,7 +355,7 @@ class BinarySearchTree {
         highlightedLines: [62, 63],
         visualState: { 
           tree,
-          current: 1,
+          current: [1],
           searching: value
         }
       });
@@ -368,7 +367,7 @@ class BinarySearchTree {
           highlightedLines: [62, 63],
           visualState: { 
             tree,
-            current: 3,
+            current: [3],
             searching: value
           }
         });
@@ -380,7 +379,7 @@ class BinarySearchTree {
             highlightedLines: [73],
             visualState: { 
               tree,
-              current: 3,
+              current: [3],
               found: true
             }
           });
@@ -391,7 +390,7 @@ class BinarySearchTree {
             highlightedLines: [57],
             visualState: { 
               tree,
-              current: 3,
+              current: [3],
               found: false
             }
           });
@@ -403,7 +402,7 @@ class BinarySearchTree {
           highlightedLines: [67, 68],
           visualState: { 
             tree,
-            current: 4,
+            current: [4],
             searching: value
           }
         });
@@ -415,7 +414,7 @@ class BinarySearchTree {
             highlightedLines: [73],
             visualState: { 
               tree,
-              current: 4,
+              current: [4],
               found: true
             }
           });
@@ -426,7 +425,7 @@ class BinarySearchTree {
             highlightedLines: [57],
             visualState: { 
               tree,
-              current: 4,
+              current: [4],
               found: false
             }
           });
@@ -439,7 +438,7 @@ class BinarySearchTree {
         highlightedLines: [67, 68],
         visualState: { 
           tree,
-          current: 2,
+          current: [2],
           searching: value
         }
       });
@@ -451,7 +450,7 @@ class BinarySearchTree {
           highlightedLines: [62, 63],
           visualState: { 
             tree,
-            current: 5,
+            current: [5],
             searching: value
           }
         });
@@ -463,7 +462,7 @@ class BinarySearchTree {
             highlightedLines: [73],
             visualState: { 
               tree,
-              current: 5,
+              current: [5],
               found: true
             }
           });
@@ -474,7 +473,7 @@ class BinarySearchTree {
             highlightedLines: [57],
             visualState: { 
               tree,
-              current: 5,
+              current: [5],
               found: false
             }
           });
@@ -486,7 +485,7 @@ class BinarySearchTree {
           highlightedLines: [67, 68],
           visualState: { 
             tree,
-            current: 6,
+            current: [6],
             searching: value
           }
         });
@@ -498,7 +497,7 @@ class BinarySearchTree {
             highlightedLines: [73],
             visualState: { 
               tree,
-              current: 6,
+              current: [6],
               found: true
             }
           });
@@ -509,7 +508,7 @@ class BinarySearchTree {
             highlightedLines: [57],
             visualState: { 
               tree,
-              current: 6,
+              current: [6],
               found: false
             }
           });
@@ -527,7 +526,7 @@ export const levelOrderTraversal: Algorithm = {
   id: 'level-order-traversal',
   name: 'Level Order Traversal',
   type: 'tree',
-  description: 'Level Order Traversal (also known as Breadth-First Search) visits all nodes at the current depth before moving to nodes at the next depth level.',
+  description: 'Level Order Traversal (also known as Breadth-First Search) visits all nodes at the current depth level before moving to nodes at the next depth level.',
   timeComplexity: 'O(n)',
   spaceComplexity: 'O(w) where w is the maximum width of the tree',
   code: `// JavaScript Implementation
@@ -600,7 +599,7 @@ function levelOrderTraversalWithLevels(root) {
       highlightedLines: [2, 3],
       visualState: { 
         tree: treeArray,
-        current: null,
+        current: [0],
         visited: [],
         queue: [0]
       }
@@ -642,7 +641,7 @@ function levelOrderTraversalWithLevels(root) {
           highlightedLines: withLevels ? 25 : 8,
           visualState: { 
             tree: treeArray,
-            current: nodeIdx,
+            current: [nodeIdx],
             visited: visitedSoFar,
             queue: nextQueue
           }
@@ -747,7 +746,7 @@ function preOrderTraversalIterative(root) {
       highlightedLines: iterative ? [19, 20] : [2, 3],
       visualState: { 
         tree: treeArray,
-        current: null,
+        current: [0],
         visited: [],
         stack: iterative ? [0] : []
       }
@@ -766,7 +765,7 @@ function preOrderTraversalIterative(root) {
           highlightedLines: [23, 24],
           visualState: { 
             tree: treeArray,
-            current: nodeIdx,
+            current: [nodeIdx],
             visited: visitedSoFar,
             stack: stackState
           }
@@ -813,7 +812,7 @@ function preOrderTraversalIterative(root) {
           highlightedLines: [i === 0 ? 6 : (i < 4 ? 8 : 10)],
           visualState: { 
             tree: treeArray,
-            current: nodeIndices[i],
+            current: [nodeIndices[i]],
             visited: nodeIndices.slice(0, i),
             recursionStack: nodeIndices.slice(0, i).reverse()
           }
@@ -921,7 +920,7 @@ function postOrderTraversalIterative(root) {
       highlightedLines: iterative ? [19, 20] : [2, 3],
       visualState: { 
         tree: treeArray,
-        current: null,
+        current: [0],
         visited: []
       }
     });
@@ -954,7 +953,7 @@ function postOrderTraversalIterative(root) {
           highlightedLines: [24, 25],
           visualState: { 
             tree: treeArray,
-            current: nodeIdx,
+            current: [nodeIdx],
             visited: [],
             stack1,
             stack2
@@ -1012,7 +1011,7 @@ function postOrderTraversalIterative(root) {
           highlightedLines: [33, 34],
           visualState: { 
             tree: treeArray,
-            current: nodeIdx,
+            current: [nodeIdx],
             visited: visitedSoFar,
             stack2
           }
@@ -1030,7 +1029,7 @@ function postOrderTraversalIterative(root) {
           highlightedLines: [i < 3 ? 6 : (i < 6 ? 8 : 10)],
           visualState: { 
             tree: treeArray,
-            current: nodeIndices[i],
+            current: [nodeIndices[i]],
             visited: nodeIndices.slice(0, i),
             recursionStack: nodeIndices.slice(0, i).reverse()
           }
@@ -1053,3 +1052,5 @@ function postOrderTraversalIterative(root) {
   },
   defaultInput: { iterative: false }
 };
+
+</edits_to_apply>

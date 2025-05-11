@@ -24,7 +24,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
   const [code, setCode] = useState<string>(`// Write your algorithm here\nfunction myAlgorithm(input) {\n  // Your code\n  return result;\n}`);
   const [language, setLanguage] = useState<string>('js');
   const [loading, setLoading] = useState(false);
-  const [geminiKey, setGeminiKey] = useState('AIzaSyAlxO91rmKzvIp-AWScqLzDzbK2PZnNKpg');
+  const [geminiKey, setGeminiKey] = useState('AIzaSyDKJ4NgAxT67OH03RRCvP8Nq9EQsMVfrk0');
   const [isUsingGemini, setIsUsingGemini] = useState(false);
   const [description, setDescription] = useState('');
 
@@ -68,6 +68,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
 
   const handleGeminiVisualization = async () => {
     try {
+      console.log("Starting Gemini visualization with API key:", geminiKey?.substring(0, 5) + '...');
       // Call Gemini API
       const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
         method: 'POST',
@@ -129,6 +130,8 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
         throw new Error('Invalid response format from Gemini API');
       }
       
+      console.log("Gemini response received:", responseText.substring(0, 100) + '...');
+      
       // Extract JSON from response (Gemini might wrap it in markdown code blocks)
       let jsonStr = responseText;
       if (responseText.includes('```json')) {
@@ -140,9 +143,11 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       let steps = [];
       try {
         const parsedData = JSON.parse(jsonStr);
+        console.log("Successfully parsed JSON data");
         
         // Check if parsedData is an array
         if (!Array.isArray(parsedData)) {
+          console.error("Expected array but got:", typeof parsedData);
           throw new Error('Expected array of steps from Gemini API');
         }
         
@@ -194,7 +199,8 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
         });
         
       } catch (e) {
-        console.error("Failed to parse JSON from Gemini:", jsonStr);
+        console.error("Failed to parse JSON from Gemini:", e);
+        console.error("JSON String received:", jsonStr);
         toast.error("Failed to parse Gemini's response as JSON. Falling back to built-in visualization.");
         
         // Fall back to built-in simulation
