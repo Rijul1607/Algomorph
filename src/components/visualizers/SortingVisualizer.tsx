@@ -15,16 +15,16 @@ interface SortingVisualizerProps {
 
 const SortingVisualizer: React.FC<SortingVisualizerProps> = ({ data }) => {
   // Handle both raw array and object with metadata
-  const array = Array.isArray(data) ? data : data.array;
+  const array = Array.isArray(data) ? data : (data.array || []);
   const comparing = Array.isArray(data) ? undefined : data.comparing;
   const swapping = Array.isArray(data) ? undefined : data.swapping;
-  const sorted = Array.isArray(data) ? [] : data.sorted || [];
+  const sorted = Array.isArray(data) ? [] : (data.sorted || []);
   const current = Array.isArray(data) ? undefined : data.current;
   const highlighted = Array.isArray(data) ? undefined : data.highlighted;
   const variables = Array.isArray(data) ? undefined : data.variables;
   
   // Early return with a message if array is undefined or empty
-  if (!array || array.length === 0) {
+  if (!Array.isArray(array) || array.length === 0) {
     return (
       <div className="w-full h-full flex justify-center items-center p-4">
         <div className="text-muted-foreground">No data available for visualization</div>
@@ -39,11 +39,11 @@ const SortingVisualizer: React.FC<SortingVisualizerProps> = ({ data }) => {
       <div className="flex-grow flex items-end justify-center gap-1 p-4">
         {array.map((value, index) => {
           const height = (value / maxValue) * 100;
-          const isComparing = comparing?.includes(index);
-          const isSwapping = swapping?.includes(index);
-          const isSorted = sorted?.includes(index);
+          const isComparing = comparing ? (Array.isArray(comparing) && comparing.includes(index)) : false;
+          const isSwapping = swapping ? (Array.isArray(swapping) && swapping.includes(index)) : false;
+          const isSorted = sorted ? (Array.isArray(sorted) && sorted.includes(index)) : false;
           const isCurrent = current === index || (Array.isArray(current) && current.includes(index));
-          const isHighlighted = highlighted?.includes(index);
+          const isHighlighted = highlighted ? (Array.isArray(highlighted) && highlighted.includes(index)) : false;
           
           return (
             <div 

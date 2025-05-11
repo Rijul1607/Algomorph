@@ -17,7 +17,7 @@ const SearchingVisualizer: React.FC<SearchingVisualizerProps> = ({ data }) => {
   const { array, target, current, left, right, found, checked } = data;
   
   // Early return with a message if array is undefined or empty
-  if (!array || array.length === 0) {
+  if (!array || !Array.isArray(array) || array.length === 0) {
     return (
       <div className="w-full h-full flex justify-center items-center p-4">
         <div className="text-muted-foreground">No data available for visualization</div>

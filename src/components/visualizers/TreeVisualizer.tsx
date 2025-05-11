@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface TreeNode {
@@ -44,6 +43,15 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
   // Array representation: [root, left1, right1, left1-left, left1-right, right1-left, ...]
   const treeArray = Array.isArray(tree) ? tree : convertTreeToArray(tree as TreeNode);
   
+  // Ensure we have valid arrays for all collections
+  const visitedArr = Array.isArray(visited) ? visited : [];
+  const comparingArr = Array.isArray(comparing) ? comparing : [];
+  const queueArr = Array.isArray(queue) ? queue : [];
+  const stackArr = Array.isArray(stack) ? stack : [];
+  const stack1Arr = Array.isArray(stack1) ? stack1 : [];
+  const stack2Arr = Array.isArray(stack2) ? stack2 : [];
+  const recursionStackArr = Array.isArray(recursionStack) ? recursionStack : [];
+  
   return (
     <div className="w-full h-full flex flex-col justify-center items-center p-4 overflow-auto">
       {traversalType && (
@@ -72,11 +80,11 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
               
               const value = treeArray[nodeIndex];
               const isCurrent = nodeIndex === current;
-              const isVisited = visited.includes(nodeIndex);
-              const isComparing = comparing.includes(nodeIndex);
-              const isInQueue = queue.includes(nodeIndex);
-              const isInStack = stack.includes(nodeIndex) || stack1.includes(nodeIndex) || stack2.includes(nodeIndex);
-              const isInRecursionStack = recursionStack.includes(nodeIndex);
+              const isVisited = visitedArr.includes(nodeIndex);
+              const isComparing = comparingArr.includes(nodeIndex);
+              const isInQueue = queueArr.includes(nodeIndex);
+              const isInStack = stackArr.includes(nodeIndex) || stack1Arr.includes(nodeIndex) || stack2Arr.includes(nodeIndex);
+              const isInRecursionStack = recursionStackArr.includes(nodeIndex);
               const isFound = isCurrent && found;
               
               return (
@@ -108,13 +116,13 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
         ))}
       </div>
       
-      {(queue.length > 0 || stack.length > 0 || stack1.length > 0 || stack2.length > 0) && (
+      {(queueArr.length > 0 || stackArr.length > 0 || stack1Arr.length > 0 || stack2Arr.length > 0) && (
         <div className="mt-6 flex flex-col items-center gap-2">
-          {queue.length > 0 && (
+          {queueArr.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="font-medium text-sm">Queue:</span>
               <div className="flex">
-                {queue.map((idx, i) => (
+                {queueArr.map((idx, i) => (
                   <div 
                     key={`queue-${i}`}
                     className="w-8 h-8 flex items-center justify-center rounded-md border border-yellow-400 bg-yellow-100 dark:bg-yellow-900/30 mx-1"
@@ -126,11 +134,11 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
             </div>
           )}
           
-          {stack.length > 0 && (
+          {stackArr.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="font-medium text-sm">Stack:</span>
               <div className="flex">
-                {stack.map((idx, i) => (
+                {stackArr.map((idx, i) => (
                   <div 
                     key={`stack-${i}`}
                     className="w-8 h-8 flex items-center justify-center rounded-md border border-pink-400 bg-pink-100 dark:bg-pink-900/30 mx-1"
@@ -142,11 +150,11 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
             </div>
           )}
           
-          {stack1.length > 0 && (
+          {stack1Arr.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="font-medium text-sm">Stack 1:</span>
               <div className="flex">
-                {stack1.map((idx, i) => (
+                {stack1Arr.map((idx, i) => (
                   <div 
                     key={`stack1-${i}`}
                     className="w-8 h-8 flex items-center justify-center rounded-md border border-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 mx-1"
@@ -158,11 +166,11 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({ data }) => {
             </div>
           )}
           
-          {stack2.length > 0 && (
+          {stack2Arr.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="font-medium text-sm">Stack 2:</span>
               <div className="flex">
-                {stack2.map((idx, i) => (
+                {stack2Arr.map((idx, i) => (
                   <div 
                     key={`stack2-${i}`}
                     className="w-8 h-8 flex items-center justify-center rounded-md border border-cyan-400 bg-cyan-100 dark:bg-cyan-900/30 mx-1"

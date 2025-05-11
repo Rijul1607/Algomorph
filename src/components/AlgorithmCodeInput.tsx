@@ -131,12 +131,17 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
         jsonStr = responseText.split('```')[1].split('```')[0].trim();
       }
 
-      let steps;
+      let steps = [];
       try {
-        steps = JSON.parse(jsonStr);
+        const parsedData = JSON.parse(jsonStr);
+        
+        // Check if parsedData is an array
+        if (!Array.isArray(parsedData)) {
+          throw new Error('Expected array of steps from Gemini API');
+        }
         
         // Ensure all steps have the required fields and format
-        steps = steps.map((step: any, index: number) => {
+        steps = parsedData.map((step: any, index: number) => {
           // Make sure we have an ID
           if (!step.id) {
             step.id = `step-${index + 1}`;
@@ -152,12 +157,31 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
             step.visualState = {};
           }
           
-          // If array is missing but we have other visualization data, create an array
-          if (!step.visualState.array && 
-              (step.visualState.comparing || 
-               step.visualState.swapping || 
-               step.visualState.sorted)) {
+          // Ensure array is always an array
+          if (!step.visualState.array) {
             step.visualState.array = [];
+          } else if (!Array.isArray(step.visualState.array)) {
+            step.visualState.array = [];
+          }
+          
+          // Ensure comparing is always an array
+          if (step.visualState.comparing && !Array.isArray(step.visualState.comparing)) {
+            step.visualState.comparing = [step.visualState.comparing];
+          }
+          
+          // Ensure swapping is always an array
+          if (step.visualState.swapping && !Array.isArray(step.visualState.swapping)) {
+            step.visualState.swapping = [step.visualState.swapping];
+          }
+          
+          // Ensure sorted is always an array
+          if (step.visualState.sorted && !Array.isArray(step.visualState.sorted)) {
+            step.visualState.sorted = [step.visualState.sorted];
+          }
+          
+          // Ensure highlighted is always an array
+          if (step.visualState.highlighted && !Array.isArray(step.visualState.highlighted)) {
+            step.visualState.highlighted = [step.visualState.highlighted];
           }
           
           return step;
