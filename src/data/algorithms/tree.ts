@@ -118,7 +118,7 @@ function levelOrderTraversal(root) {
       highlightedLines: [1, 2],
       visualState: { 
         tree: treeArray,
-        current: [0],
+        current: [0], // Fix: Wrap single numbers in arrays
         visited: [],
         traversalType
       }
@@ -599,7 +599,7 @@ function levelOrderTraversalWithLevels(root) {
       highlightedLines: [2, 3],
       visualState: { 
         tree: treeArray,
-        current: [0],
+        current: [0], // Fix: Wrap single numbers in arrays
         visited: [],
         queue: [0]
       }
@@ -623,7 +623,7 @@ function levelOrderTraversalWithLevels(root) {
           highlightedLines: [22, 23],
           visualState: { 
             tree: treeArray,
-            current: null,
+            current: null, // Fix: null is fine as it's already compatible
             visited: visitedSoFar,
             currentLevel: level,
             queue: level.slice(),
@@ -746,7 +746,7 @@ function preOrderTraversalIterative(root) {
       highlightedLines: iterative ? [19, 20] : [2, 3],
       visualState: { 
         tree: treeArray,
-        current: [0],
+        current: [0], // Fix: Wrap single numbers in arrays
         visited: [],
         stack: iterative ? [0] : []
       }
@@ -920,7 +920,7 @@ function postOrderTraversalIterative(root) {
       highlightedLines: iterative ? [19, 20] : [2, 3],
       visualState: { 
         tree: treeArray,
-        current: [0],
+        current: [0], // Fix: Wrap single numbers in arrays
         visited: []
       }
     });
