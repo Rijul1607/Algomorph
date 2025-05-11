@@ -1052,5 +1052,3 @@ function postOrderTraversalIterative(root) {
   },
   defaultInput: { iterative: false }
 };
-
-</edits_to_apply>
