@@ -794,7 +794,7 @@ function preOrderTraversalIterative(root) {
           highlightedLines: [27, 28],
           visualState: { 
             tree: treeArray,
-            current: null,
+            current: [], // Fix: Use empty array instead of null
             visited: visitedSoFar,
             stack: stackState
           }
@@ -1052,3 +1052,5 @@ function postOrderTraversalIterative(root) {
   },
   defaultInput: { iterative: false }
 };
+
+</edits_to_apply>

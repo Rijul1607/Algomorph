@@ -124,29 +124,40 @@
     @apply hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-shadow duration-300;
   }
   
-  /* New network visualization styles */
+  /* Network visualization styles with enhanced star effect */
   .network-background {
     @apply bg-gray-950 overflow-hidden relative min-h-screen;
+    background: linear-gradient(to bottom, #041832, #02070e);
   }
   
   .network-node {
-    @apply absolute rounded-full bg-primary/80 shadow-[0_0_10px_rgba(59,130,246,0.7)];
+    @apply absolute rounded-full bg-blue-400/80 shadow-[0_0_15px_rgba(59,130,246,0.9)];
+    animation: pulsate 3s infinite;
+  }
+  
+  @keyframes pulsate {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
   }
   
   .network-line {
-    @apply absolute bg-primary/30 transform origin-left;
+    @apply absolute bg-blue-400/20 transform origin-left;
     height: 1px;
   }
   
   .algorithmic-heading {
     @apply text-5xl md:text-7xl font-bold tracking-tighter mb-4;
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
   }
   
   .algorithm-card {
-    @apply flex flex-col items-center justify-center p-6 transition-transform duration-300 hover:scale-105;
+    @apply flex flex-col items-center justify-center p-6 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-800/50 transition-transform duration-300 hover:scale-105 hover:bg-gray-900/70;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(59, 130, 246, 0.2);
   }
   
   .algorithm-icon {
     @apply w-24 h-24 text-primary mb-4;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
   }
 }
