@@ -343,7 +343,7 @@ class BinarySearchTree {
       highlightedLines: [55, 56],
       visualState: { 
         tree,
-        current: [0], // Fixed: Change from number to number[]
+        current: [0],
         searching: value
       }
     });
@@ -599,7 +599,7 @@ function levelOrderTraversalWithLevels(root) {
       highlightedLines: [2, 3],
       visualState: { 
         tree: treeArray,
-        current: [0], // Fixed: Change from number to number[]
+        current: [0],
         visited: [],
         queue: [0]
       }
@@ -612,7 +612,7 @@ function levelOrderTraversalWithLevels(root) {
       [3, 4, 5, 6] // Level 2: children of 5 and 15
     ];
     
-    let visitedSoFar: number[] = []; // Fix: Initialize as empty array
+    let visitedSoFar: number[] = [];
     let currentLevel = 0;
     
     for (const level of levels) {
@@ -623,7 +623,7 @@ function levelOrderTraversalWithLevels(root) {
           highlightedLines: [22, 23],
           visualState: { 
             tree: treeArray,
-            current: null, // Fix: null is fine as it's already compatible
+            current: null,
             visited: visitedSoFar,
             currentLevel: level,
             queue: level.slice(),
@@ -746,7 +746,7 @@ function preOrderTraversalIterative(root) {
       highlightedLines: iterative ? [19, 20] : [2, 3],
       visualState: { 
         tree: treeArray,
-        current: [0], // Fixed: Change from number to number[]
+        current: [0],
         visited: [],
         stack: iterative ? [0] : []
       }
@@ -756,7 +756,7 @@ function preOrderTraversalIterative(root) {
       // Iterative pre-order: using a stack
       const visitOrder = [0, 1, 3, 4, 2, 5, 6]; // Node indices in visit order
       let stackState = [0]; // Start with root
-      let visitedSoFar: number[] = []; // Fix: Initialize as empty array
+      let visitedSoFar: number[] = [];
       
       for (const nodeIdx of visitOrder) {
         steps.push({
@@ -794,7 +794,7 @@ function preOrderTraversalIterative(root) {
           highlightedLines: [27, 28],
           visualState: { 
             tree: treeArray,
-            current: [], // Fix: Use empty array instead of null
+            current: [],
             visited: visitedSoFar,
             stack: stackState
           }
@@ -920,7 +920,7 @@ function postOrderTraversalIterative(root) {
       highlightedLines: iterative ? [19, 20] : [2, 3],
       visualState: { 
         tree: treeArray,
-        current: [0], // Fixed: Change from number to number[]
+        current: [0],
         visited: []
       }
     });
@@ -1052,5 +1052,3 @@ function postOrderTraversalIterative(root) {
   },
   defaultInput: { iterative: false }
 };
-
-</edits_to_apply>
