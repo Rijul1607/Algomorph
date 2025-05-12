@@ -118,7 +118,7 @@ function levelOrderTraversal(root) {
       highlightedLines: [1, 2],
       visualState: { 
         tree: treeArray,
-        current: [0], // Fix: Wrap single numbers in arrays
+        current: [0],
         visited: [],
         traversalType
       }
@@ -343,7 +343,7 @@ class BinarySearchTree {
       highlightedLines: [55, 56],
       visualState: { 
         tree,
-        current: [0],
+        current: [0], // Fixed: Change from number to number[]
         searching: value
       }
     });
@@ -599,7 +599,7 @@ function levelOrderTraversalWithLevels(root) {
       highlightedLines: [2, 3],
       visualState: { 
         tree: treeArray,
-        current: [0], // Fix: Wrap single numbers in arrays
+        current: [0], // Fixed: Change from number to number[]
         visited: [],
         queue: [0]
       }
@@ -746,7 +746,7 @@ function preOrderTraversalIterative(root) {
       highlightedLines: iterative ? [19, 20] : [2, 3],
       visualState: { 
         tree: treeArray,
-        current: [0], // Fix: Wrap single numbers in arrays
+        current: [0], // Fixed: Change from number to number[]
         visited: [],
         stack: iterative ? [0] : []
       }
@@ -920,7 +920,7 @@ function postOrderTraversalIterative(root) {
       highlightedLines: iterative ? [19, 20] : [2, 3],
       visualState: { 
         tree: treeArray,
-        current: [0], // Fix: Wrap single numbers in arrays
+        current: [0], // Fixed: Change from number to number[]
         visited: []
       }
     });
