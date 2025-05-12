@@ -103,10 +103,14 @@ export const knapsackProblem: Algorithm = {
   spaceComplexity: 'O(nW)',
   defaultInput: [10, [5, 4, 6, 3], [10, 40, 30, 50], 4],
   generateSteps: (input: number[]) => {
+    // Fix: Extract input values properly
     const capacity = input[0];
-    const weights = input.slice(1, input.length / 2);
-    const values = input.slice(input.length / 2, input.length - 1);
+    // Extract weights and values
+    const weightsLength = Math.floor((input.length - 2) / 2);
+    const weights = input.slice(1, 1 + weightsLength);
+    const values = input.slice(1 + weightsLength, 1 + weightsLength * 2);
     const n = input[input.length - 1];
+    
     const steps: any[] = [];
     const dp = Array(n + 1).fill(null).map(() => Array(capacity + 1).fill(0));
 
@@ -211,6 +215,18 @@ export const longestCommonSubsequence: Algorithm = {
   spaceComplexity: 'O(mn)',
   defaultInput: ['ABCDGH', 'AEDFHR'],
   generateSteps: (input: string[]) => {
+    // Fix: Ensure input is properly validated before processing
+    if (!Array.isArray(input) || input.length < 2 || typeof input[0] !== 'string' || typeof input[1] !== 'string') {
+      // Return a simple step if input is invalid
+      return [{
+        id: 'error',
+        description: 'Invalid input. Please provide two strings.',
+        visualState: {
+          error: true
+        }
+      }];
+    }
+    
     const a = input[0];
     const b = input[1];
     const n = a.length;
@@ -324,6 +340,18 @@ export const editDistance: Algorithm = {
   spaceComplexity: 'O(mn)',
   defaultInput: ['kitten', 'sitting'],
   generateSteps: (input: string[]) => {
+    // Fix: Ensure input is properly validated before processing
+    if (!Array.isArray(input) || input.length < 2 || typeof input[0] !== 'string' || typeof input[1] !== 'string') {
+      // Return a simple step if input is invalid
+      return [{
+        id: 'error',
+        description: 'Invalid input. Please provide two strings.',
+        visualState: {
+          error: true
+        }
+      }];
+    }
+    
     const a = input[0];
     const b = input[1];
     const n = a.length;
