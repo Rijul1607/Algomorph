@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 
 // This is a placeholder function to simulate executing custom code
@@ -44,7 +43,15 @@ export const simulateCustomCodeExecution = (code: string, language: string) => {
         break;
         
       case 'dp':
-        steps.push(...generateDPSteps());
+        if (lowerCode.includes('fibonacci')) {
+          steps.push(...generateDPSteps('fibonacci'));
+        } else if (lowerCode.includes('knapsack')) {
+          steps.push(...generateDPSteps('knapsack'));
+        } else if (lowerCode.includes('lcs') || lowerCode.includes('subsequence')) {
+          steps.push(...generateDPSteps('lcs'));
+        } else {
+          steps.push(...generateDPSteps());
+        }
         output = 'Dynamic programming algorithm executed';
         break;
         
@@ -331,58 +338,186 @@ function generateTreeSteps() {
   ];
 }
 
-function generateDPSteps() {
-  // Sample dynamic programming visualization steps (Fibonacci)
-  return [
-    {
-      id: 'step-1',
-      description: 'Initializing Fibonacci calculation with base cases',
-      visualState: {
-        table: [1, 1],
-        current: 1,
-        array: [1, 1]
-      }
-    },
-    {
-      id: 'step-2',
-      description: 'Computing F(2) = F(1) + F(0)',
-      visualState: {
-        table: [1, 1, 2],
-        current: 2,
-        comparing: [0, 1],
-        array: [1, 1, 2]
-      }
-    },
-    {
-      id: 'step-3',
-      description: 'Computing F(3) = F(2) + F(1)',
-      visualState: {
-        table: [1, 1, 2, 3],
-        current: 3,
-        comparing: [1, 2],
-        array: [1, 1, 2, 3]
-      }
-    },
-    {
-      id: 'step-4',
-      description: 'Computing F(4) = F(3) + F(2)',
-      visualState: {
-        table: [1, 1, 2, 3, 5],
-        current: 4,
-        comparing: [2, 3],
-        array: [1, 1, 2, 3, 5]
-      }
-    },
-    {
-      id: 'step-5',
-      description: 'Final Fibonacci sequence up to F(4)',
-      visualState: {
-        table: [1, 1, 2, 3, 5],
-        current: null,
-        array: [1, 1, 2, 3, 5]
-      }
-    }
-  ];
+// Update the generateDPSteps function to handle different algorithm types
+function generateDPSteps(algorithm = 'fibonacci') {
+  // Sample dynamic programming visualization steps
+  switch (algorithm) {
+    case 'fibonacci':
+      return [
+        {
+          id: 'step-1',
+          description: 'Initializing Fibonacci calculation with base cases',
+          visualState: {
+            table: [1, 1],
+            current: 1,
+            array: [1, 1]
+          }
+        },
+        {
+          id: 'step-2',
+          description: 'Computing F(2) = F(1) + F(0)',
+          visualState: {
+            table: [1, 1, 2],
+            current: 2,
+            comparing: [0, 1],
+            array: [1, 1, 2]
+          }
+        },
+        {
+          id: 'step-3',
+          description: 'Computing F(3) = F(2) + F(1)',
+          visualState: {
+            table: [1, 1, 2, 3],
+            current: 3,
+            comparing: [1, 2],
+            array: [1, 1, 2, 3]
+          }
+        },
+        {
+          id: 'step-4',
+          description: 'Computing F(4) = F(3) + F(2)',
+          visualState: {
+            table: [1, 1, 2, 3, 5],
+            current: 4,
+            comparing: [2, 3],
+            array: [1, 1, 2, 3, 5]
+          }
+        },
+        {
+          id: 'step-5',
+          description: 'Final Fibonacci sequence up to F(4)',
+          visualState: {
+            table: [1, 1, 2, 3, 5],
+            current: null,
+            array: [1, 1, 2, 3, 5]
+          }
+        }
+      ];
+    
+    case 'knapsack':
+      return [
+        {
+          id: 'step-1',
+          description: 'Initializing Knapsack DP table',
+          visualState: {
+            table: [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+            capacity: 4,
+            weights: [1, 2, 3],
+            values: [10, 15, 40]
+          }
+        },
+        {
+          id: 'step-2',
+          description: 'Processing item 1 (value=10, weight=1)',
+          visualState: {
+            table: [[0, 0, 0, 0, 0], [0, 10, 10, 10, 10], [0, 0, 0, 0, 0]],
+            currentItem: 1,
+            capacity: 4,
+            weights: [1, 2, 3],
+            values: [10, 15, 40]
+          }
+        },
+        {
+          id: 'step-3',
+          description: 'Processing item 2 (value=15, weight=2)',
+          visualState: {
+            table: [[0, 0, 0, 0, 0], [0, 10, 10, 10, 10], [0, 10, 15, 25, 25]],
+            currentItem: 2,
+            capacity: 4,
+            weights: [1, 2, 3],
+            values: [10, 15, 40]
+          }
+        },
+        {
+          id: 'step-4',
+          description: 'Final Knapsack table with optimal value 25',
+          visualState: {
+            table: [[0, 0, 0, 0, 0], [0, 10, 10, 10, 10], [0, 10, 15, 25, 25]],
+            capacity: 4,
+            weights: [1, 2, 3],
+            values: [10, 15, 40],
+            maxValue: 25
+          }
+        }
+      ];
+      
+    case 'lcs':
+      return [
+        {
+          id: 'step-1',
+          description: 'Initializing LCS calculation',
+          visualState: {
+            table: [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+            stringA: "ABC",
+            stringB: "AC"
+          }
+        },
+        {
+          id: 'step-2',
+          description: 'Comparing A[0]=A with B[0]=A',
+          visualState: {
+            table: [[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]],
+            stringA: "ABC",
+            stringB: "AC",
+            currentA: 0,
+            currentB: 0,
+            comparing: ["A", "A"]
+          }
+        },
+        {
+          id: 'step-3',
+          description: 'Comparing A[1]=B with B[0]=A (no match)',
+          visualState: {
+            table: [[0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
+            stringA: "ABC",
+            stringB: "AC",
+            currentA: 1,
+            currentB: 0,
+            comparing: ["B", "A"]
+          }
+        },
+        {
+          id: 'step-4',
+          description: 'Final LCS table with result 2',
+          visualState: {
+            table: [[0, 0, 0, 0], [0, 1, 0, 1], [0, 1, 0, 1], [0, 1, 0, 2]],
+            stringA: "ABC",
+            stringB: "AC",
+            lcsLength: 2,
+            lcs: "AC"
+          }
+        }
+      ];
+
+    default:
+      return [
+        {
+          id: 'step-1',
+          description: 'Initializing dynamic programming calculation',
+          visualState: {
+            table: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            current: [0, 0]
+          }
+        },
+        {
+          id: 'step-2',
+          description: 'Filling in the DP table',
+          visualState: {
+            table: [[0, 1, 1], [1, 1, 2], [1, 2, 3]],
+            current: [1, 1]
+          }
+        },
+        {
+          id: 'step-3',
+          description: 'Dynamic programming calculation complete',
+          visualState: {
+            table: [[0, 1, 1], [1, 1, 2], [1, 2, 3]],
+            current: null,
+            result: 3
+          }
+        }
+      ];
+  }
 }
 
 // Additional algorithm visualizations for different languages

@@ -1,4 +1,3 @@
-
 import { Algorithm } from '@/types/algorithm';
 
 // Define individual algorithms
@@ -102,81 +101,125 @@ export const knapsackProblem: Algorithm = {
   timeComplexity: 'O(nW)',
   spaceComplexity: 'O(nW)',
   defaultInput: [10, [5, 4, 6, 3], [10, 40, 30, 50], 4],
-  generateSteps: (input: number[]) => {
-    // Fix: Extract input values properly
-    const capacity = input[0];
-    // Extract weights and values
-    const weightsLength = Math.floor((input.length - 2) / 2);
-    const weights = input.slice(1, 1 + weightsLength);
-    const values = input.slice(1 + weightsLength, 1 + weightsLength * 2);
-    const n = input[input.length - 1];
-    
-    const steps: any[] = [];
-    const dp = Array(n + 1).fill(null).map(() => Array(capacity + 1).fill(0));
-
-    steps.push({
-      id: 'step-0',
-      description: 'Initialize the DP table with all values set to 0',
-      visualState: {
-        table: dp.map(row => [...row]),
-        capacity: capacity,
-        weights: [...weights],
-        values: [...values],
-        n: n
-      }
-    });
-
-    for (let i = 1; i <= n; i++) {
-      for (let w = 0; w <= capacity; w++) {
-        if (weights[i - 1] <= w) {
-          dp[i][w] = Math.max(values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
-          steps.push({
-            id: `step-${i}-${w}`,
-            description: `Item ${i}: Weight = ${weights[i - 1]}, Value = ${values[i - 1]}. Capacity = ${w}.
-                          Choose max of (include item: ${values[i - 1]} + dp[${i - 1}][${w - weights[i - 1]}] = ${values[i - 1] + dp[i - 1][w - weights[i - 1]]},
-                          exclude item: dp[${i - 1}][${w}] = ${dp[i - 1][w]})`,
-            visualState: {
-              table: dp.map(row => [...row]),
-              currentItem: i,
-              currentWeight: w,
-              weights: [...weights],
-              values: [...values],
-              capacity: capacity,
-              comparing: [values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]]
-            }
-          });
+  generateSteps: (input: any) => {
+    try {
+      // Handle different input formats safely
+      let capacity: number;
+      let weights: number[];
+      let values: number[];
+      let n: number;
+      
+      if (Array.isArray(input)) {
+        // Format: [capacity, [weights], [values], n]
+        capacity = input[0] || 10;
+        
+        // Check if weights and values are provided as nested arrays
+        if (Array.isArray(input[1]) && Array.isArray(input[2])) {
+          weights = input[1];
+          values = input[2];
+          n = input[3] || weights.length;
         } else {
-          dp[i][w] = dp[i - 1][w];
-          steps.push({
-            id: `step-${i}-${w}`,
-            description: `Item ${i}: Weight = ${weights[i - 1]}, Value = ${values[i - 1]}. Capacity = ${w}.
-                          Item cannot be included because weight exceeds capacity. Value remains dp[${i - 1}][${w}] = ${dp[i - 1][w]}`,
-            visualState: {
-              table: dp.map(row => [...row]),
-              currentItem: i,
-              currentWeight: w,
-              weights: [...weights],
-              values: [...values],
-              capacity: capacity
-            }
-          });
+          // The old format where weights and values are flattened
+          const weightsLength = Math.floor((input.length - 2) / 2);
+          weights = input.slice(1, 1 + weightsLength);
+          values = input.slice(1 + weightsLength, 1 + weightsLength * 2);
+          n = input[input.length - 1] || weights.length;
+        }
+      } else if (typeof input === 'object') {
+        // Format: { capacity, weights, values }
+        capacity = input.capacity || 10;
+        weights = input.weights || [5, 4, 6, 3];
+        values = input.values || [10, 40, 30, 50];
+        n = input.n || weights.length;
+      } else {
+        // Default values if input is invalid
+        capacity = 10;
+        weights = [5, 4, 6, 3];
+        values = [10, 40, 30, 50];
+        n = 4;
+      }
+      
+      // Ensure weights and values are of same length
+      n = Math.min(n, weights.length, values.length);
+      weights = weights.slice(0, n);
+      values = values.slice(0, n);
+      
+      const steps: any[] = [];
+      const dp = Array(n + 1).fill(null).map(() => Array(capacity + 1).fill(0));
+
+      steps.push({
+        id: 'step-0',
+        description: 'Initialize the DP table with all values set to 0',
+        visualState: {
+          table: dp.map(row => [...row]),
+          capacity: capacity,
+          weights: [...weights],
+          values: [...values],
+          n: n
+        }
+      });
+
+      for (let i = 1; i <= n; i++) {
+        for (let w = 0; w <= capacity; w++) {
+          if (weights[i - 1] <= w) {
+            dp[i][w] = Math.max(values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
+            steps.push({
+              id: `step-${i}-${w}`,
+              description: `Item ${i}: Weight = ${weights[i - 1]}, Value = ${values[i - 1]}. Capacity = ${w}.
+                            Choose max of (include item: ${values[i - 1]} + dp[${i - 1}][${w - weights[i - 1]}] = ${values[i - 1] + dp[i - 1][w - weights[i - 1]]},
+                            exclude item: dp[${i - 1}][${w}] = ${dp[i - 1][w]})`,
+              visualState: {
+                table: dp.map(row => [...row]),
+                currentItem: i,
+                currentWeight: w,
+                weights: [...weights],
+                values: [...values],
+                capacity: capacity,
+                comparing: [values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]]
+              }
+            });
+          } else {
+            dp[i][w] = dp[i - 1][w];
+            steps.push({
+              id: `step-${i}-${w}`,
+              description: `Item ${i}: Weight = ${weights[i - 1]}, Value = ${values[i - 1]}. Capacity = ${w}.
+                            Item cannot be included because weight exceeds capacity. Value remains dp[${i - 1}][${w}] = ${dp[i - 1][w]}`,
+              visualState: {
+                table: dp.map(row => [...row]),
+                currentItem: i,
+                currentWeight: w,
+                weights: [...weights],
+                values: [...values],
+                capacity: capacity
+              }
+            });
+          }
         }
       }
+
+      steps.push({
+        id: 'step-final',
+        description: `The maximum value that can be carried in the knapsack is ${dp[n][capacity]}`,
+        visualState: {
+          table: dp.map(row => [...row]),
+          capacity: capacity,
+          weights: [...weights],
+          values: [...values],
+          n: n
+        }
+      });
+
+      return steps;
+    } catch (error) {
+      console.error("Error in knapsack algorithm:", error);
+      return [{
+        id: 'error',
+        description: 'Error processing input data. Please check your input format.',
+        visualState: {
+          error: true
+        }
+      }];
     }
-
-    steps.push({
-      id: 'step-final',
-      description: `The maximum value that can be carried in the knapsack is ${dp[n][capacity]}`,
-      visualState: {
-        table: dp.map(row => [...row]),
-        capacity: capacity,
-        weights: [...weights],
-        values: [...values],
-        n: n
-      }
-    });
-
-    return steps;
   }
 };
 
@@ -428,7 +471,7 @@ export const editDistance: Algorithm = {
   }
 };
 
-// Export all algorithms as a collection
+// Ensure the export at the end includes all algorithms
 export const dynamicProgrammingAlgorithms: Algorithm[] = [
   fibonacciDP,
   knapsackProblem,
