@@ -1,3 +1,4 @@
+
 import { Algorithm } from '@/types/algorithm';
 
 // Define individual algorithms
@@ -27,7 +28,11 @@ export const fibonacciDP: Algorithm = {
   spaceComplexity: 'O(n)',
   defaultInput: [10],
   generateSteps: (input: number[]) => {
-    const n = input[0];
+    // Ensure valid input with fallbacks
+    const n = Array.isArray(input) && input.length > 0 && typeof input[0] === 'number' 
+      ? Math.max(0, Math.min(30, Math.floor(input[0]))) // Limit n to reasonable values
+      : 10; // Default value
+    
     const steps: any[] = [];
     const fib = [0, 1];
 
@@ -103,48 +108,58 @@ export const knapsackProblem: Algorithm = {
   defaultInput: [10, [5, 4, 6, 3], [10, 40, 30, 50], 4],
   generateSteps: (input: any) => {
     try {
-      // Handle different input formats safely
-      let capacity: number;
-      let weights: number[];
-      let values: number[];
-      let n: number;
+      // Safe defaults
+      let capacity = 10;
+      let weights = [5, 4, 6, 3];
+      let values = [10, 40, 30, 50];
+      let n = 4;
       
+      // Handle different input formats safely
       if (Array.isArray(input)) {
         // Format: [capacity, [weights], [values], n]
-        capacity = input[0] || 10;
+        if (typeof input[0] === 'number' && input[0] > 0) {
+          capacity = Math.min(50, Math.floor(input[0])); // Reasonable limit on capacity
+        }
         
         // Check if weights and values are provided as nested arrays
         if (Array.isArray(input[1]) && Array.isArray(input[2])) {
-          weights = input[1];
-          values = input[2];
-          n = input[3] || weights.length;
+          // Ensure both arrays have elements and are not too large
+          if (input[1].length > 0 && input[1].length <= 20 && 
+              input[2].length > 0 && input[2].length <= 20) {
+            weights = input[1].map(w => typeof w === 'number' ? Math.max(1, Math.floor(w)) : 1);
+            values = input[2].map(v => typeof v === 'number' ? Math.max(0, Math.floor(v)) : 10);
+            // Use the smaller length to avoid index issues
+            n = Math.min(weights.length, values.length);
+          }
         } else {
-          // The old format where weights and values are flattened
+          // Handle flat array format safely (legacy support)
           const weightsLength = Math.floor((input.length - 2) / 2);
-          weights = input.slice(1, 1 + weightsLength);
-          values = input.slice(1 + weightsLength, 1 + weightsLength * 2);
-          n = input[input.length - 1] || weights.length;
+          if (weightsLength > 0 && weightsLength <= 10) {
+            const potentialWeights = input.slice(1, 1 + weightsLength);
+            const potentialValues = input.slice(1 + weightsLength, 1 + weightsLength * 2);
+            
+            if (potentialWeights.every(w => typeof w === 'number') && 
+                potentialValues.every(v => typeof v === 'number')) {
+              weights = potentialWeights;
+              values = potentialValues;
+              n = weights.length;
+            }
+          }
         }
-      } else if (typeof input === 'object') {
-        // Format: { capacity, weights, values }
-        capacity = input.capacity || 10;
-        weights = input.weights || [5, 4, 6, 3];
-        values = input.values || [10, 40, 30, 50];
-        n = input.n || weights.length;
-      } else {
-        // Default values if input is invalid
-        capacity = 10;
-        weights = [5, 4, 6, 3];
-        values = [10, 40, 30, 50];
-        n = 4;
+        
+        // Get n from input or default to weights.length
+        if (input.length > 3 && typeof input[3] === 'number') {
+          n = Math.min(Math.floor(input[3]), weights.length, values.length);
+        }
       }
       
-      // Ensure weights and values are of same length
-      n = Math.min(n, weights.length, values.length);
+      // Ensure arrays are properly sized and n is valid
+      n = Math.max(1, Math.min(n, weights.length, values.length, 20));
       weights = weights.slice(0, n);
       values = values.slice(0, n);
       
       const steps: any[] = [];
+      // Create dp table with safe dimensions
       const dp = Array(n + 1).fill(null).map(() => Array(capacity + 1).fill(0));
 
       steps.push({
@@ -214,9 +229,10 @@ export const knapsackProblem: Algorithm = {
       console.error("Error in knapsack algorithm:", error);
       return [{
         id: 'error',
-        description: 'Error processing input data. Please check your input format.',
+        description: 'Error processing input data. Using default knapsack example.',
         visualState: {
-          error: true
+          error: true,
+          message: String(error)
         }
       }];
     }
@@ -257,24 +273,26 @@ export const longestCommonSubsequence: Algorithm = {
   timeComplexity: 'O(mn)',
   spaceComplexity: 'O(mn)',
   defaultInput: ['ABCDGH', 'AEDFHR'],
-  generateSteps: (input: string[]) => {
-    // Fix: Ensure input is properly validated before processing
-    if (!Array.isArray(input) || input.length < 2 || typeof input[0] !== 'string' || typeof input[1] !== 'string') {
-      // Return a simple step if input is invalid
-      return [{
-        id: 'error',
-        description: 'Invalid input. Please provide two strings.',
-        visualState: {
-          error: true
-        }
-      }];
+  generateSteps: (input: any) => {
+    // Default values
+    let a = 'ABCDGH';
+    let b = 'AEDFHR';
+    
+    // Validate and extract input safely
+    if (Array.isArray(input) && input.length >= 2) {
+      if (typeof input[0] === 'string') {
+        a = input[0].substring(0, 50); // Limit string length
+      }
+      if (typeof input[1] === 'string') {
+        b = input[1].substring(0, 50); // Limit string length
+      }
     }
     
-    const a = input[0];
-    const b = input[1];
     const n = a.length;
     const m = b.length;
     const steps: any[] = [];
+    
+    // Create dp table with safe dimensions
     const dp = Array(n + 1).fill(null).map(() => Array(m + 1).fill(0));
 
     steps.push({
@@ -382,24 +400,26 @@ export const editDistance: Algorithm = {
   timeComplexity: 'O(mn)',
   spaceComplexity: 'O(mn)',
   defaultInput: ['kitten', 'sitting'],
-  generateSteps: (input: string[]) => {
-    // Fix: Ensure input is properly validated before processing
-    if (!Array.isArray(input) || input.length < 2 || typeof input[0] !== 'string' || typeof input[1] !== 'string') {
-      // Return a simple step if input is invalid
-      return [{
-        id: 'error',
-        description: 'Invalid input. Please provide two strings.',
-        visualState: {
-          error: true
-        }
-      }];
+  generateSteps: (input: any) => {
+    // Default values
+    let a = 'kitten';
+    let b = 'sitting';
+    
+    // Validate and extract input safely
+    if (Array.isArray(input) && input.length >= 2) {
+      if (typeof input[0] === 'string') {
+        a = input[0].substring(0, 50); // Limit string length
+      }
+      if (typeof input[1] === 'string') {
+        b = input[1].substring(0, 50); // Limit string length
+      }
     }
     
-    const a = input[0];
-    const b = input[1];
     const n = a.length;
     const m = b.length;
     const steps: any[] = [];
+    
+    // Create dp table with safe dimensions
     const dp = Array(n + 1).fill(null).map(() => Array(m + 1).fill(0));
 
     // Initialize base cases

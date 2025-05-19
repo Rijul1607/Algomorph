@@ -69,6 +69,10 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
   const handleGeminiVisualization = async () => {
     try {
       console.log("Starting Gemini visualization with API key:", geminiKey?.substring(0, 5) + '...');
+      
+      // Generate test input based on code analysis and language
+      const testInputPrompt = generateTestInput(code, language);
+      
       // Call Gemini API
       const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
         method: 'POST',
@@ -86,7 +90,11 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
               
               ${description ? `Additional context about the algorithm: ${description}` : ''}
               
-              Please generate a JSON array of visualization steps in the following format:
+              First, please analyze the code and create appropriate test inputs to run this algorithm. Then, execute the algorithm with these inputs and track its execution step by step.
+              
+              ${testInputPrompt}
+              
+              Generate a detailed JSON array of visualization steps in the following format:
               [
                 {
                   "id": "step-1",
@@ -107,6 +115,11 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
               Include detailed descriptions and complete visualState objects for each step.
               If the algorithm sorts an array, make sure to properly track the 'comparing', 'swapping', and 'sorted' indices.
               If it's a search algorithm, track the 'current' and 'found' indices.
+              For tree algorithms, use appropriate tree representation.
+              For dynamic programming, show the DP table state at each step.
+              
+              Additionally, provide the final output of the algorithm based on the test inputs.
+              
               ONLY RETURN VALID JSON with no additional text, comments or markdown formatting. The response must be parseable JSON.`
             }]
           }],
@@ -169,10 +182,15 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
           }
           
           // Ensure array is always an array
-          if (!step.visualState.array) {
+          if (!step.visualState.array && detectArrayType(code)) {
             step.visualState.array = [];
-          } else if (!Array.isArray(step.visualState.array)) {
+          } else if (step.visualState.array && !Array.isArray(step.visualState.array)) {
             step.visualState.array = Array.isArray(step.visualState.array) ? step.visualState.array : [];
+          }
+          
+          // Ensure variables is always an object
+          if (!step.visualState.variables) {
+            step.visualState.variables = {};
           }
           
           // Ensure comparing is always an array
@@ -220,6 +238,62 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       const { steps: fallbackSteps, output } = simulateCustomCodeExecution(code, language);
       onCodeSubmit(code, language, fallbackSteps);
     }
+  };
+
+  const detectArrayType = (code: string): boolean => {
+    // Check if the code likely uses arrays
+    const arrayPatterns = [
+      /\[\s*\d+\s*,\s*\d+/, // Array literals like [1, 2]
+      /new Array/, // Array constructor
+      /\.push\(/, // Array push method
+      /\.pop\(/, // Array pop method
+      /\.sort\(/, // Array sort method
+      /\.length/, // Array length property
+      /\[\s*\d+\s*\]/, // Array indexing
+      /for\s*\(\s*\w+\s*=\s*\d+\s*;\s*\w+\s*<\s*\w+/, // For loops
+    ];
+    
+    return arrayPatterns.some(pattern => pattern.test(code));
+  };
+
+  const generateTestInput = (code: string, language: string): string => {
+    // Generate language-specific test input suggestions based on code analysis
+    let prompt = "Based on the algorithm, here are some testing ideas:\n\n";
+    
+    // Check for algorithm patterns
+    if (code.includes('sort') || /swap.*temp/.test(code)) {
+      prompt += "For sorting algorithms, use an array like [5, 2, 9, 3, 6, 1, 8]. Track the comparisons and swaps made during each iteration.\n";
+    } 
+    else if (code.includes('search') || code.includes('find')) {
+      prompt += "For searching algorithms, use a sorted array like [1, 2, 3, 5, 8, 13, 21] and search for both existing values (e.g., 8) and non-existing values (e.g., 7).\n";
+    }
+    else if (/fib/.test(code)) {
+      prompt += "For Fibonacci calculation, compute the first 10 Fibonacci numbers and track how each number is built from the previous ones.\n";
+    }
+    else if (code.includes('knapsack') || (code.includes('weight') && code.includes('value'))) {
+      prompt += "For the Knapsack problem, use items with weights [2, 3, 4, 5] and values [3, 4, 5, 6] with a capacity of 8.\n";
+    }
+    else if (/tree|node|left|right/.test(code)) {
+      prompt += "For tree algorithms, use a binary tree with values [10, 5, 15, 3, 7, 12, 18] and track node traversals.\n";
+    }
+    else if (/graph|edge|vertex|adjacent/.test(code)) {
+      prompt += "For graph algorithms, use a graph with edges between vertices [(0,1), (0,2), (1,2), (1,3), (2,3)] and track visited vertices.\n";
+    }
+    
+    // Language-specific syntax
+    if (language === 'js') {
+      prompt += "\nFor JavaScript execution, ensure you track all variable states, array changes, and function calls.\n";
+    } else if (language === 'py') {
+      prompt += "\nFor Python execution, track variable states and use Python-specific features like list comprehensions if present.\n";
+    } else if (language === 'cpp') {
+      prompt += "\nFor C++ execution, track pointer values, memory allocation, and array indices carefully.\n";
+    } else if (language === 'java') {
+      prompt += "\nFor Java execution, track object states and method calls clearly.\n";
+    }
+    
+    prompt += "\nAfter executing the algorithm with appropriate inputs, provide each step of execution with the corresponding state of variables and data structures.";
+    
+    return prompt;
   };
 
   const codeBlock: CodeBlock = {
@@ -336,10 +410,11 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
           <li>Keep the algorithm simple for better visualization results</li>
           {isUsingGemini ? (
             <>
-              <li className="text-primary">Gemini AI will analyze your code and generate detailed step-by-step visualizations</li>
+              <li className="text-primary">Gemini AI will analyze your code, generate appropriate test inputs, and simulate execution</li>
               <li className="text-primary">Include sample data in your code for the best results</li>
               <li className="text-primary">For sorting algorithms, use array operations like swapping elements</li>
               <li className="text-primary">For searching, clearly mark the target value</li>
+              <li className="text-primary">For dynamic programming, show how you build up the solution table</li>
             </>
           ) : (
             <>
