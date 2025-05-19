@@ -41,7 +41,20 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
         return;
       }
       
-      const generatedSteps = algorithm.generateSteps(input);
+      // Ensure input is properly initialized for different algorithm types
+      let processedInput = input;
+      
+      // Handle case for tree algorithms to ensure 'nodes' is an array
+      if (algorithm.type === 'tree') {
+        if (!processedInput.nodes || !Array.isArray(processedInput.nodes)) {
+          processedInput = { 
+            ...processedInput, 
+            nodes: Array.isArray(processedInput) ? processedInput : [1, 2, 3, 4, 5, 6, 7] 
+          };
+        }
+      }
+      
+      const generatedSteps = algorithm.generateSteps(processedInput);
       if (Array.isArray(generatedSteps)) {
         setSteps(generatedSteps);
       } else {
