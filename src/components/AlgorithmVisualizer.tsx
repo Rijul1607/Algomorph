@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Algorithm, AlgorithmStep } from '@/types/algorithm';
 import { Play, Pause, SkipBack, SkipForward, RefreshCw, Settings } from 'lucide-react';
@@ -29,16 +28,32 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [steps, setSteps] = useState<AlgorithmStep[]>([]);
-  const [input, setInput] = useState(algorithm.defaultInput);
+  const [input, setInput] = useState(algorithm.defaultInput || {});
   const [showInputDialog, setShowInputDialog] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Generate algorithm steps when algorithm or input changes
   useEffect(() => {
-    const generatedSteps = algorithm.generateSteps(input);
-    setSteps(generatedSteps);
-    setCurrentStepIndex(0);
-    setIsPlaying(false);
+    try {
+      if (!algorithm.generateSteps) {
+        console.error("Algorithm does not have a generateSteps function:", algorithm);
+        setSteps([]);
+        return;
+      }
+      
+      const generatedSteps = algorithm.generateSteps(input);
+      if (Array.isArray(generatedSteps)) {
+        setSteps(generatedSteps);
+      } else {
+        console.error("Generated steps is not an array:", generatedSteps);
+        setSteps([]);
+      }
+      setCurrentStepIndex(0);
+      setIsPlaying(false);
+    } catch (error) {
+      console.error("Error generating steps:", error);
+      setSteps([]);
+    }
     
     // Clean up any running interval
     if (intervalRef.current) {
@@ -119,9 +134,9 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
         const randomType = traversalTypes[Math.floor(Math.random() * traversalTypes.length)];
         setInput({ traversalType: randomType });
       } else if (algorithm.id === 'level-order-traversal') {
-        setInput({ withLevels: Math.random() > 0.5 });
+        setInput({ nodes: [1, 2, 3, 4, 5, 6, 7], withLevels: Math.random() > 0.5 });
       } else if (algorithm.id === 'pre-order-traversal' || algorithm.id === 'post-order-traversal') {
-        setInput({ iterative: Math.random() > 0.5 });
+        setInput({ nodes: [1, 2, 3, 4, 5, 6, 7], iterative: Math.random() > 0.5 });
       }
     } else if (algorithm.type === 'dynamic-programming') {
       if (algorithm.id === 'fibonacci-dp') {
@@ -151,7 +166,7 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
       case 'searching':
         return <SearchingVisualizer data={currentStep?.visualState || { array: input.array || [], target: input.target || 0 }} />;
       case 'tree':
-        return <TreeVisualizer data={currentStep?.visualState || { tree: input.tree || [] }} />;
+        return <TreeVisualizer data={currentStep?.visualState || { tree: input.nodes || [] }} />;
       case 'dynamic-programming':
         return <DPVisualizer data={currentStep?.visualState || input} />;
       default:

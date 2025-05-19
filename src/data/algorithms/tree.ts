@@ -1,3 +1,4 @@
+
 import { Algorithm } from '@/types/algorithm';
 
 // Helper function to create a binary tree
@@ -753,8 +754,11 @@ function postOrderIterative(root) {
     iterative: false
   },
   generateSteps: (input: any) => {
-    const { nodes, iterative } = input;
-    const tree = createBinaryTree([...nodes]);
+    // Input validation - ensure nodes is an array
+    const nodes = Array.isArray(input?.nodes) ? [...input.nodes] : [];
+    const iterative = input?.iterative ?? false;
+    
+    const tree = createBinaryTree(nodes);
     const steps: any[] = [];
     const visited: number[] = [];
     const stack1: any[] = [];
