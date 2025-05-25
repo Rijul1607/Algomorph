@@ -107,6 +107,8 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
               If it's a search algorithm, track the 'current' and 'found' indices.
               For tree algorithms, use appropriate tree representation.
               For dynamic programming, show the DP table state at each step.
+
+              Also tell if there is any error in the code
               
               Additionally, provide the final output of the algorithm based on the test inputs.
               

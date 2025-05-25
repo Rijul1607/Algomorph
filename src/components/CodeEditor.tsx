@@ -59,8 +59,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onLanguageChange, onChang
               <SelectItem value="java">Java</SelectItem>
               <SelectItem value="tsx">TypeScript</SelectItem>
               <SelectItem value="jsx">React</SelectItem>
-              <SelectItem value="html">HTML</SelectItem>
-              <SelectItem value="css">CSS</SelectItem>
+              
             </SelectContent>
           </Select>
           <button 
