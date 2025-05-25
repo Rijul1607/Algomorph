@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from 'react-router-dom';
 import AlgorithmVisualizer from '@/components/AlgorithmVisualizer';
 import AlgorithmSelector from '@/components/AlgorithmSelector';
 import AlgorithmCodeInput from '@/components/AlgorithmCodeInput';
@@ -38,7 +39,12 @@ const Index = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Algorithm Visualizer</h1>
+          <h1 className="text-2xl font-bold">
+  <Link to="/" className="hover:text-primary transition-colors">
+  
+    AlgoMorph
+  </Link>
+</h1>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Speed:</span>

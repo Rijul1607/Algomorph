@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -24,8 +23,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
   const [code, setCode] = useState<string>(`// Write your algorithm here\nfunction myAlgorithm(input) {\n  // Your code\n  return result;\n}`);
   const [language, setLanguage] = useState<string>('js');
   const [loading, setLoading] = useState(false);
-  const [geminiKey, setGeminiKey] = useState('AIzaSyDKJ4NgAxT67OH03RRCvP8Nq9EQsMVfrk0');
-  const [isUsingGemini, setIsUsingGemini] = useState(false);
+  const [geminiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY);
   const [description, setDescription] = useState('');
 
   const handleLanguageChange = (value: string) => {
@@ -49,15 +47,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
     
     setLoading(true);
     try {
-      if (isUsingGemini && geminiKey) {
-        // Use Gemini AI to generate steps
-        await handleGeminiVisualization();
-      } else {
-        // Use built-in simulation
-        const { steps, output } = simulateCustomCodeExecution(code, language);
-        onCodeSubmit(code, language, steps);
-        toast.success('Code visualization generated');
-      }
+      await handleGeminiVisualization();
     } catch (error) {
       console.error('Error executing code:', error);
       toast.error('Error visualizing the code. Please check your syntax.');
@@ -74,7 +64,7 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
       const testInputPrompt = generateTestInput(code, language);
       
       // Call Gemini API
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -309,9 +299,12 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-medium">Custom Algorithm</h2>
+          <h2 className="text-2xl font-medium flex items-center gap-2">
+            <Sparkles className="h-6 w-6 text-amber-500" />
+            Custom Algorithm
+          </h2>
           <p className="text-muted-foreground mt-1">
-            Input your own algorithm code to visualize
+            Input your own algorithm code for AI-powered visualization
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -333,10 +326,13 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
+                Generating...
               </>
             ) : (
-              'Visualize Algorithm'
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Visualize with AI
+              </>
             )}
           </Button>
         </div>
@@ -348,81 +344,40 @@ const AlgorithmCodeInput: React.FC<AlgorithmCodeInputProps> = ({ onCodeSubmit })
         onChange={(newCode) => setCode(newCode)}
       />
 
-      <div className="p-4 border rounded-md bg-card">
+      <div className="p-4 border rounded-md bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200 dark:border-amber-800">
         <div className="flex items-center gap-2 mb-4">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="use-gemini"
-              checked={isUsingGemini}
-              onChange={() => setIsUsingGemini(!isUsingGemini)}
-              className="mr-2"
-            />
-            <label htmlFor="use-gemini" className="flex items-center">
-              <Sparkles className="h-4 w-4 mr-2 text-warning" />
-              <span className="font-medium">Use Gemini AI for enhanced visualization</span>
-            </label>
-          </div>
-          <div className="flex-grow text-xs text-muted-foreground">
-            (Recommended for detailed step-by-step breakdowns)
-          </div>
+          <Sparkles className="h-5 w-5 text-amber-600" />
+          <span className="font-medium text-amber-800 dark:text-amber-200">Gemini AI Enhanced Visualization</span>
         </div>
 
-        {isUsingGemini && (
-          <div className="space-y-4 mt-4 p-4 bg-muted/30 rounded-md">
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Gemini API Key:
-              </label>
-              <Input 
-                type="password"
-                value={geminiKey} 
-                onChange={(e) => setGeminiKey(e.target.value)}
-                placeholder="Enter your Gemini API key"
-                className="w-full font-mono"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Get your API key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google AI Studio</a>
-              </p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Algorithm Description (optional):
-              </label>
-              <Textarea 
-                value={description} 
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Briefly describe what your algorithm does to help Gemini generate better visualizations"
-                className="w-full"
-                rows={3}
-              />
-            </div>
-          </div>
-        )}
+        <div>
+          <label className="block text-sm font-medium mb-2 text-amber-800 dark:text-amber-200">
+            Algorithm Description (optional)
+          </label>
+          <Textarea 
+            value={description} 
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Briefly describe what your algorithm does to help Gemini generate better visualizations"
+            className="w-full"
+            rows={3}
+          />
+          <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+            Adding a description helps Gemini understand your algorithm's purpose and generate more accurate visualizations
+          </p>
+        </div>
       </div>
       
       <div className="text-sm text-muted-foreground">
-        <p className="font-medium">Tips for better visualizations:</p>
+        <p className="font-medium">AI-Enhanced Visualization Features:</p>
         <ul className="list-disc pl-5 mt-1 space-y-1">
-          <li>Use clear variable names for better visualization</li>
-          <li>Add comments to explain your algorithm</li>
-          <li>Make sure your code is syntactically correct</li>
-          <li>Keep the algorithm simple for better visualization results</li>
-          {isUsingGemini ? (
-            <>
-              <li className="text-primary">Gemini AI will analyze your code, generate appropriate test inputs, and simulate execution</li>
-              <li className="text-primary">Include sample data in your code for the best results</li>
-              <li className="text-primary">For sorting algorithms, use array operations like swapping elements</li>
-              <li className="text-primary">For searching, clearly mark the target value</li>
-              <li className="text-primary">For dynamic programming, show how you build up the solution table</li>
-            </>
-          ) : (
-            <>
-              <li>For tree algorithms, use 'node', 'left', and 'right' in your code</li>
-              <li>For sorting, use 'sort' or 'swap' keywords</li>
-              <li>For searching, use 'search' or 'find' keywords</li>
-            </>
-          )}
+          <li className="text-amber-700 dark:text-amber-300">Gemini AI analyzes your code and generates intelligent test inputs</li>
+          <li className="text-amber-700 dark:text-amber-300">Detailed step-by-step execution with complete variable tracking</li>
+          <li className="text-amber-700 dark:text-amber-300">Advanced algorithm pattern recognition for optimal visualization</li>
+          <li className="text-amber-700 dark:text-amber-300">Dynamic programming table visualization for DP algorithms</li>
+          <li className="text-amber-700 dark:text-amber-300">Tree traversal visualization for tree-based algorithms</li>
+          <li>Use clear variable names and add comments for best results</li>
+          <li>Ensure your code is syntactically correct</li>
+          <li>Include sample data or test cases in your algorithm for better analysis</li>
         </ul>
       </div>
     </div>

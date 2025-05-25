@@ -13,8 +13,8 @@ import {
   fibonacciDP,
   knapsackProblem,
   longestCommonSubsequence,
-  editDistance,
-  dynamicProgrammingAlgorithms
+  
+  
 } from './dynamic-programming';
 
 export const algorithmData = [
@@ -38,5 +38,5 @@ export const algorithmData = [
   fibonacciDP,
   knapsackProblem,
   longestCommonSubsequence,
-  editDistance
+  
 ];
